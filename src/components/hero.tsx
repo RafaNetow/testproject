@@ -4,32 +4,55 @@ import { useRef } from "react";
 import { ArrowDown } from "@phosphor-icons/react/dist/ssr";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
+import { MagneticButton } from "@/components/magnetic-button";
+
+const HEADLINE: { text: string; italic?: boolean }[] = [
+  { text: "Fewer" },
+  { text: "failed" },
+  { text: "batches." },
+  { text: "Sharper", italic: true },
+  { text: "next" },
+  { text: "experiments." },
+];
 
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const headlineRef = useRef<HTMLHeadingElement>(null);
 
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
 
-      // Entrance animation — plays once on load, all motion levels.
+      // Entrance — word-mask reveal on the headline, fade-up on everything else.
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        if (!contentRef.current) return;
-        gsap.from(contentRef.current.children, {
-          opacity: 0,
-          y: 28,
-          duration: 0.8,
-          delay: 0.2,
-          ease: "power2.out",
-          stagger: 0.12,
-        });
+        if (!contentRef.current || !headlineRef.current) return;
+
+        const tl = gsap.timeline({ delay: 0.15 });
+        tl.from(headlineRef.current.querySelectorAll(".word-inner"), {
+          yPercent: 110,
+          duration: 0.9,
+          ease: "power3.out",
+          stagger: 0.05,
+        }).from(
+          [...contentRef.current.children].filter((el) => el !== headlineRef.current),
+          {
+            opacity: 0,
+            y: 24,
+            duration: 0.7,
+            ease: "power2.out",
+            stagger: 0.1,
+          },
+          "-=0.5"
+        );
       });
 
-      // Scroll-scrub zoom — only for users who accept motion.
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
+      // Scroll-scrub zoom — slow start, dramatic finish — pinned to the hero.
+      // Desktop-only: pinning + scrubbing against touch scroll fights the
+      // platform's native momentum feel rather than enhancing it.
+      mm.add("(prefers-reduced-motion: no-preference) and (min-width: 1024px) and (pointer: fine)", () => {
         if (!sectionRef.current || !frameRef.current) return;
 
         gsap
@@ -42,9 +65,48 @@ export function Hero() {
               pin: true,
             },
           })
-          .to(frameRef.current, { scale: 1.35, ease: "none" }, 0)
-          .to(contentRef.current, { opacity: 0, y: -50, ease: "none" }, 0)
-          .to(overlayRef.current, { opacity: 0.72, ease: "none" }, 0);
+          .to(frameRef.current, { scale: 1.1, duration: 0.35, ease: "none" }, 0)
+          .to(frameRef.current, { scale: 1.65, duration: 0.65, ease: "none" }, 0.35)
+          .to(contentRef.current, { opacity: 0, y: -50, duration: 1, ease: "none" }, 0)
+          .to(overlayRef.current, { opacity: 0.72, duration: 1, ease: "none" }, 0);
+      });
+
+      // Mobile/touch substitute — a gentle, load-triggered breathing zoom
+      // instead of a scroll-linked one, so the hero still feels alive
+      // without hijacking the scroll gesture.
+      mm.add(
+        "(prefers-reduced-motion: no-preference) and (max-width: 1023px), (prefers-reduced-motion: no-preference) and (pointer: coarse)",
+        () => {
+          if (!frameRef.current) return;
+          gsap.fromTo(
+            frameRef.current,
+            { scale: 1.12 },
+            { scale: 1, duration: 2.2, ease: "power2.out", delay: 0.2 }
+          );
+        }
+      );
+
+      // Mouse-reactive parallax — video drifts opposite the cursor, content drifts less.
+      mm.add("(prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine)", () => {
+        if (!sectionRef.current || !frameRef.current || !contentRef.current) return;
+
+        const setFrameX = gsap.quickTo(frameRef.current, "x", { duration: 0.8, ease: "power3.out" });
+        const setFrameY = gsap.quickTo(frameRef.current, "y", { duration: 0.8, ease: "power3.out" });
+        const setContentX = gsap.quickTo(contentRef.current, "x", { duration: 0.8, ease: "power3.out" });
+        const setContentY = gsap.quickTo(contentRef.current, "y", { duration: 0.8, ease: "power3.out" });
+
+        const onMove = (e: MouseEvent) => {
+          const rect = sectionRef.current!.getBoundingClientRect();
+          const px = (e.clientX - rect.left) / rect.width - 0.5;
+          const py = (e.clientY - rect.top) / rect.height - 0.5;
+          setFrameX(px * -24);
+          setFrameY(py * -24);
+          setContentX(px * 8);
+          setContentY(py * 8);
+        };
+
+        sectionRef.current.addEventListener("mousemove", onMove);
+        return () => sectionRef.current?.removeEventListener("mousemove", onMove);
       });
 
       return () => mm.revert();
@@ -56,7 +118,7 @@ export function Hero() {
     <section
       id="top"
       ref={sectionRef}
-      className="relative h-screen w-full overflow-hidden bg-primary"
+      className="relative h-dvh w-full overflow-hidden bg-primary"
     >
       <div ref={frameRef} className="absolute inset-0 will-change-transform">
         <video
@@ -83,10 +145,19 @@ export function Hero() {
         <p className="font-mono text-xs uppercase tracking-[0.25em] text-white/70">
           Chemistry &amp; Materials Advisory
         </p>
-        <h1 className="max-w-3xl text-balance font-display text-5xl font-medium leading-[1.05] text-white sm:text-6xl lg:text-7xl">
-          Fewer failed batches.{" "}
-          <span className="italic text-white/90">Sharper</span> next
-          experiments.
+        <h1
+          ref={headlineRef}
+          className="max-w-3xl text-balance font-display text-5xl font-medium leading-[1.05] text-white sm:text-6xl lg:text-7xl"
+        >
+          {HEADLINE.map((word, i) => (
+            <span key={i} className="mr-[0.28em] inline-block overflow-hidden align-bottom">
+              <span
+                className={`word-inner inline-block ${word.italic ? "italic text-white/90" : ""}`}
+              >
+                {word.text}
+              </span>
+            </span>
+          ))}
         </h1>
         <p className="max-w-xl text-lg leading-relaxed text-white/80">
           We turn formulation data, characterisation results and chemical
@@ -94,18 +165,18 @@ export function Hero() {
           teams building bio-based, polymeric and industrial material systems.
         </p>
         <div className="flex flex-wrap gap-4 pt-2">
-          <a
+          <MagneticButton
             href="#contact"
-            className="rounded-full bg-white px-6 py-3.5 text-sm font-medium text-primary transition-colors hover:bg-white/90"
+            className="btn-primary rounded-full px-6 py-3.5 text-sm font-medium"
           >
             Start a conversation
-          </a>
-          <a
+          </MagneticButton>
+          <MagneticButton
             href="#services"
             className="rounded-full border border-white/30 px-6 py-3.5 text-sm font-medium text-white transition-colors hover:border-white/60"
           >
             See how we work
-          </a>
+          </MagneticButton>
         </div>
       </div>
 

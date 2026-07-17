@@ -5,31 +5,32 @@ import {
   Gauge,
 } from "@phosphor-icons/react/dist/ssr";
 import { Reveal } from "@/components/reveal";
+import { SpotlightCard } from "@/components/spotlight-card";
 
 const SERVICES = [
   {
     icon: TestTube,
     title: "Formulation diagnostics",
     description:
-      "We work through why a formulation is under-performing — strength, bonding, durability, water resistance or stability — using senior chemistry judgement, not guesswork.",
+      "Root-causing why a formulation underperforms — strength, bonding, durability, stability — with senior judgement, not guesswork.",
   },
   {
     icon: ChartLineUp,
     title: "Characterisation interpretation",
     description:
-      "NMR, FTIR, TGA and DSC data turned into a clear account of what's chemically happening, so a spectrum becomes a decision rather than a file to archive.",
+      "NMR, FTIR, TGA and DSC data turned into a clear account of what's chemically happening — a spectrum becomes a decision, not a file to archive.",
   },
   {
     icon: ListChecks,
     title: "Next-experiment roadmapping",
     description:
-      "Every review ends with a prioritised set of experiments — the ones most likely to resolve the open question — so R&D cycles get shorter, not longer.",
+      "Every review ends with a prioritised set of experiments — the ones most likely to resolve the open question.",
   },
   {
     icon: Gauge,
     title: "Scale-up & production fit",
     description:
-      "Recommendations are scoped for what's actually manufacturable: practical, scalable changes that improve performance without adding unnecessary process complexity.",
+      "Recommendations scoped for what's actually manufacturable — practical changes that improve performance without adding process complexity.",
   },
 ];
 
@@ -53,7 +54,7 @@ export function Services() {
           className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2"
         >
           {SERVICES.map(({ icon: Icon, title, description }) => (
-            <div
+            <SpotlightCard
               key={title}
               className="flex flex-col gap-4 bg-card p-8 transition-colors hover:bg-muted lg:p-10"
             >
@@ -64,7 +65,7 @@ export function Services() {
               <p className="text-[15px] leading-relaxed text-muted-foreground">
                 {description}
               </p>
-            </div>
+            </SpotlightCard>
           ))}
         </Reveal>
       </div>

@@ -115,7 +115,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={status === "loading"}
-        className="inline-flex w-fit items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-accent disabled:opacity-60"
+        className="btn-primary inline-flex w-fit items-center gap-2 rounded-full px-6 py-3.5 text-sm font-medium disabled:opacity-60"
       >
         {status === "loading" && (
           <CircleNotch size={16} className="animate-spin" />

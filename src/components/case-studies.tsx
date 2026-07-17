@@ -1,29 +1,22 @@
 import { Reveal } from "@/components/reveal";
+import { HorizontalScroller } from "@/components/horizontal-scroller";
+import { SpotlightCard } from "@/components/spotlight-card";
 
 const SCENARIOS = [
   {
     tag: "Bio-based adhesive",
-    challenge: "Bond strength dropped sharply after humidity exposure, with no clear pattern across batches.",
-    approach:
-      "FTIR and DSC data pointed to a plasticiser migrating to the bond line over time rather than a cure failure.",
-    outcome:
-      "Trials redirected toward a crosslinker swap instead of a full reformulation — cutting weeks off the investigation.",
+    story:
+      "Bond strength dropped after humidity exposure. FTIR and DSC traced it to a migrating plasticiser, not a cure failure — redirecting the fix to a crosslinker swap and saving weeks.",
   },
   {
     tag: "Industrial polymer blend",
-    challenge: "A blend that performed well at lab scale became brittle after pilot-line scale-up.",
-    approach:
-      "TGA and mechanical data suggested a processing temperature window was narrower than the lab process assumed.",
-    outcome:
-      "A scoped processing adjustment restored ductility without changing the formulation or adding new raw materials.",
+    story:
+      "A blend that worked at lab scale turned brittle after pilot-line scale-up. TGA pointed to a narrower processing window than assumed — a scoped adjustment restored ductility with no reformulation.",
   },
   {
     tag: "Water-resistant coating",
-    challenge: "Water resistance was inconsistent between formulation variants for reasons the team couldn't isolate.",
-    approach:
-      "NMR review identified an unreacted monomer fraction correlating with the weaker-performing batches.",
-    outcome:
-      "A revised cure schedule became the next experiment, prioritised over three lower-probability alternatives.",
+    story:
+      "Water resistance varied unpredictably between formulation variants. NMR isolated an unreacted monomer fraction behind the weaker batches — pointing straight to a revised cure schedule as the next experiment.",
   },
 ];
 
@@ -39,56 +32,30 @@ export function CaseStudies() {
             The kind of problem we&apos;re usually called in for.
           </h2>
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-            Illustrative examples based on common failure patterns across
-            bio-based, polymeric and industrial material systems — not
+            Illustrative examples based on common failure patterns — not
             attributed to a specific client.
           </p>
         </Reveal>
+      </div>
 
-        <Reveal
-          as="div"
-          stagger
-          staggerAmount={0.1}
-          className="mt-16 grid grid-cols-1 gap-6 lg:grid-cols-3"
-        >
+      <Reveal className="mt-16">
+        <HorizontalScroller className="scrollbar-hide flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4 lg:px-10">
           {SCENARIOS.map((s) => (
-            <div
+            <SpotlightCard
               key={s.tag}
-              className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-8"
+              className="flex w-[85vw] shrink-0 snap-start flex-col gap-5 rounded-2xl border border-border bg-card p-8 sm:w-[420px]"
             >
               <span className="font-mono text-xs uppercase tracking-widest text-accent">
                 {s.tag}
               </span>
-              <div className="flex flex-col gap-4">
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Challenge
-                  </p>
-                  <p className="mt-1.5 text-[15px] leading-relaxed text-secondary">
-                    {s.challenge}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Approach
-                  </p>
-                  <p className="mt-1.5 text-[15px] leading-relaxed text-secondary">
-                    {s.approach}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Outcome
-                  </p>
-                  <p className="mt-1.5 text-[15px] leading-relaxed text-secondary">
-                    {s.outcome}
-                  </p>
-                </div>
-              </div>
-            </div>
+              <p className="text-[15px] leading-relaxed text-secondary">
+                {s.story}
+              </p>
+            </SpotlightCard>
           ))}
-        </Reveal>
-      </div>
+          <div aria-hidden="true" className="w-px shrink-0" />
+        </HorizontalScroller>
+      </Reveal>
     </section>
   );
 }

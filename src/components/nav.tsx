@@ -66,11 +66,7 @@ export function Nav() {
 
         <a
           href="#contact"
-          className={`hidden rounded-full px-5 py-2.5 text-sm font-medium transition-colors md:inline-block ${
-            scrolled
-              ? "bg-primary text-primary-foreground hover:bg-accent"
-              : "bg-white text-primary hover:bg-white/90"
-          }`}
+          className="btn-primary hidden rounded-full px-5 py-2.5 text-sm font-medium md:inline-block"
         >
           Start a conversation
         </a>
@@ -115,7 +111,7 @@ export function Nav() {
               <a
                 href="#contact"
                 onClick={() => setOpen(false)}
-                className="block rounded-full bg-primary px-5 py-3 text-center text-sm font-medium text-primary-foreground"
+                className="btn-primary block rounded-full px-5 py-3 text-center text-sm font-medium"
               >
                 Start a conversation
               </a>

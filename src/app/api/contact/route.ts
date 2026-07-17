@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
+import { Resend } from "resend";
 
-// TODO before launch: wire this up to a real email provider (e.g. Resend,
-// Postmark, SendGrid) using an API key from an environment variable, and
-// send the message to the studio inbox. Currently this only validates the
-// payload — it does not deliver mail anywhere.
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+const FALLBACK_ERROR =
+  "We couldn't send your message right now — please email hello@alchemica.com directly.";
+
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
 
@@ -20,6 +22,37 @@ export async function POST(request: Request) {
       { ok: false, error: "Please fill in your name, a valid email, and a message." },
       { status: 400 }
     );
+  }
+
+  if (!resend) {
+    console.error("Contact form submitted but RESEND_API_KEY is not configured.");
+    return NextResponse.json({ ok: false, error: FALLBACK_ERROR }, { status: 500 });
+  }
+
+  const name = body.name.trim();
+  const email = body.email.trim();
+  const company = typeof body.company === "string" ? body.company.trim() : "";
+  const message = body.message.trim();
+
+  try {
+    const { error } = await resend.emails.send({
+      // Resend's shared testing sender — works with no domain setup. Swap
+      // for a verified address on your own domain (e.g. hello@alchemica.com)
+      // once that domain is added and verified in the Resend dashboard.
+      from: "Alchemica <onboarding@resend.dev>",
+      to: process.env.CONTACT_TO_EMAIL || "hello@alchemica.com",
+      replyTo: email,
+      subject: `New enquiry from ${name}${company ? ` (${company})` : ""}`,
+      text: `Name: ${name}\nEmail: ${email}\nCompany: ${company || "—"}\n\n${message}`,
+    });
+
+    if (error) {
+      console.error("Resend send failed:", error);
+      return NextResponse.json({ ok: false, error: FALLBACK_ERROR }, { status: 500 });
+    }
+  } catch (err) {
+    console.error("Resend send failed:", err);
+    return NextResponse.json({ ok: false, error: FALLBACK_ERROR }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });
