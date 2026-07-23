@@ -5,8 +5,7 @@ import Link from "next/link";
 import { List, X } from "@phosphor-icons/react/dist/ssr";
 
 const LINKS = [
-  { href: "#services", label: "Services" },
-  { href: "#approach", label: "Approach" },
+  { href: "#services", label: "How it works" },
   { href: "#work", label: "Work" },
   { href: "#about", label: "About" },
 ];
@@ -40,36 +39,38 @@ export function Nav() {
           Alchemica
         </a>
 
-        <ul className="hidden items-center gap-9 md:flex">
-          {LINKS.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-accent ${
-                  scrolled ? "text-secondary" : "text-white/85"
-                }`}
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <div className="hidden items-center gap-10 md:flex">
+          <ul className="flex items-center gap-9">
+            {LINKS.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className={`text-sm font-medium transition-colors hover:text-accent ${
+                    scrolled ? "text-secondary" : "text-white/85"
+                  }`}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
 
-        <Link
-          href="/login"
-          className={`hidden text-sm font-medium transition-colors hover:text-accent md:inline-block ${
-            scrolled ? "text-secondary" : "text-white/85"
-          }`}
-        >
-          Client Login
-        </Link>
+          <Link
+            href="/login"
+            className={`text-sm font-medium transition-colors hover:text-accent ${
+              scrolled ? "text-secondary" : "text-white/85"
+            }`}
+          >
+            Client Login
+          </Link>
 
-        <a
-          href="#contact"
-          className="btn-primary hidden rounded-full px-5 py-2.5 text-sm font-medium md:inline-block"
-        >
-          Start a conversation
-        </a>
+          <a
+            href="#contact"
+            className="btn-primary rounded-full px-5 py-2.5 text-sm font-medium"
+          >
+            Start a conversation
+          </a>
+        </div>
 
         <button
           type="button"

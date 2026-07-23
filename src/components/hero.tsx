@@ -4,7 +4,6 @@ import { useRef } from "react";
 import { ArrowDown } from "@phosphor-icons/react/dist/ssr";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
-import { MagneticButton } from "@/components/magnetic-button";
 
 const HEADLINE: { text: string; italic?: boolean }[] = [
   { text: "Fewer" },
@@ -165,18 +164,18 @@ export function Hero() {
           teams building bio-based, polymeric and industrial material systems.
         </p>
         <div className="flex flex-wrap gap-4 pt-2">
-          <MagneticButton
+          <a
             href="#contact"
             className="btn-primary rounded-full px-6 py-3.5 text-sm font-medium"
           >
             Start a conversation
-          </MagneticButton>
-          <MagneticButton
+          </a>
+          <a
             href="#services"
             className="rounded-full border border-white/30 px-6 py-3.5 text-sm font-medium text-white transition-colors hover:border-white/60"
           >
             See how we work
-          </MagneticButton>
+          </a>
         </div>
       </div>
 

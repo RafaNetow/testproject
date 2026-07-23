@@ -67,14 +67,12 @@ body {
 /* ---------- Primary CTA ---------- */
 .btn-primary {
   color: #ffffff;
-  background: linear-gradient(135deg, var(--color-accent), #0c4a6e);
-  box-shadow: 0 8px 24px -10px color-mix(in srgb, var(--color-accent) 65%, transparent);
-  transition: box-shadow 0.35s var(--ease-out), transform 0.35s var(--ease-out);
+  background: var(--color-accent);
+  transition: background-color 0.25s var(--ease-out);
 }
 
 .btn-primary:hover {
-  box-shadow: 0 14px 32px -8px color-mix(in srgb, var(--color-accent) 70%, transparent);
-  transform: translateY(-2px);
+  background: #0c4a6e;
 }
 
 /* ---------- Scroll-typed quote ---------- */
@@ -91,153 +89,6 @@ body {
   100% {
     opacity: 0;
   }
-}
-
-/* ---------- Spotlight hover ---------- */
-.spotlight-card {
-  position: relative;
-  overflow: hidden;
-  --spotlight-x: 50%;
-  --spotlight-y: 50%;
-}
-
-.spotlight-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    420px circle at var(--spotlight-x) var(--spotlight-y),
-    color-mix(in srgb, var(--color-accent) 14%, transparent),
-    transparent 70%
-  );
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-}
-
-.spotlight-card:hover::before {
-  opacity: 1;
-}
-
-@media (hover: none) {
-  .spotlight-card::before {
-    display: none;
-  }
-}
-
-/* ---------- Horizontal scroller ---------- */
-.scrollbar-hide {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-/* ---------- Custom cursor ---------- */
-@media (hover: hover) and (pointer: fine) {
-  html.custom-cursor-active,
-  html.custom-cursor-active * {
-    cursor: none !important;
-  }
-}
-
-.cursor-atom-nucleus,
-.cursor-atom-orbits {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 999;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  will-change: left, top;
-}
-
-.cursor-atom-nucleus {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--color-accent);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 55%, transparent);
-  transition: transform 0.25s var(--ease-out);
-}
-
-.cursor-atom-nucleus--active {
-  transform: translate(-50%, -50%) scale(1.8);
-}
-
-.cursor-atom-orbits {
-  width: 0;
-  height: 0;
-}
-
-.atom-orbit {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 34px;
-  height: 34px;
-  margin: -17px 0 0 -17px;
-  border-radius: 50%;
-  border: 1px solid color-mix(in srgb, var(--color-primary) 42%, transparent);
-  transform: rotate(var(--orbit-angle)) scaleY(0.42);
-  mix-blend-mode: difference;
-  transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out), margin 0.3s var(--ease-out);
-}
-
-.atom-orbit-1 {
-  --orbit-angle: 0deg;
-}
-.atom-orbit-2 {
-  --orbit-angle: 60deg;
-}
-.atom-orbit-3 {
-  --orbit-angle: 120deg;
-}
-
-.atom-orbit-spin {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  animation: atom-spin linear infinite;
-}
-
-.atom-orbit-1 .atom-orbit-spin {
-  animation-duration: 3.2s;
-}
-.atom-orbit-2 .atom-orbit-spin {
-  animation-duration: 4s;
-  animation-direction: reverse;
-}
-.atom-orbit-3 .atom-orbit-spin {
-  animation-duration: 4.6s;
-}
-
-.atom-electron {
-  position: absolute;
-  top: -2px;
-  left: 50%;
-  width: 4px;
-  height: 4px;
-  margin-left: -2px;
-  border-radius: 50%;
-  background: var(--color-accent);
-  transform: scaleY(2.38);
-}
-
-@keyframes atom-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.cursor-atom-orbits--active .atom-orbit {
-  width: 54px;
-  height: 54px;
-  margin: -27px 0 0 -27px;
 }
 
 @media (prefers-reduced-motion: reduce) {
