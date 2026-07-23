@@ -39,7 +39,7 @@ export function AppShell({ variant, brandLabel, subtitle, userEmail, children }:
             key={href}
             href={href}
             onClick={() => setOpen(false)}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
               active
                 ? "bg-accent/10 text-accent"
                 : "text-secondary hover:bg-muted hover:text-primary"
@@ -56,7 +56,7 @@ export function AppShell({ variant, brandLabel, subtitle, userEmail, children }:
   const userBlock = (
     <div className="border-t border-border px-6 py-5">
       <p className="truncate text-sm text-secondary">{userEmail}</p>
-      <SignOutButton className="mt-3 text-sm font-medium text-muted-foreground transition-colors hover:text-primary" />
+      <SignOutButton className="mt-1 inline-block py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-primary" />
     </div>
   );
 
