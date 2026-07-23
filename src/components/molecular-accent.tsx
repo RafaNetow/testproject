@@ -20,6 +20,11 @@ export function MolecularAccent({ className }: { className?: string }) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // This accent only ever appears inside a "hidden lg:block" panel — skip
+    // the whole effect below that breakpoint so the particle-physics rAF
+    // loop doesn't run forever off-screen on mobile.
+    if (!window.matchMedia("(min-width: 1024px)").matches) return;
+
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let particles: Particle[] = [];
     let raf = 0;
