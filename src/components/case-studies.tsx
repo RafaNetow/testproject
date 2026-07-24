@@ -8,21 +8,21 @@ const SCENARIOS = [
     before: "Unexplained bond failures",
     after: "Clear root cause",
     story:
-      "FTIR and DSC traced it to a migrating plasticiser, not a cure failure — redirecting the fix to a crosslinker swap and saving weeks.",
+      "FTIR and DSC traced it to a migrating plasticiser — a crosslinker swap saved weeks.",
   },
   {
     tag: "Industrial polymer blend",
     before: "Brittle at scale",
     after: "Ductility restored",
     story:
-      "TGA pointed to a narrower processing window than assumed — a scoped adjustment restored performance with no reformulation.",
+      "TGA revealed a narrower processing window — one scoped adjustment, no reformulation.",
   },
   {
     tag: "Water-resistant coating",
     before: "Inconsistent results",
     after: "Root cause identified",
     story:
-      "NMR isolated an unreacted monomer fraction behind the weaker batches — pointing straight to a revised cure schedule as the next experiment.",
+      "NMR isolated an unreacted monomer fraction — the next experiment was a revised cure schedule.",
   },
 ];
 
@@ -37,8 +37,7 @@ export function CaseStudies() {
             title="The kind of problem we're usually called in for."
           />
           <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
-            Illustrative examples based on common failure patterns — not
-            attributed to a specific client.
+            Illustrative patterns — not attributed to specific clients.
           </p>
         </Reveal>
 

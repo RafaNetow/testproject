@@ -41,11 +41,10 @@ export function About() {
 
           <Reveal delay={0.1} className="flex flex-col gap-6 lg:col-span-8">
             <p className="text-lg leading-relaxed text-secondary">
-              I started Alchemica because most material R&amp;D teams
-              don&apos;t need another lab report — they need someone who can
-              read it, explain what it means chemically, and say what to try
-              next. The goal on every engagement: turn ambiguous data into a
-              decision you can act on this week, not next quarter.
+              I started Alchemica because most R&amp;D teams don&apos;t need
+              another lab report — they need someone who can read it and say
+              what to try next. Every engagement ends in a decision you can
+              act on this week.
             </p>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border pt-6">
               <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">

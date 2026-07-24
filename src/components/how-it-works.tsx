@@ -9,13 +9,11 @@ const STAGES = [
   },
   {
     label: "Mechanism review",
-    detail:
-      "A senior chemist works through what's actually happening at the molecular level.",
+    detail: "What's actually happening at the molecular level, and why.",
   },
   {
     label: "Root cause & recommendation",
-    detail:
-      "A written explanation and the changes most likely to move the properties you care about.",
+    detail: "A written root cause and the changes most likely to help.",
   },
   {
     label: "Next experiment",

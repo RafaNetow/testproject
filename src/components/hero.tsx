@@ -159,9 +159,8 @@ export function Hero() {
           ))}
         </h1>
         <p className="max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
-          We turn formulation data, characterisation results and chemical
-          mechanisms into clear next experiments — for founders, CTOs and R&amp;D
-          teams building bio-based, polymeric and industrial material systems.
+          Senior chemistry advisory for R&amp;D teams building bio-based,
+          polymeric and industrial materials.
         </p>
         <div className="flex w-full flex-col gap-3 pt-2 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-4">
           <a

@@ -16,9 +16,8 @@ export function ContactSection() {
             Bring us your hardest formulation question.
           </h2>
           <p className="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground">
-            Tell us what you&apos;re seeing — a failure mode, a confusing
-            dataset, a formulation that won&apos;t scale — and we&apos;ll
-            follow up with next steps.
+            Tell us what you&apos;re seeing — we&apos;ll reply with concrete
+            next steps.
           </p>
           <a
             href="mailto:hello@alchemica.com"
