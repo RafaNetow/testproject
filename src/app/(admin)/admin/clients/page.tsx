@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Buildings, Plus } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { createOrganization } from "./actions";
@@ -67,16 +68,31 @@ export default async function ClientsPage() {
             </thead>
             <tbody>
               {organizations.map((org) => (
-                <tr key={org.id} className="border-b border-border last:border-0">
-                  <td className="px-5 py-3.5 font-medium text-primary">{org.name}</td>
-                  <td className="px-5 py-3.5">
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                        STATUS_STYLES[org.status] ?? STATUS_STYLES.onboarding
-                      }`}
+                <tr
+                  key={org.id}
+                  className="border-b border-border transition-colors last:border-0 hover:bg-muted"
+                >
+                  <td className="p-0">
+                    <Link
+                      href={`/admin/clients/${org.id}`}
+                      className="block px-5 py-3.5 font-medium text-primary"
                     >
-                      {org.status.replace("_", " ")}
-                    </span>
+                      {org.name}
+                    </Link>
+                  </td>
+                  <td className="p-0">
+                    <Link
+                      href={`/admin/clients/${org.id}`}
+                      className="flex items-center px-5 py-3.5"
+                    >
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                          STATUS_STYLES[org.status] ?? STATUS_STYLES.onboarding
+                        }`}
+                      >
+                        {org.status.replace("_", " ")}
+                      </span>
+                    </Link>
                   </td>
                 </tr>
               ))}
