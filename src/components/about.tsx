@@ -10,7 +10,7 @@ export function About() {
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <Reveal>
           <SectionHeader
-            index="03"
+            index="04"
             label="About Alchemica"
             title="Senior chemistry judgement, on tap when a project needs it."
           />

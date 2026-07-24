@@ -10,7 +10,7 @@ export function ContactSection() {
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-16 px-6 lg:grid-cols-2 lg:gap-12 lg:px-10">
         <Reveal>
           <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">
-            04 — Get in touch
+            05 — Get in touch
           </p>
           <h2 className="mt-4 text-balance font-display text-4xl font-medium leading-tight text-primary sm:text-5xl">
             Bring us your hardest formulation question.

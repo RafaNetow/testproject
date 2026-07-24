@@ -4,6 +4,7 @@ import { ProofStrip } from "@/components/proof-strip";
 import { HowItWorks } from "@/components/how-it-works";
 import { PullQuote } from "@/components/pull-quote";
 import { CaseStudies } from "@/components/case-studies";
+import { PortalShowcase } from "@/components/portal-showcase";
 import { About } from "@/components/about";
 import { ContactSection } from "@/components/contact-section";
 import { Footer } from "@/components/footer";
@@ -20,6 +21,7 @@ export default function Home() {
         <HowItWorks />
         <PullQuote />
         <CaseStudies />
+        <PortalShowcase />
         <About />
         <ContactSection />
       </main>
