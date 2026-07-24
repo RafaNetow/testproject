@@ -1,18 +1,40 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Trash, X } from "@phosphor-icons/react/dist/ssr";
+import {
+  ArrowLeft,
+  ChatCircleDots,
+  FolderOpen,
+  Plus,
+  SquaresFour,
+  Trash,
+  X,
+} from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { ConfirmButton } from "@/components/confirm-button";
 import { InviteForm } from "./invite-form";
-import { removeMember, updateOrganization, deleteOrganization } from "./actions";
+import {
+  removeMember,
+  updateOrganization,
+  deleteOrganization,
+  createProject,
+  updateProject,
+  deleteProject,
+} from "./actions";
 
 const STATUS_OPTIONS = ["onboarding", "active", "at_risk", "offboarded"] as const;
+const PROJECT_STATUS_OPTIONS = ["active", "paused", "completed"] as const;
 
 const STATUS_STYLES: Record<string, string> = {
   onboarding: "bg-accent/10 text-accent",
   active: "bg-emerald-100 text-emerald-700",
   at_risk: "bg-amber-100 text-amber-700",
   offboarded: "bg-muted text-muted-foreground",
+};
+
+const PROJECT_STATUS_STYLES: Record<string, string> = {
+  active: "bg-emerald-100 text-emerald-700",
+  paused: "bg-amber-100 text-amber-700",
+  completed: "bg-muted text-muted-foreground",
 };
 
 export default async function ClientDetailPage({
@@ -37,8 +59,15 @@ export default async function ClientDetailPage({
     .eq("org_id", orgId)
     .order("invited_at", { ascending: false });
 
+  const { data: projects } = await supabase
+    .from("projects")
+    .select("id, name, status, progress_pct, start_date, engagement_note")
+    .eq("org_id", orgId)
+    .order("created_at", { ascending: false });
+
   const updateThisOrg = updateOrganization.bind(null, orgId);
   const deleteThisOrg = deleteOrganization.bind(null, orgId);
+  const createThisProject = createProject.bind(null, orgId);
 
   return (
     <div className="flex flex-col gap-8">
@@ -165,6 +194,186 @@ export default async function ClientDetailPage({
                     </form>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <p className="font-mono text-xs uppercase tracking-widest text-accent">
+          Engagements
+        </p>
+        <h2 className="mt-2 font-display text-lg font-medium text-primary">
+          Projects
+        </h2>
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+          Each project gets its own board, decisions log, and files —
+          {org.name} can run more than one at a time.
+        </p>
+
+        <form
+          action={createThisProject}
+          className="mt-5 flex flex-wrap items-end gap-3 rounded-xl border border-border bg-background p-4"
+        >
+          <div className="flex min-w-[200px] flex-1 flex-col gap-1.5">
+            <label htmlFor="project-name" className="text-sm font-medium text-secondary">
+              New project name
+            </label>
+            <input
+              id="project-name"
+              name="name"
+              required
+              placeholder="Coating formulation review"
+              className="rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="project-start" className="text-sm font-medium text-secondary">
+              Start date
+            </label>
+            <input
+              id="project-start"
+              name="start_date"
+              type="date"
+              className="rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+            />
+          </div>
+          <button
+            type="submit"
+            className="btn-primary inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium"
+          >
+            <Plus size={16} weight="bold" />
+            Add project
+          </button>
+        </form>
+
+        {!projects?.length ? (
+          <p className="mt-6 text-sm text-muted-foreground">No projects yet.</p>
+        ) : (
+          <div className="mt-6 flex flex-col gap-4">
+            {projects.map((project) => {
+              const updateThisProject = updateProject.bind(null, orgId, project.id);
+              const deleteThisProject = deleteProject.bind(null, orgId, project.id);
+              return (
+                <details
+                  key={project.id}
+                  className="group rounded-xl border border-border"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5">
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium text-primary">{project.name}</span>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                          PROJECT_STATUS_STYLES[project.status] ?? PROJECT_STATUS_STYLES.active
+                        }`}
+                      >
+                        {project.status}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {project.progress_pct}%
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={`/admin/clients/${orgId}/projects/${project.id}/board`}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                        title="Board"
+                      >
+                        <SquaresFour size={16} />
+                      </Link>
+                      <Link
+                        href={`/admin/clients/${orgId}/projects/${project.id}/decisions`}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                        title="Decisions"
+                      >
+                        <ChatCircleDots size={16} />
+                      </Link>
+                      <Link
+                        href={`/admin/clients/${orgId}/projects/${project.id}/files`}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                        title="Files"
+                      >
+                        <FolderOpen size={16} />
+                      </Link>
+                    </div>
+                  </summary>
+
+                  <div className="border-t border-border p-4">
+                    <form action={updateThisProject} className="flex flex-wrap items-end gap-3">
+                      <div className="flex min-w-[180px] flex-1 flex-col gap-1.5">
+                        <label className="text-sm font-medium text-secondary">Name</label>
+                        <input
+                          name="name"
+                          required
+                          defaultValue={project.name}
+                          className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-sm font-medium text-secondary">Status</label>
+                        <select
+                          name="status"
+                          defaultValue={project.status}
+                          className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+                        >
+                          {PROJECT_STATUS_OPTIONS.map((s) => (
+                            <option key={s} value={s}>
+                              {s}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex w-24 flex-col gap-1.5">
+                        <label className="text-sm font-medium text-secondary">Progress %</label>
+                        <input
+                          name="progress_pct"
+                          type="number"
+                          min={0}
+                          max={100}
+                          defaultValue={project.progress_pct}
+                          className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-sm font-medium text-secondary">Start date</label>
+                        <input
+                          name="start_date"
+                          type="date"
+                          defaultValue={project.start_date ?? ""}
+                          className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+                        />
+                      </div>
+                      <div className="flex min-w-[220px] flex-1 flex-col gap-1.5">
+                        <label className="text-sm font-medium text-secondary">
+                          Engagement note
+                        </label>
+                        <input
+                          name="engagement_note"
+                          defaultValue={project.engagement_note ?? ""}
+                          placeholder="Internal note about scope"
+                          className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        className="rounded-full border border-primary px-5 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                      >
+                        Save
+                      </button>
+                    </form>
+
+                    <form action={deleteThisProject} className="mt-4">
+                      <ConfirmButton
+                        confirmText={`Permanently delete "${project.name}" and its board, files, and decisions? This can't be undone.`}
+                        className="inline-flex items-center gap-2 rounded-full border border-destructive/30 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive hover:text-white"
+                      >
+                        <Trash size={14} weight="bold" />
+                        Delete project
+                      </ConfirmButton>
+                    </form>
+                  </div>
+                </details>
               );
             })}
           </div>
