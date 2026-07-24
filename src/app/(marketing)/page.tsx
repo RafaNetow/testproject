@@ -1,7 +1,7 @@
 import { Nav } from "@/components/nav";
 import { Hero } from "@/components/hero";
 import { ProofStrip } from "@/components/proof-strip";
-import { ProcessDiagram } from "@/components/process-diagram";
+import { HowItWorks } from "@/components/how-it-works";
 import { PullQuote } from "@/components/pull-quote";
 import { CaseStudies } from "@/components/case-studies";
 import { About } from "@/components/about";
@@ -17,7 +17,7 @@ export default function Home() {
       <main>
         <Hero />
         <ProofStrip />
-        <ProcessDiagram />
+        <HowItWorks />
         <PullQuote />
         <CaseStudies />
         <About />

@@ -177,6 +177,9 @@ export function Hero() {
             See how we work
           </a>
         </div>
+        <p className="pt-4 font-mono text-[11px] uppercase tracking-[0.2em] text-white/45">
+          Trained at MIT · Imperial College London · Aarhus University
+        </p>
       </div>
 
       <div className="absolute bottom-8 right-6 z-10 hidden items-center gap-2 text-white/60 lg:right-10 md:flex">
