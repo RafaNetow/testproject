@@ -98,7 +98,7 @@ export function AppShell({ variant, brandLabel, subtitle, userEmail, children }:
           </div>
         )}
 
-        <main className="flex-1 px-6 py-8 lg:px-10 lg:py-10">{children}</main>
+        <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">{children}</main>
       </div>
     </div>
   );

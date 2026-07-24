@@ -28,7 +28,7 @@ const SCENARIOS = [
 
 export function CaseStudies() {
   return (
-    <section id="work" className="bg-background py-24 lg:py-32">
+    <section id="work" className="bg-background py-16 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <Reveal>
           <SectionHeader
@@ -47,7 +47,7 @@ export function CaseStudies() {
             <Reveal
               key={s.tag}
               delay={i * 0.08}
-              className="grid grid-cols-1 gap-4 border-b border-border py-10 lg:grid-cols-[3rem_1fr_1fr] lg:items-baseline lg:gap-10"
+              className="grid grid-cols-1 gap-3 border-b border-border py-8 sm:gap-4 sm:py-10 lg:grid-cols-[3rem_1fr_1fr] lg:items-baseline lg:gap-10"
             >
               <span className="font-mono text-sm text-muted-foreground">
                 {String(i + 1).padStart(2, "0")}

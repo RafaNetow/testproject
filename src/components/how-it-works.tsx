@@ -30,7 +30,7 @@ const STAGES = [
  */
 export function HowItWorks() {
   return (
-    <section id="services" className="bg-primary py-24 lg:py-32">
+    <section id="services" className="bg-primary py-16 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid grid-cols-1 gap-14 lg:grid-cols-5 lg:gap-12">
           <Reveal className="lg:col-span-2">
@@ -53,13 +53,13 @@ export function HowItWorks() {
               {STAGES.map((stage, i) => (
                 <div
                   key={stage.label}
-                  className="grid grid-cols-[4.5rem_1fr] items-baseline gap-5 border-b border-white/10 py-10 lg:gap-8 lg:py-12"
+                  className="grid grid-cols-[3.25rem_1fr] items-baseline gap-4 border-b border-white/10 py-8 sm:grid-cols-[4.5rem_1fr] sm:gap-5 sm:py-10 lg:gap-8 lg:py-12"
                 >
-                  <span className="font-display text-4xl italic leading-none text-accent lg:text-5xl">
+                  <span className="font-display text-3xl italic leading-none text-accent sm:text-4xl lg:text-5xl">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
-                    <h3 className="font-display text-2xl font-medium leading-tight text-white">
+                    <h3 className="font-display text-xl font-medium leading-tight text-white sm:text-2xl">
                       {stage.label}
                     </h3>
                     <p className="mt-2 max-w-md text-[15px] leading-relaxed text-white/55">

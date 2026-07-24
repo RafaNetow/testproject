@@ -117,7 +117,7 @@ export function Hero() {
     <section
       id="top"
       ref={sectionRef}
-      className="relative h-dvh w-full overflow-hidden bg-primary"
+      className="relative min-h-dvh w-full overflow-hidden bg-primary"
     >
       <div ref={frameRef} className="absolute inset-0 will-change-transform">
         <video
@@ -139,7 +139,7 @@ export function Hero() {
 
       <div
         ref={contentRef}
-        className="relative z-10 mx-auto flex h-full max-w-7xl flex-col items-start justify-end gap-6 px-6 pb-24 lg:px-10 lg:pb-32"
+        className="relative z-10 mx-auto flex min-h-dvh max-w-7xl flex-col items-start justify-end gap-5 px-6 pb-16 pt-28 sm:gap-6 sm:pb-24 lg:px-10 lg:pb-32"
       >
         <p className="font-mono text-xs uppercase tracking-[0.25em] text-white/70">
           Chemistry &amp; Materials Advisory
@@ -158,26 +158,26 @@ export function Hero() {
             </span>
           ))}
         </h1>
-        <p className="max-w-xl text-lg leading-relaxed text-white/80">
+        <p className="max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
           We turn formulation data, characterisation results and chemical
           mechanisms into clear next experiments — for founders, CTOs and R&amp;D
           teams building bio-based, polymeric and industrial material systems.
         </p>
-        <div className="flex flex-wrap gap-4 pt-2">
+        <div className="flex w-full flex-col gap-3 pt-2 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-4">
           <a
             href="#contact"
-            className="btn-primary rounded-full px-6 py-3.5 text-sm font-medium"
+            className="btn-primary rounded-full px-6 py-3.5 text-center text-sm font-medium"
           >
             Start a conversation
           </a>
           <a
             href="#services"
-            className="rounded-full border border-white/30 px-6 py-3.5 text-sm font-medium text-white transition-colors hover:border-white/60"
+            className="rounded-full border border-white/30 px-6 py-3.5 text-center text-sm font-medium text-white transition-colors hover:border-white/60"
           >
             See how we work
           </a>
         </div>
-        <p className="pt-4 font-mono text-[11px] uppercase tracking-[0.2em] text-white/45">
+        <p className="pt-3 font-mono text-[10px] uppercase leading-relaxed tracking-[0.14em] text-white/45 sm:pt-4 sm:text-[11px] sm:tracking-[0.2em]">
           Trained at MIT · Imperial College London · Aarhus University
         </p>
       </div>

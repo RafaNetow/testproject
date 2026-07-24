@@ -81,7 +81,7 @@ export function PullQuote() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-background py-28 lg:py-36"
+      className="relative overflow-hidden bg-background py-20 sm:py-28 lg:py-36"
     >
       <Quotes
         size={200}

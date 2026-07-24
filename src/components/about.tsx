@@ -6,7 +6,7 @@ const INSTITUTIONS = ["MIT", "Imperial College London", "Aarhus University"];
 
 export function About() {
   return (
-    <section id="about" className="bg-background py-24 lg:py-32">
+    <section id="about" className="bg-background py-16 sm:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <Reveal>
           <SectionHeader
@@ -16,7 +16,7 @@ export function About() {
           />
         </Reveal>
 
-        <div className="mt-14 grid grid-cols-1 gap-12 lg:mt-20 lg:grid-cols-12 lg:gap-10">
+        <div className="mt-10 grid grid-cols-1 gap-10 sm:mt-14 sm:gap-12 lg:mt-20 lg:grid-cols-12 lg:gap-10">
           <Reveal className="lg:col-span-4">
             <div className="flex flex-col items-start gap-5">
               <div className="relative aspect-square w-40 overflow-hidden rounded-full border border-border shadow-sm lg:w-52">

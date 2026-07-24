@@ -21,10 +21,10 @@ export function SectionHeader({
 }: SectionHeaderProps) {
   return (
     <div className={className}>
-      <div className="flex items-center gap-4">
-        <span className="font-mono text-xs text-accent">{index}</span>
+      <div className="flex items-center gap-3 sm:gap-4">
+        <span className="font-mono text-[11px] text-accent sm:text-xs">{index}</span>
         <span
-          className={`font-mono text-xs uppercase tracking-[0.25em] ${
+          className={`font-mono text-[11px] uppercase tracking-[0.18em] sm:text-xs sm:tracking-[0.25em] ${
             dark ? "text-white/50" : "text-muted-foreground"
           }`}
         >
@@ -32,7 +32,7 @@ export function SectionHeader({
         </span>
         <span
           aria-hidden="true"
-          className={`h-px flex-1 ${dark ? "bg-white/15" : "bg-border"}`}
+          className={`h-px min-w-8 flex-1 ${dark ? "bg-white/15" : "bg-border"}`}
         />
       </div>
       <h2

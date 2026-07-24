@@ -45,6 +45,13 @@
   border-color: var(--color-border);
 }
 
+/* Any element accidentally wider than the viewport would otherwise force
+   mobile browsers to zoom the whole layout out — clip instead of scroll. */
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

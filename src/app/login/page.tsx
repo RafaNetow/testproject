@@ -1,38 +1,28 @@
-"use client";
-
-import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/server";
 import { MolecularAccent } from "@/components/molecular-accent";
+import { LoginForm } from "./login-form";
 
-type Status = "idle" | "sending" | "sent" | "error";
+/**
+ * Server component so an already-authenticated visitor never sees the
+ * login form — they're routed straight to the right surface by role.
+ */
+export default async function LoginPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<Status>("idle");
-  const [errorMessage, setErrorMessage] = useState("");
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("platform_role")
+      .eq("id", user.id)
+      .maybeSingle();
 
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    setStatus("sending");
-    setErrorMessage("");
-
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (error) {
-      setStatus("error");
-      setErrorMessage(error.message);
-      return;
-    }
-
-    setStatus("sent");
+    redirect(profile?.platform_role === "axel_admin" ? "/admin" : "/portal");
   }
 
   return (
@@ -49,11 +39,11 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center px-6 py-24">
+      <div className="flex items-center justify-center px-6 py-16 sm:py-24">
         <div className="w-full max-w-sm">
           <Link
             href="/"
-            className="mb-10 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            className="mb-8 inline-flex items-center gap-2 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary sm:mb-10"
           >
             <ArrowLeft size={16} />
             Back to site
@@ -70,43 +60,7 @@ export default function LoginPage() {
             to remember.
           </p>
 
-          {status === "sent" ? (
-            <div className="mt-8 rounded-2xl border border-border bg-card p-6">
-              <p className="text-sm font-medium text-primary">
-                Check your inbox
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                We sent a sign-in link to <strong>{email}</strong>. Open it on
-                this device to continue.
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-3">
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                autoComplete="email"
-                placeholder="you@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="rounded-full border border-border bg-card px-5 py-3.5 text-sm text-primary outline-none transition-colors placeholder:text-muted-foreground focus:border-accent"
-              />
-              <button
-                type="submit"
-                disabled={status === "sending"}
-                className="rounded-full bg-primary px-5 py-3.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-accent disabled:opacity-60"
-              >
-                {status === "sending" ? "Sending…" : "Send magic link"}
-              </button>
-              {status === "error" && (
-                <p className="text-sm text-red-600">{errorMessage}</p>
-              )}
-            </form>
-          )}
+          <LoginForm />
         </div>
       </div>
     </main>

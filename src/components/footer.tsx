@@ -7,7 +7,7 @@ const LINKS = [
 
 export function Footer() {
   return (
-    <footer className="bg-primary py-16 lg:py-20">
+    <footer className="bg-primary py-12 sm:py-16 lg:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid grid-cols-1 gap-12 border-b border-white/10 pb-12 lg:grid-cols-3">
           <div>

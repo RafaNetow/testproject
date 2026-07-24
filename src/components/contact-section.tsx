@@ -6,7 +6,7 @@ import { ContactForm } from "@/components/contact-form";
 
 export function ContactSection() {
   return (
-    <section id="contact" className="bg-muted py-24 lg:py-32">
+    <section id="contact" className="bg-muted py-16 sm:py-24 lg:py-32">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-16 px-6 lg:grid-cols-2 lg:gap-12 lg:px-10">
         <Reveal>
           <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">

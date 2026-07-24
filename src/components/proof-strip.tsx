@@ -13,7 +13,7 @@ export function ProofStrip() {
       <Reveal
         as="div"
         stagger
-        className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 py-14 sm:grid-cols-4 lg:gap-12 lg:px-10 lg:py-16"
+        className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-6 py-10 sm:grid-cols-4 sm:gap-8 sm:py-14 lg:gap-12 lg:px-10 lg:py-16"
       >
         {TECHNIQUES.map((t) => (
           <div key={t.label} className="flex flex-col gap-1">
