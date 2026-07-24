@@ -93,7 +93,10 @@ export async function inviteMember(orgId: string, formData: FormData): Promise<I
 export async function removeMember(orgId: string, membershipId: string) {
   await requireAxelAdmin();
   const supabase = await createClient();
-  await supabase.from("org_memberships").delete().eq("id", membershipId);
+  const { error } = await supabase.from("org_memberships").delete().eq("id", membershipId);
+  if (error) {
+    throw new Error(`Couldn't remove member: ${error.message}`);
+  }
   revalidatePath(`/admin/clients/${orgId}`);
 }
 
@@ -105,7 +108,10 @@ export async function updateOrganization(orgId: string, formData: FormData) {
   if (!name) return;
 
   const supabase = await createClient();
-  await supabase.from("organizations").update({ name, status }).eq("id", orgId);
+  const { error } = await supabase.from("organizations").update({ name, status }).eq("id", orgId);
+  if (error) {
+    throw new Error(`Couldn't save changes: ${error.message}`);
+  }
   revalidatePath(`/admin/clients/${orgId}`);
   revalidatePath("/admin/clients");
 }
@@ -114,7 +120,10 @@ export async function updateOrganization(orgId: string, formData: FormData) {
 export async function deleteOrganization(orgId: string) {
   await requireAxelAdmin();
   const supabase = await createClient();
-  await supabase.from("organizations").delete().eq("id", orgId);
+  const { error } = await supabase.from("organizations").delete().eq("id", orgId);
+  if (error) {
+    throw new Error(`Couldn't delete client: ${error.message}`);
+  }
   revalidatePath("/admin/clients");
   redirect("/admin/clients");
 }
