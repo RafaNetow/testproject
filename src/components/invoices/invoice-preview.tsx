@@ -69,6 +69,9 @@ export function InvoicePreview({
           </p>
           <p className="mt-1 text-sm font-medium text-primary">{BUSINESS_INFO.name}</p>
           <p className="text-sm text-muted-foreground">{BUSINESS_INFO.email}</p>
+          {BUSINESS_INFO.address && (
+            <p className="text-sm text-muted-foreground">{BUSINESS_INFO.address}</p>
+          )}
           {BUSINESS_INFO.cvrNumber && (
             <p className="text-sm text-muted-foreground">VAT: {BUSINESS_INFO.cvrNumber}</p>
           )}
