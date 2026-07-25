@@ -7,6 +7,7 @@ import {
   Plus,
   SquaresFour,
   Trash,
+  VideoCamera,
   X,
 } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
@@ -299,6 +300,14 @@ export default async function ClientDetailPage({
                         aria-label={`Open files for ${project.name}`}
                       >
                         <FolderOpen size={16} />
+                      </Link>
+                      <Link
+                        href={`/admin/clients/${orgId}/projects/${project.id}/meetings`}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                        title="Meetings"
+                        aria-label={`Open meetings for ${project.name}`}
+                      >
+                        <VideoCamera size={16} />
                       </Link>
                     </div>
                   </summary>
