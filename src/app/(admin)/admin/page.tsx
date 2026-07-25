@@ -228,7 +228,7 @@ export default async function AdminDashboard() {
                     <p className="text-xs text-muted-foreground">{item.orgName}</p>
                   </div>
                   <p className="shrink-0 text-xs text-muted-foreground">
-                    {new Date(item.at).toLocaleDateString(undefined, {
+                    {new Date(item.at).toLocaleDateString("en-GB", {
                       month: "short",
                       day: "numeric",
                     })}

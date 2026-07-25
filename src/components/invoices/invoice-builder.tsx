@@ -77,7 +77,7 @@ export function InvoiceBuilder({
     if (!selected.length) return;
 
     const imported: InvoiceLineItem[] = selected.map((h) => ({
-      description: `${new Date(h.entry_date).toLocaleDateString()} — ${
+      description: `${new Date(h.entry_date).toLocaleDateString("en-GB")} — ${
         h.category ?? "Hours"
       }${h.description ? `: ${h.description}` : ""}`,
       quantity: h.hours,
@@ -196,7 +196,7 @@ export function InvoiceBuilder({
                     className="h-4 w-4 rounded border-border accent-accent"
                   />
                   <span className="font-mono text-xs text-muted-foreground">
-                    {new Date(h.entry_date).toLocaleDateString()}
+                    {new Date(h.entry_date).toLocaleDateString("en-GB")}
                   </span>
                   <span>{h.hours}h</span>
                   <span className="truncate text-muted-foreground">

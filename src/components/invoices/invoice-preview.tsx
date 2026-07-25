@@ -4,12 +4,12 @@ export type PreviewLineItem = { description: string; quantity: number; unitPrice
 export type VatTreatment = "domestic" | "eu_reverse_charge" | "outside_eu";
 
 function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(cents / 100);
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency }).format(cents / 100);
 }
 
 function formatDate(value: string | null) {
   if (!value) return "—";
-  return new Date(value).toLocaleDateString(undefined, {
+  return new Date(value).toLocaleDateString("en-GB", {
     year: "numeric",
     month: "short",
     day: "numeric",

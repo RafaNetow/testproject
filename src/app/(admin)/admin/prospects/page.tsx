@@ -19,7 +19,7 @@ const STAGES = [
 
 function formatValue(cents: number | null) {
   if (!cents) return null;
-  return new Intl.NumberFormat(undefined, { style: "currency", currency: "DKK" }).format(
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "DKK" }).format(
     cents / 100
   );
 }

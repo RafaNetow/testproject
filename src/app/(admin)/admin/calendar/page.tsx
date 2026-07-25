@@ -61,7 +61,7 @@ export default async function CalendarPage() {
             {orgName} · {m.projects?.name ?? "—"}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {when.toLocaleDateString(undefined, {
+            {when.toLocaleDateString("en-GB", {
               weekday: "short",
               month: "short",
               day: "numeric",

@@ -182,7 +182,7 @@ export function FilesView({
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-primary">{f.filename}</p>
                     <p className="text-xs text-muted-foreground">
-                      {formatSize(f.size_bytes)} · {new Date(f.created_at).toLocaleDateString()}
+                      {formatSize(f.size_bytes)} · {new Date(f.created_at).toLocaleDateString("en-GB")}
                       {f.version_tag ? ` · ${f.version_tag}` : ""}
                     </p>
                   </div>

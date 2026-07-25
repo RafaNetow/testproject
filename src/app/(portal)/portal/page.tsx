@@ -182,7 +182,7 @@ export default async function PortalHome() {
     {
       label: "Next meeting",
       value: nextMeeting
-        ? new Date(nextMeeting.scheduled_at).toLocaleDateString(undefined, {
+        ? new Date(nextMeeting.scheduled_at).toLocaleDateString("en-GB", {
             month: "short",
             day: "numeric",
           })
@@ -229,7 +229,7 @@ export default async function PortalHome() {
                   </div>
                   <p className="flex-1 truncate text-sm text-primary">{item.label}</p>
                   <p className="shrink-0 text-xs text-muted-foreground">
-                    {new Date(item.at).toLocaleDateString(undefined, {
+                    {new Date(item.at).toLocaleDateString("en-GB", {
                       month: "short",
                       day: "numeric",
                     })}

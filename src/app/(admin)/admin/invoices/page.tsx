@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { deriveInvoiceStatus } from "@/lib/invoice-status";
 
 const STATUS_STYLES: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -21,7 +22,7 @@ type InvoiceRow = {
 };
 
 function formatAmount(cents: number, currency: string) {
-  return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(cents / 100);
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency }).format(cents / 100);
 }
 
 export default async function AdminInvoicesPage() {
@@ -62,7 +63,9 @@ export default async function AdminInvoicesPage() {
               </tr>
             </thead>
             <tbody>
-              {invoices.map((inv) => (
+              {invoices.map((inv) => {
+                const displayStatus = deriveInvoiceStatus(inv.status, inv.due_date);
+                return (
                 <tr
                   key={inv.id}
                   className="border-b border-border transition-colors last:border-0 hover:bg-muted"
@@ -96,7 +99,7 @@ export default async function AdminInvoicesPage() {
                       href={`/admin/clients/${inv.org_id}/projects/${inv.project_id}/invoices`}
                       className="block px-5 py-3.5 text-secondary"
                     >
-                      {inv.due_date ? new Date(inv.due_date).toLocaleDateString() : "—"}
+                      {inv.due_date ? new Date(inv.due_date).toLocaleDateString("en-GB") : "—"}
                     </Link>
                   </td>
                   <td className="p-0">
@@ -106,15 +109,16 @@ export default async function AdminInvoicesPage() {
                     >
                       <span
                         className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                          STATUS_STYLES[inv.status] ?? STATUS_STYLES.draft
+                          STATUS_STYLES[displayStatus] ?? STATUS_STYLES.draft
                         }`}
                       >
-                        {inv.status}
+                        {displayStatus}
                       </span>
                     </Link>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

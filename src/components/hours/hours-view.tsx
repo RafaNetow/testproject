@@ -145,7 +145,7 @@ export function HoursView({
               <div key={e.id} className="flex items-center justify-between gap-3 py-3.5">
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-xs text-muted-foreground">
-                    {new Date(e.entry_date).toLocaleDateString(undefined, {
+                    {new Date(e.entry_date).toLocaleDateString("en-GB", {
                       month: "short",
                       day: "numeric",
                     })}

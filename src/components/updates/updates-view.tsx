@@ -77,7 +77,7 @@ export function UpdatesView({
                   <p className="font-display text-base font-medium text-primary">{u.title}</p>
                   <p className="mt-1 text-sm leading-relaxed text-secondary">{u.body}</p>
                   <p className="mt-2 font-mono text-xs text-muted-foreground">
-                    {new Date(u.published_at).toLocaleDateString(undefined, {
+                    {new Date(u.published_at).toLocaleDateString("en-GB", {
                       weekday: "short",
                       month: "short",
                       day: "numeric",

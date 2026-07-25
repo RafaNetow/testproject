@@ -2,6 +2,7 @@ import { DownloadSimple, Paperclip, Trash } from "@phosphor-icons/react/dist/ssr
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { updateInvoiceStatus, deleteInvoice } from "@/lib/actions/invoices";
+import { deriveInvoiceStatus } from "@/lib/invoice-status";
 import { InvoiceBuilder, type UnbilledHoursEntry } from "./invoice-builder";
 import { InvoicePreview, type PreviewLineItem, type VatTreatment } from "./invoice-preview";
 
@@ -30,7 +31,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 function formatAmount(cents: number, currency: string) {
-  return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(cents / 100);
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency }).format(cents / 100);
 }
 
 export function InvoicesView({
@@ -84,6 +85,7 @@ export function InvoicesView({
               inv.pdf_storage_path,
               revalidatePaths
             );
+            const displayStatus = deriveInvoiceStatus(inv.status, inv.due_date);
             return (
               <div key={inv.id} className="rounded-2xl border border-border bg-card">
                 <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
@@ -92,16 +94,16 @@ export function InvoicesView({
                       <p className="text-sm font-medium text-primary">{inv.invoice_number}</p>
                       <span
                         className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          STATUS_STYLES[inv.status] ?? STATUS_STYLES.draft
+                          STATUS_STYLES[displayStatus] ?? STATUS_STYLES.draft
                         }`}
                       >
-                        {inv.status}
+                        {displayStatus}
                       </span>
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {formatAmount(inv.amount_cents, inv.currency)}
                       {inv.due_date
-                        ? ` · Due ${new Date(inv.due_date).toLocaleDateString()}`
+                        ? ` · Due ${new Date(inv.due_date).toLocaleDateString("en-GB")}`
                         : ""}
                     </p>
                   </div>
@@ -166,7 +168,7 @@ export function InvoicesView({
                       taxRatePct={inv.tax_rate_pct ?? 0}
                       buyerVatNumber={inv.buyer_vat_number}
                       discountCents={inv.discount_cents ?? 0}
-                      status={inv.status}
+                      status={displayStatus}
                     />
                   </div>
                 </details>

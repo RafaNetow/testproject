@@ -105,7 +105,7 @@ export function DecisionsView({
                   )}
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     <span className="font-mono">
-                      {new Date(d.decided_at).toLocaleDateString()}
+                      {new Date(d.decided_at).toLocaleDateString("en-GB")}
                     </span>
                     {d.decision_participants?.map((p) => (
                       <span

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { InvoicePreview, type PreviewLineItem, type VatTreatment } from "@/components/invoices/invoice-preview";
 import { PrintButton } from "@/components/invoices/print-button";
+import { deriveInvoiceStatus } from "@/lib/invoice-status";
 
 export default async function InvoicePrintPage({
   params,
@@ -41,7 +42,7 @@ export default async function InvoicePrintPage({
           taxRatePct={invoice.tax_rate_pct ?? 0}
           buyerVatNumber={invoice.buyer_vat_number}
           discountCents={invoice.discount_cents ?? 0}
-          status={invoice.status}
+          status={deriveInvoiceStatus(invoice.status, invoice.due_date)}
         />
       </div>
     </div>

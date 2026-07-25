@@ -122,7 +122,7 @@ export function MeetingsView({
                       </span>
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {when.toLocaleDateString(undefined, {
+                      {when.toLocaleDateString("en-GB", {
                         weekday: "short",
                         month: "short",
                         day: "numeric",
