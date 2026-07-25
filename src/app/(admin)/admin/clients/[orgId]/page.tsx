@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   ChatCircleDots,
   FolderOpen,
+  NotePencil,
   Plus,
   SquaresFour,
   Trash,
@@ -308,6 +309,14 @@ export default async function ClientDetailPage({
                         aria-label={`Open meetings for ${project.name}`}
                       >
                         <VideoCamera size={16} />
+                      </Link>
+                      <Link
+                        href={`/admin/clients/${orgId}/projects/${project.id}/updates`}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                        title="Updates"
+                        aria-label={`Open updates for ${project.name}`}
+                      >
+                        <NotePencil size={16} />
                       </Link>
                     </div>
                   </summary>
