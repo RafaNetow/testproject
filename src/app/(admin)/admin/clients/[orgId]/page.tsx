@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   ChatCircleDots,
+  Clock,
   FileText,
   FolderOpen,
   NotePencil,
@@ -283,6 +284,7 @@ export default async function ClientDetailPage({
                       { href: "files", label: "Files", icon: FolderOpen },
                       { href: "meetings", label: "Meetings", icon: VideoCamera },
                       { href: "updates", label: "Updates", icon: NotePencil },
+                      { href: "hours", label: "Hours", icon: Clock },
                       { href: "invoices", label: "Invoices", icon: Receipt },
                       { href: "contracts", label: "Contracts", icon: FileText },
                     ].map(({ href, label, icon: ItemIcon }) => (

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ChatCircleDots,
+  Clock,
   FileText,
   FolderOpen,
   NotePencil,
@@ -18,6 +19,7 @@ const SECTIONS = [
   { href: "files", label: "Files", icon: FolderOpen },
   { href: "meetings", label: "Meetings", icon: VideoCamera },
   { href: "updates", label: "Updates", icon: NotePencil },
+  { href: "hours", label: "Hours", icon: Clock },
   { href: "invoices", label: "Invoices", icon: Receipt },
   { href: "contracts", label: "Contracts", icon: FileText },
 ];

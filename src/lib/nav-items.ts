@@ -12,6 +12,7 @@ import {
   Buildings,
   CalendarBlank,
   Target,
+  Clock,
 } from "@phosphor-icons/react/dist/ssr";
 
 export type NavItem = { label: string; href: string; icon: Icon };
@@ -23,6 +24,7 @@ export const PORTAL_NAV: NavItem[] = [
   { label: "Meetings", href: "/portal/meetings", icon: VideoCamera },
   { label: "Decisions", href: "/portal/decisions", icon: ChatCircleDots },
   { label: "Updates", href: "/portal/updates", icon: NotePencil },
+  { label: "Hours", href: "/portal/hours", icon: Clock },
   { label: "Team", href: "/portal/team", icon: UsersThree },
   { label: "Invoices", href: "/portal/invoices", icon: Receipt },
   { label: "Contracts", href: "/portal/contracts", icon: FileText },
