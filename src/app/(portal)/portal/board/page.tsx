@@ -10,7 +10,7 @@ export default async function BoardPage({
   searchParams: Promise<{ project?: string }>;
 }) {
   const { project: projectParam } = await searchParams;
-  const { projects, project } = await getPortalProjectContext(projectParam);
+  const { org, projects, project } = await getPortalProjectContext(projectParam);
 
   if (!project) {
     return (
@@ -39,9 +39,20 @@ export default async function BoardPage({
     .order("position");
   const { data: cards } = await supabase
     .from("board_cards")
-    .select("id, column_id, title, tags, due_date, position")
+    .select("id, column_id, title, tags, due_date, position, assignee_id")
     .eq("project_id", project.id)
     .order("position");
+
+  const { data: memberships } = await supabase
+    .from("org_memberships")
+    .select("user_id, profiles(full_name)")
+    .eq("org_id", org!.id)
+    .not("user_id", "is", null);
+
+  const members = (memberships ?? []).map((m) => ({
+    id: m.user_id as string,
+    full_name: (m.profiles as unknown as { full_name: string | null } | null)?.full_name ?? null,
+  }));
 
   const canDelete = await isAxelAdmin();
 
@@ -61,6 +72,7 @@ export default async function BoardPage({
         projectId={project.id}
         columns={columns ?? []}
         cards={cards ?? []}
+        members={members}
         revalidatePaths={["/portal/board"]}
         canDelete={canDelete}
       />

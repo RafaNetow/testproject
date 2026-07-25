@@ -61,6 +61,22 @@ export async function moveCard(cardId: string, paths: string[], formData: FormDa
   revalidateAll(paths);
 }
 
+export async function updateCardAssignee(cardId: string, paths: string[], formData: FormData) {
+  await requireSessionUser();
+
+  const assigneeId = String(formData.get("assignee_id") ?? "").trim();
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("board_cards")
+    .update({ assignee_id: assigneeId || null, updated_at: new Date().toISOString() })
+    .eq("id", cardId);
+  if (error) {
+    throw new Error(`Couldn't assign card: ${error.message}`);
+  }
+  revalidateAll(paths);
+}
+
 export async function deleteCard(cardId: string, paths: string[]) {
   await requireSessionUser();
   const supabase = await createClient();

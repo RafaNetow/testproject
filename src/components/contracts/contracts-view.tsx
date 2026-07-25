@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { DownloadSimple, PenNib, Plus, Trash } from "@phosphor-icons/react/dist/ssr";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
@@ -49,6 +52,18 @@ export function ContractsView({
     { value: "partially_signed", label: "Partially signed" },
     { value: "signed", label: "Signed" },
   ];
+
+  const [activeFilter, setActiveFilter] = useState<string>("all");
+  const tabs = [
+    { value: "all", label: "All", count: contracts.length },
+    ...statusOptions.map((s) => ({
+      value: s.value,
+      label: s.label,
+      count: contracts.filter((c) => c.signing_status === s.value).length,
+    })),
+  ].filter((t) => t.value === "all" || t.count > 0);
+  const visibleContracts =
+    activeFilter === "all" ? contracts : contracts.filter((c) => c.signing_status === activeFilter);
 
   return (
     <div className="flex flex-col gap-6">
@@ -110,8 +125,36 @@ export function ContractsView({
       {!contracts.length ? (
         <p className="text-sm text-muted-foreground">No contracts yet.</p>
       ) : (
-        <div className="divide-y divide-border border-t border-border">
-          {contracts.map((c) => {
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap gap-1.5 border-b border-border pb-3">
+            {tabs.map((tab) => (
+              <button
+                key={tab.value}
+                type="button"
+                onClick={() => setActiveFilter(tab.value)}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
+                  activeFilter === tab.value
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:text-primary"
+                }`}
+              >
+                {tab.label}
+                <span
+                  className={`font-mono text-[10px] ${
+                    activeFilter === tab.value ? "text-primary-foreground/70" : "text-muted-foreground"
+                  }`}
+                >
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {!visibleContracts.length ? (
+            <p className="text-sm text-muted-foreground">No contracts in this view.</p>
+          ) : (
+            <div className="divide-y divide-border">
+              {visibleContracts.map((c) => {
             const updateThis = updateContractStatus.bind(null, c.id, revalidatePaths);
             const deleteThis = deleteContract.bind(
               null,
@@ -196,7 +239,9 @@ export function ContractsView({
                 )}
               </div>
             );
-          })}
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>
