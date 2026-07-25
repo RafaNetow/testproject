@@ -13,14 +13,14 @@ export default async function AdminProjectInvoicesPage({
 
   const { data: org } = await supabase
     .from("organizations")
-    .select("name")
+    .select("name, cvr_number")
     .eq("id", orgId)
     .maybeSingle();
 
   const { data: invoices } = await supabase
     .from("invoices")
     .select(
-      "id, invoice_number, amount_cents, currency, status, due_date, issued_at, line_items, tax_rate_pct, discount_cents, pdf_storage_path"
+      "id, invoice_number, amount_cents, currency, status, due_date, issued_at, line_items, vat_treatment, tax_rate_pct, buyer_vat_number, discount_cents, pdf_storage_path"
     )
     .eq("project_id", projectId)
     .order("created_at", { ascending: false });
@@ -39,6 +39,7 @@ export default async function AdminProjectInvoicesPage({
     <InvoicesView
       orgId={orgId}
       orgName={org?.name ?? "Client"}
+      orgCvrNumber={org?.cvr_number}
       projectId={projectId}
       invoices={invoicesWithUrls}
       revalidatePaths={[`/admin/clients/${orgId}/projects/${projectId}/invoices`]}

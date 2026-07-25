@@ -105,10 +105,20 @@ export async function updateOrganization(orgId: string, formData: FormData) {
 
   const name = String(formData.get("name") ?? "").trim();
   const status = String(formData.get("status") ?? "onboarding");
+  const cvrNumber = String(formData.get("cvr_number") ?? "").trim();
+  const billingAddress = String(formData.get("billing_address") ?? "").trim();
   if (!name) return;
 
   const supabase = await createClient();
-  const { error } = await supabase.from("organizations").update({ name, status }).eq("id", orgId);
+  const { error } = await supabase
+    .from("organizations")
+    .update({
+      name,
+      status,
+      cvr_number: cvrNumber || null,
+      billing_address: billingAddress || null,
+    })
+    .eq("id", orgId);
   if (error) {
     throw new Error(`Couldn't save changes: ${error.message}`);
   }

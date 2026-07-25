@@ -52,7 +52,7 @@ export default async function ClientDetailPage({
 
   const { data: org } = await supabase
     .from("organizations")
-    .select("id, name, status")
+    .select("id, name, status, cvr_number, billing_address")
     .eq("id", orgId)
     .maybeSingle();
 
@@ -134,6 +134,30 @@ export default async function ClientDetailPage({
                 </option>
               ))}
             </select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="cvr_number" className="text-sm font-medium text-secondary">
+              CVR number
+            </label>
+            <input
+              id="cvr_number"
+              name="cvr_number"
+              defaultValue={org.cvr_number ?? ""}
+              placeholder="12345678"
+              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+            />
+          </div>
+          <div className="flex min-w-[220px] flex-1 flex-col gap-1.5">
+            <label htmlFor="billing_address" className="text-sm font-medium text-secondary">
+              Billing address
+            </label>
+            <input
+              id="billing_address"
+              name="billing_address"
+              defaultValue={org.billing_address ?? ""}
+              placeholder="Street, postal code, city"
+              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+            />
           </div>
           <button
             type="submit"

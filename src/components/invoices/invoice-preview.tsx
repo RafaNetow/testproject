@@ -1,4 +1,7 @@
+import { BUSINESS_INFO } from "@/lib/business-info";
+
 export type PreviewLineItem = { description: string; quantity: number; unitPriceCents: number };
+export type VatTreatment = "domestic" | "eu_reverse_charge" | "outside_eu";
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(cents / 100);
@@ -13,8 +16,16 @@ function formatDate(value: string | null) {
   });
 }
 
+const VAT_NOTES: Record<VatTreatment, string | null> = {
+  domestic: null,
+  eu_reverse_charge:
+    "Reverse charge — Article 196, VAT Directive 2006/112/EC / Omvendt betalingspligt",
+  outside_eu: "Outside the scope of VAT / Ydelse uden for EU",
+};
+
 export function InvoicePreview({
   orgName,
+  orgCvrNumber,
   invoiceNumber,
   issuedAt,
   dueDate,
@@ -22,8 +33,11 @@ export function InvoicePreview({
   lineItems,
   taxRatePct,
   discountCents,
+  vatTreatment,
+  buyerVatNumber,
 }: {
   orgName: string;
+  orgCvrNumber?: string | null;
   invoiceNumber: string;
   issuedAt: string | null;
   dueDate: string | null;
@@ -31,10 +45,13 @@ export function InvoicePreview({
   lineItems: PreviewLineItem[];
   taxRatePct: number;
   discountCents: number;
+  vatTreatment: VatTreatment;
+  buyerVatNumber?: string | null;
 }) {
   const subtotal = lineItems.reduce((sum, li) => sum + li.quantity * li.unitPriceCents, 0);
-  const taxCents = Math.round(subtotal * (taxRatePct / 100));
+  const taxCents = vatTreatment === "domestic" ? Math.round(subtotal * (taxRatePct / 100)) : 0;
   const total = subtotal + taxCents - discountCents;
+  const note = VAT_NOTES[vatTreatment];
 
   return (
     <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
@@ -50,14 +67,23 @@ export function InvoicePreview({
           <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
             Billed by
           </p>
-          <p className="mt-1 text-sm font-medium text-primary">Alchemica</p>
-          <p className="text-sm text-muted-foreground">hello@alchemica.com</p>
+          <p className="mt-1 text-sm font-medium text-primary">{BUSINESS_INFO.name}</p>
+          <p className="text-sm text-muted-foreground">{BUSINESS_INFO.email}</p>
+          {BUSINESS_INFO.cvrNumber && (
+            <p className="text-sm text-muted-foreground">VAT: {BUSINESS_INFO.cvrNumber}</p>
+          )}
         </div>
         <div>
           <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
             Billed to
           </p>
           <p className="mt-1 text-sm font-medium text-primary">{orgName}</p>
+          {vatTreatment === "domestic" && orgCvrNumber && (
+            <p className="text-sm text-muted-foreground">CVR: {orgCvrNumber}</p>
+          )}
+          {vatTreatment === "eu_reverse_charge" && buyerVatNumber && (
+            <p className="text-sm text-muted-foreground">VAT: {buyerVatNumber}</p>
+          )}
         </div>
       </div>
 
@@ -109,10 +135,16 @@ export function InvoicePreview({
           <span>Subtotal</span>
           <span>{formatMoney(subtotal, currency)}</span>
         </div>
-        {taxRatePct > 0 && (
+        {vatTreatment === "domestic" && taxRatePct > 0 && (
           <div className="flex w-full max-w-[240px] justify-between text-secondary">
-            <span>Tax ({taxRatePct}%)</span>
+            <span>VAT ({taxRatePct}%)</span>
             <span>{formatMoney(taxCents, currency)}</span>
+          </div>
+        )}
+        {vatTreatment !== "domestic" && (
+          <div className="flex w-full max-w-[240px] justify-between text-secondary">
+            <span>VAT</span>
+            <span>{formatMoney(0, currency)}</span>
           </div>
         )}
         {discountCents > 0 && (
@@ -126,6 +158,12 @@ export function InvoicePreview({
           <span>{formatMoney(total, currency)}</span>
         </div>
       </div>
+
+      {note && (
+        <p className="mt-4 border-t border-border pt-4 text-xs italic text-muted-foreground">
+          {note}
+        </p>
+      )}
     </div>
   );
 }

@@ -52,7 +52,7 @@ export default async function PortalInvoicesPage({
   const { data: invoices } = await supabase
     .from("invoices")
     .select(
-      "id, invoice_number, amount_cents, currency, status, due_date, issued_at, line_items, tax_rate_pct, discount_cents, pdf_storage_path"
+      "id, invoice_number, amount_cents, currency, status, due_date, issued_at, line_items, vat_treatment, tax_rate_pct, buyer_vat_number, discount_cents, pdf_storage_path"
     )
     .eq("project_id", project.id)
     .order("created_at", { ascending: false });
@@ -82,6 +82,7 @@ export default async function PortalInvoicesPage({
       <InvoicesView
         orgId={org.id}
         orgName={org.name}
+        orgCvrNumber={org.cvrNumber}
         projectId={project.id}
         invoices={invoicesWithUrls}
         revalidatePaths={["/portal/invoices"]}

@@ -15,7 +15,7 @@ export async function getPortalProjectContext(selectedProjectId?: string) {
 
   const { data: membership } = await supabase
     .from("org_memberships")
-    .select("org_id, role, organizations(name)")
+    .select("org_id, role, organizations(name, cvr_number, billing_address)")
     .eq("user_id", user.id)
     .not("accepted_at", "is", null)
     .limit(1)
@@ -35,10 +35,19 @@ export async function getPortalProjectContext(selectedProjectId?: string) {
   const project =
     projectList.find((p) => p.id === selectedProjectId) ?? projectList[0] ?? null;
 
-  const orgRecord = membership.organizations as unknown as { name: string } | null;
+  const orgRecord = membership.organizations as unknown as {
+    name: string;
+    cvr_number: string | null;
+    billing_address: string | null;
+  } | null;
 
   return {
-    org: { id: membership.org_id, name: orgRecord?.name ?? "" },
+    org: {
+      id: membership.org_id,
+      name: orgRecord?.name ?? "",
+      cvrNumber: orgRecord?.cvr_number ?? null,
+      billingAddress: orgRecord?.billing_address ?? null,
+    },
     projects: projectList,
     project,
     role: membership.role as "owner" | "collaborator",

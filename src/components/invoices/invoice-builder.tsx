@@ -2,34 +2,53 @@
 
 import { useState, useTransition } from "react";
 import { Plus, Trash } from "@phosphor-icons/react/dist/ssr";
-import { createInvoiceWithLineItems, type InvoiceLineItem } from "@/lib/actions/invoices";
+import {
+  createInvoiceWithLineItems,
+  type InvoiceLineItem,
+  type VatTreatment,
+} from "@/lib/actions/invoices";
 import { InvoicePreview } from "./invoice-preview";
 
 const inputClass =
   "rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent";
 
+const VAT_OPTIONS: { value: VatTreatment; label: string }[] = [
+  { value: "domestic", label: "Danish domestic (25% moms)" },
+  { value: "eu_reverse_charge", label: "EU business — reverse charge (0%)" },
+  { value: "outside_eu", label: "Outside EU — no VAT (0%)" },
+];
+
 export function InvoiceBuilder({
   orgId,
   projectId,
   orgName,
+  orgCvrNumber,
   revalidatePaths,
 }: {
   orgId: string;
   projectId: string;
   orgName: string;
+  orgCvrNumber?: string | null;
   revalidatePaths: string[];
 }) {
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [currency, setCurrency] = useState("DKK");
   const [issuedAt, setIssuedAt] = useState(new Date().toISOString().slice(0, 10));
   const [dueDate, setDueDate] = useState("");
-  const [taxRatePct, setTaxRatePct] = useState(0);
+  const [vatTreatment, setVatTreatment] = useState<VatTreatment>("domestic");
+  const [taxRatePct, setTaxRatePct] = useState(25);
+  const [buyerVatNumber, setBuyerVatNumber] = useState("");
   const [discountCents, setDiscountCents] = useState(0);
   const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([
     { description: "", quantity: 1, unitPriceCents: 0 },
   ]);
   const [message, setMessage] = useState<{ success: boolean; text: string } | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  function changeVatTreatment(next: VatTreatment) {
+    setVatTreatment(next);
+    setTaxRatePct(next === "domestic" ? 25 : 0);
+  }
 
   function updateItem(i: number, patch: Partial<InvoiceLineItem>) {
     setLineItems((items) => items.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
@@ -49,7 +68,9 @@ export function InvoiceBuilder({
         issuedAt,
         dueDate,
         lineItems,
+        vatTreatment,
         taxRatePct,
+        buyerVatNumber,
         discountCents,
         status,
       });
@@ -57,7 +78,8 @@ export function InvoiceBuilder({
       if (result.success) {
         setInvoiceNumber("");
         setDueDate("");
-        setTaxRatePct(0);
+        changeVatTreatment("domestic");
+        setBuyerVatNumber("");
         setDiscountCents(0);
         setLineItems([{ description: "", quantity: 1, unitPriceCents: 0 }]);
       }
@@ -161,16 +183,46 @@ export function InvoiceBuilder({
           </button>
         </div>
 
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-secondary">VAT treatment</label>
+          <select
+            value={vatTreatment}
+            onChange={(e) => changeVatTreatment(e.target.value as VatTreatment)}
+            className={inputClass}
+          >
+            {VAT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {vatTreatment === "eu_reverse_charge" && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-secondary">
+              Buyer&apos;s VAT number (required for reverse charge)
+            </label>
+            <input
+              value={buyerVatNumber}
+              onChange={(e) => setBuyerVatNumber(e.target.value)}
+              placeholder="e.g. DE123456789"
+              className={inputClass}
+            />
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-secondary">Tax %</label>
+            <label className="text-sm font-medium text-secondary">VAT %</label>
             <input
               type="number"
               min={0}
               step="0.1"
               value={taxRatePct}
+              disabled={vatTreatment !== "domestic"}
               onChange={(e) => setTaxRatePct(Number(e.target.value) || 0)}
-              className={inputClass}
+              className={`${inputClass} disabled:opacity-50`}
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -219,12 +271,15 @@ export function InvoiceBuilder({
 
       <InvoicePreview
         orgName={orgName}
+        orgCvrNumber={orgCvrNumber}
         invoiceNumber={invoiceNumber}
         issuedAt={issuedAt}
         dueDate={dueDate || null}
         currency={currency}
         lineItems={lineItems}
+        vatTreatment={vatTreatment}
         taxRatePct={taxRatePct}
+        buyerVatNumber={buyerVatNumber}
         discountCents={discountCents}
       />
     </div>

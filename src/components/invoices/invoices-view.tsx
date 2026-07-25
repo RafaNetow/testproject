@@ -3,7 +3,7 @@ import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { updateInvoiceStatus, deleteInvoice } from "@/lib/actions/invoices";
 import { InvoiceBuilder } from "./invoice-builder";
-import { InvoicePreview, type PreviewLineItem } from "./invoice-preview";
+import { InvoicePreview, type PreviewLineItem, type VatTreatment } from "./invoice-preview";
 
 type Invoice = {
   id: string;
@@ -14,7 +14,9 @@ type Invoice = {
   due_date: string | null;
   issued_at: string | null;
   line_items: PreviewLineItem[] | null;
+  vat_treatment: VatTreatment | null;
   tax_rate_pct: number | null;
+  buyer_vat_number: string | null;
   discount_cents: number | null;
   pdf_storage_path: string | null;
   url: string | null;
@@ -34,6 +36,7 @@ function formatAmount(cents: number, currency: string) {
 export function InvoicesView({
   orgId,
   orgName,
+  orgCvrNumber,
   projectId,
   invoices,
   revalidatePaths,
@@ -41,6 +44,7 @@ export function InvoicesView({
 }: {
   orgId: string;
   orgName: string;
+  orgCvrNumber?: string | null;
   projectId: string;
   invoices: Invoice[];
   revalidatePaths: string[];
@@ -60,6 +64,7 @@ export function InvoicesView({
           orgId={orgId}
           projectId={projectId}
           orgName={orgName}
+          orgCvrNumber={orgCvrNumber}
           revalidatePaths={revalidatePaths}
         />
       )}
@@ -138,12 +143,15 @@ export function InvoicesView({
                   <div className="border-t border-border p-4">
                     <InvoicePreview
                       orgName={orgName}
+                      orgCvrNumber={orgCvrNumber}
                       invoiceNumber={inv.invoice_number}
                       issuedAt={inv.issued_at}
                       dueDate={inv.due_date}
                       currency={inv.currency}
                       lineItems={inv.line_items ?? []}
+                      vatTreatment={inv.vat_treatment ?? "domestic"}
                       taxRatePct={inv.tax_rate_pct ?? 0}
+                      buyerVatNumber={inv.buyer_vat_number}
                       discountCents={inv.discount_cents ?? 0}
                     />
                   </div>
