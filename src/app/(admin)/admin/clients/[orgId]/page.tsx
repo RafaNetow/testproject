@@ -261,11 +261,8 @@ export default async function ClientDetailPage({
               const updateThisProject = updateProject.bind(null, orgId, project.id);
               const deleteThisProject = deleteProject.bind(null, orgId, project.id);
               return (
-                <details
-                  key={project.id}
-                  className="group rounded-xl border border-border"
-                >
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5">
+                <div key={project.id} className="rounded-xl border border-border">
+                  <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
                     <div className="flex items-center gap-3">
                       <span className="font-medium text-primary">{project.name}</span>
                       <span
@@ -279,7 +276,7 @@ export default async function ClientDetailPage({
                         {project.progress_pct}%
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center gap-1.5">
                       <Link
                         href={`/admin/clients/${orgId}/projects/${project.id}/board`}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
@@ -337,10 +334,14 @@ export default async function ClientDetailPage({
                         <FileText size={16} />
                       </Link>
                     </div>
-                  </summary>
+                  </div>
 
-                  <div className="border-t border-border p-4">
-                    <form action={updateThisProject} className="flex flex-wrap items-end gap-3">
+                  <details className="group border-t border-border">
+                    <summary className="cursor-pointer list-none px-4 py-2.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary">
+                      Manage
+                    </summary>
+                    <div className="border-t border-border p-4">
+                      <form action={updateThisProject} className="flex flex-wrap items-end gap-3">
                       <div className="flex min-w-[180px] flex-1 flex-col gap-1.5">
                         <label className="text-sm font-medium text-secondary">Name</label>
                         <input
@@ -412,8 +413,9 @@ export default async function ClientDetailPage({
                         Delete project
                       </ConfirmButton>
                     </form>
-                  </div>
-                </details>
+                    </div>
+                  </details>
+                </div>
               );
             })}
           </div>
