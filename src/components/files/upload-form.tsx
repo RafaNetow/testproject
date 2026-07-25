@@ -5,13 +5,15 @@ import { uploadFile, type UploadResult } from "@/lib/actions/files";
 
 export function UploadForm({
   projectId,
+  folderId,
   revalidatePaths,
 }: {
   projectId: string;
+  folderId: string | null;
   revalidatePaths: string[];
 }) {
   const [state, formAction, isPending] = useActionState<UploadResult | null, FormData>(
-    async (_prevState, formData) => uploadFile(projectId, revalidatePaths, formData),
+    async (_prevState, formData) => uploadFile(projectId, folderId, revalidatePaths, formData),
     null
   );
 

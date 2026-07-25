@@ -9,10 +9,11 @@ const BUCKET = "project-files";
 export default async function FilesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ project?: string }>;
+  searchParams: Promise<{ project?: string; folder?: string }>;
 }) {
-  const { project: projectParam } = await searchParams;
+  const { project: projectParam, folder } = await searchParams;
   const { projects, project } = await getPortalProjectContext(projectParam);
+  const currentFolderId = folder ?? null;
 
   if (!project) {
     return (
@@ -32,9 +33,15 @@ export default async function FilesPage({
   }
 
   const supabase = await createClient();
+
+  const { data: folders } = await supabase
+    .from("folders")
+    .select("id, name, parent_folder_id")
+    .eq("project_id", project.id);
+
   const { data: files } = await supabase
     .from("files")
-    .select("id, filename, size_bytes, version_tag, created_at, storage_path")
+    .select("id, filename, size_bytes, version_tag, created_at, storage_path, folder_id")
     .eq("project_id", project.id)
     .order("created_at", { ascending: false });
 
@@ -61,9 +68,13 @@ export default async function FilesPage({
 
       <FilesView
         projectId={project.id}
+        folders={folders ?? []}
         files={filesWithUrls}
+        currentFolderId={currentFolderId}
+        basePath="/portal/files"
+        extraQuery={`project=${project.id}`}
         revalidatePaths={["/portal/files"]}
-        canDelete={admin}
+        canManage={admin}
       />
     </div>
   );

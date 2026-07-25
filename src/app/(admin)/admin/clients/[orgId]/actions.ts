@@ -129,6 +129,12 @@ export async function deleteOrganization(orgId: string) {
 }
 
 const DEFAULT_COLUMNS = ["To do", "In progress", "Waiting on you", "Done"];
+const DEFAULT_FOLDERS = [
+  "Formulation Data",
+  "Characterisation Results",
+  "Reports",
+  "Reference Materials",
+];
 
 export async function createProject(orgId: string, formData: FormData) {
   await requireAxelAdmin();
@@ -164,6 +170,16 @@ export async function createProject(orgId: string, formData: FormData) {
   );
   if (columnsError) {
     throw new Error(`Project created, but couldn't set up its board: ${columnsError.message}`);
+  }
+
+  const { error: foldersError } = await supabase.from("folders").insert(
+    DEFAULT_FOLDERS.map((folderName) => ({
+      project_id: project.id,
+      name: folderName,
+    }))
+  );
+  if (foldersError) {
+    throw new Error(`Project created, but couldn't set up its folders: ${foldersError.message}`);
   }
 
   revalidatePath(`/admin/clients/${orgId}`);
