@@ -13,7 +13,9 @@ export default async function AdminProjectContractsPage({
 
   const { data: contracts } = await supabase
     .from("contracts")
-    .select("id, title, contract_type, signing_status, signed_pdf_storage_path")
+    .select(
+      "id, title, contract_type, signing_status, signed_pdf_storage_path, documenso_document_id, documenso_signing_url"
+    )
     .eq("project_id", projectId)
     .order("created_at", { ascending: false });
 

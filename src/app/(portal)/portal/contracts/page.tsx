@@ -51,7 +51,9 @@ export default async function PortalContractsPage({
   const supabase = await createClient();
   const { data: contracts } = await supabase
     .from("contracts")
-    .select("id, title, contract_type, signing_status, signed_pdf_storage_path")
+    .select(
+      "id, title, contract_type, signing_status, signed_pdf_storage_path, documenso_document_id, documenso_signing_url"
+    )
     .eq("project_id", project.id)
     .order("created_at", { ascending: false });
 
