@@ -108,3 +108,20 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- Invoice print / "Save as PDF" ---------- */
+@media print {
+  @page {
+    margin: 0.5in;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  .invoice-document {
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+}

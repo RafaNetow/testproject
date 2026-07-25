@@ -1,4 +1,4 @@
-import { DownloadSimple, Trash } from "@phosphor-icons/react/dist/ssr";
+import { DownloadSimple, Paperclip, Trash } from "@phosphor-icons/react/dist/ssr";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { updateInvoiceStatus, deleteInvoice } from "@/lib/actions/invoices";
@@ -106,14 +106,24 @@ export function InvoicesView({
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
+                    <a
+                      href={`/invoices/${inv.id}/print`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                      title="Download PDF"
+                      aria-label={`Download invoice ${inv.invoice_number} as PDF`}
+                    >
+                      <DownloadSimple size={16} />
+                    </a>
                     {inv.url && (
                       <a
                         href={inv.url}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
-                        title="Download PDF"
-                        aria-label={`Download invoice ${inv.invoice_number} PDF`}
+                        title="Download attached PDF"
+                        aria-label={`Download invoice ${inv.invoice_number} attached PDF`}
                       >
-                        <DownloadSimple size={16} />
+                        <Paperclip size={16} />
                       </a>
                     )}
                     {canManage && (
@@ -156,6 +166,7 @@ export function InvoicesView({
                       taxRatePct={inv.tax_rate_pct ?? 0}
                       buyerVatNumber={inv.buyer_vat_number}
                       discountCents={inv.discount_cents ?? 0}
+                      status={inv.status}
                     />
                   </div>
                 </details>

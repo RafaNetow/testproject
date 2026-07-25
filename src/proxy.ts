@@ -38,9 +38,13 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  if (path.startsWith("/invoices") && !user) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
   return response;
 }
 
 export const config = {
-  matcher: ["/portal/:path*", "/admin/:path*"],
+  matcher: ["/portal/:path*", "/admin/:path*", "/invoices/:path*"],
 };
