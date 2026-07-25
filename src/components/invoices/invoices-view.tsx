@@ -2,7 +2,7 @@ import { DownloadSimple, Trash } from "@phosphor-icons/react/dist/ssr";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { updateInvoiceStatus, deleteInvoice } from "@/lib/actions/invoices";
-import { InvoiceBuilder } from "./invoice-builder";
+import { InvoiceBuilder, type UnbilledHoursEntry } from "./invoice-builder";
 import { InvoicePreview, type PreviewLineItem, type VatTreatment } from "./invoice-preview";
 
 type Invoice = {
@@ -39,6 +39,7 @@ export function InvoicesView({
   orgCvrNumber,
   projectId,
   invoices,
+  unbilledHours,
   revalidatePaths,
   canManage,
 }: {
@@ -47,6 +48,7 @@ export function InvoicesView({
   orgCvrNumber?: string | null;
   projectId: string;
   invoices: Invoice[];
+  unbilledHours: UnbilledHoursEntry[];
   revalidatePaths: string[];
   canManage: boolean;
 }) {
@@ -65,6 +67,7 @@ export function InvoicesView({
           projectId={projectId}
           orgName={orgName}
           orgCvrNumber={orgCvrNumber}
+          unbilledHours={unbilledHours}
           revalidatePaths={revalidatePaths}
         />
       )}

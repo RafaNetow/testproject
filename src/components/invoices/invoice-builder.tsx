@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Plus, Trash } from "@phosphor-icons/react/dist/ssr";
+import { Clock, Plus, Trash } from "@phosphor-icons/react/dist/ssr";
 import {
   createInvoiceWithLineItems,
   type InvoiceLineItem,
@@ -18,17 +18,27 @@ const VAT_OPTIONS: { value: VatTreatment; label: string }[] = [
   { value: "outside_eu", label: "Outside EU — no VAT (0%)" },
 ];
 
+export type UnbilledHoursEntry = {
+  id: string;
+  entry_date: string;
+  hours: number;
+  category: string | null;
+  description: string | null;
+};
+
 export function InvoiceBuilder({
   orgId,
   projectId,
   orgName,
   orgCvrNumber,
+  unbilledHours,
   revalidatePaths,
 }: {
   orgId: string;
   projectId: string;
   orgName: string;
   orgCvrNumber?: string | null;
+  unbilledHours: UnbilledHoursEntry[];
   revalidatePaths: string[];
 }) {
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -42,12 +52,44 @@ export function InvoiceBuilder({
   const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([
     { description: "", quantity: 1, unitPriceCents: 0 },
   ]);
+  const [selectedHourIds, setSelectedHourIds] = useState<Set<string>>(new Set());
+  const [importedHourIds, setImportedHourIds] = useState<string[]>([]);
+  const [hourlyRate, setHourlyRate] = useState(0);
   const [message, setMessage] = useState<{ success: boolean; text: string } | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function changeVatTreatment(next: VatTreatment) {
     setVatTreatment(next);
     setTaxRatePct(next === "domestic" ? 25 : 0);
+  }
+
+  function toggleHourSelection(id: string) {
+    setSelectedHourIds((ids) => {
+      const next = new Set(ids);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function importSelectedHours() {
+    const selected = unbilledHours.filter((h) => selectedHourIds.has(h.id));
+    if (!selected.length) return;
+
+    const imported: InvoiceLineItem[] = selected.map((h) => ({
+      description: `${new Date(h.entry_date).toLocaleDateString()} — ${
+        h.category ?? "Hours"
+      }${h.description ? `: ${h.description}` : ""}`,
+      quantity: h.hours,
+      unitPriceCents: Math.round(hourlyRate * 100),
+    }));
+
+    setLineItems((items) => {
+      const withoutBlank = items.filter((it) => it.description.trim() || it.quantity !== 1 || it.unitPriceCents !== 0);
+      return [...withoutBlank, ...imported];
+    });
+    setImportedHourIds((ids) => [...ids, ...selected.map((h) => h.id)]);
+    setSelectedHourIds(new Set());
   }
 
   function updateItem(i: number, patch: Partial<InvoiceLineItem>) {
@@ -73,6 +115,7 @@ export function InvoiceBuilder({
         buyerVatNumber,
         discountCents,
         status,
+        importedHoursEntryIds: importedHourIds,
       });
       setMessage({ success: result.success, text: result.message ?? "" });
       if (result.success) {
@@ -82,9 +125,13 @@ export function InvoiceBuilder({
         setBuyerVatNumber("");
         setDiscountCents(0);
         setLineItems([{ description: "", quantity: 1, unitPriceCents: 0 }]);
+        setImportedHourIds([]);
+        setSelectedHourIds(new Set());
       }
     });
   }
+
+  const availableHours = unbilledHours.filter((h) => !importedHourIds.includes(h.id));
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -132,6 +179,56 @@ export function InvoiceBuilder({
             />
           </div>
         </div>
+
+        {availableHours.length > 0 && (
+          <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
+            <p className="flex items-center gap-1.5 text-sm font-medium text-secondary">
+              <Clock size={14} />
+              Import billable hours
+            </p>
+            <div className="flex max-h-40 flex-col gap-1 overflow-y-auto">
+              {availableHours.map((h) => (
+                <label key={h.id} className="flex items-center gap-2 text-sm text-primary">
+                  <input
+                    type="checkbox"
+                    checked={selectedHourIds.has(h.id)}
+                    onChange={() => toggleHourSelection(h.id)}
+                    className="h-4 w-4 rounded border-border accent-accent"
+                  />
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {new Date(h.entry_date).toLocaleDateString()}
+                  </span>
+                  <span>{h.hours}h</span>
+                  <span className="truncate text-muted-foreground">
+                    {h.category}
+                    {h.description ? ` — ${h.description}` : ""}
+                  </span>
+                </label>
+              ))}
+            </div>
+            <div className="flex flex-wrap items-end gap-2">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-secondary">Rate / hour</label>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={hourlyRate}
+                  onChange={(e) => setHourlyRate(Number(e.target.value) || 0)}
+                  className={`${inputClass} w-28`}
+                />
+              </div>
+              <button
+                type="button"
+                disabled={!selectedHourIds.size}
+                onClick={importSelectedHours}
+                className="rounded-full border border-border px-3.5 py-2 text-xs font-medium text-secondary transition-colors hover:bg-muted disabled:opacity-40"
+              >
+                Add {selectedHourIds.size || ""} to invoice
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-secondary">Line items</label>

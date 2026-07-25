@@ -9,6 +9,7 @@ type HoursEntry = {
   category: string | null;
   description: string | null;
   billable: boolean;
+  invoice_id: string | null;
 };
 
 const CATEGORIES = [
@@ -160,6 +161,11 @@ export function HoursView({
                   {!e.billable && (
                     <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-xs text-accent">
                       Non-billable
+                    </span>
+                  )}
+                  {e.invoice_id && (
+                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs text-emerald-700">
+                      Invoiced
                     </span>
                   )}
                   {e.description && (

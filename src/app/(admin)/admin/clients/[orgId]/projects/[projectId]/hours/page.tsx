@@ -11,7 +11,7 @@ export default async function AdminProjectHoursPage({
 
   const { data: entries } = await supabase
     .from("hours_entries")
-    .select("id, entry_date, hours, category, description, billable")
+    .select("id, entry_date, hours, category, description, billable, invoice_id")
     .eq("project_id", projectId)
     .order("entry_date", { ascending: false });
 

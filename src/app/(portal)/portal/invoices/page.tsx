@@ -85,6 +85,7 @@ export default async function PortalInvoicesPage({
         orgCvrNumber={org.cvrNumber}
         projectId={project.id}
         invoices={invoicesWithUrls}
+        unbilledHours={[]}
         revalidatePaths={["/portal/invoices"]}
         canManage={false}
       />

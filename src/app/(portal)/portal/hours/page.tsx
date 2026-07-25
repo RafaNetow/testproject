@@ -31,7 +31,7 @@ export default async function PortalHoursPage({
   const supabase = await createClient();
   const { data: entries } = await supabase
     .from("hours_entries")
-    .select("id, entry_date, hours, category, description, billable")
+    .select("id, entry_date, hours, category, description, billable, invoice_id")
     .eq("project_id", project.id)
     .order("entry_date", { ascending: false });
 

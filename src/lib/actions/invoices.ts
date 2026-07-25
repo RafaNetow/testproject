@@ -29,6 +29,7 @@ export type CreateInvoiceInput = {
   buyerVatNumber: string;
   discountCents: number;
   status: "draft" | "sent";
+  importedHoursEntryIds: string[];
 };
 
 export type CreateInvoiceResult = {
@@ -66,24 +67,43 @@ export async function createInvoiceWithLineItems(
   const total = subtotal + taxCents - input.discountCents;
 
   const supabase = await createClient();
-  const { error } = await supabase.from("invoices").insert({
-    org_id: orgId,
-    project_id: projectId,
-    invoice_number: invoiceNumber,
-    currency: input.currency,
-    amount_cents: total,
-    line_items: items,
-    vat_treatment: input.vatTreatment,
-    tax_rate_pct: taxRatePct,
-    buyer_vat_number: input.vatTreatment === "eu_reverse_charge" ? input.buyerVatNumber.trim() : null,
-    discount_cents: input.discountCents,
-    due_date: input.dueDate || null,
-    issued_at: new Date(input.issuedAt).toISOString(),
-    status: input.status,
-  });
-  if (error) {
-    return { success: false, message: `Couldn't create invoice: ${error.message}` };
+  const { data: invoice, error } = await supabase
+    .from("invoices")
+    .insert({
+      org_id: orgId,
+      project_id: projectId,
+      invoice_number: invoiceNumber,
+      currency: input.currency,
+      amount_cents: total,
+      line_items: items,
+      vat_treatment: input.vatTreatment,
+      tax_rate_pct: taxRatePct,
+      buyer_vat_number:
+        input.vatTreatment === "eu_reverse_charge" ? input.buyerVatNumber.trim() : null,
+      discount_cents: input.discountCents,
+      due_date: input.dueDate || null,
+      issued_at: new Date(input.issuedAt).toISOString(),
+      status: input.status,
+    })
+    .select("id")
+    .single();
+  if (error || !invoice) {
+    return { success: false, message: `Couldn't create invoice: ${error?.message ?? "unknown error"}` };
   }
+
+  if (input.importedHoursEntryIds.length) {
+    const { error: hoursError } = await supabase
+      .from("hours_entries")
+      .update({ invoice_id: invoice.id })
+      .in("id", input.importedHoursEntryIds);
+    if (hoursError) {
+      return {
+        success: true,
+        message: `Invoice created, but couldn't mark hours as billed: ${hoursError.message}`,
+      };
+    }
+  }
+
   revalidateAll(paths);
   return { success: true, message: input.status === "draft" ? "Saved as draft." : "Invoice sent." };
 }

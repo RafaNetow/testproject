@@ -35,6 +35,14 @@ export default async function AdminProjectInvoicesPage({
     })
   );
 
+  const { data: unbilledHours } = await supabase
+    .from("hours_entries")
+    .select("id, entry_date, hours, category, description")
+    .eq("project_id", projectId)
+    .eq("billable", true)
+    .is("invoice_id", null)
+    .order("entry_date", { ascending: false });
+
   return (
     <InvoicesView
       orgId={orgId}
@@ -42,6 +50,7 @@ export default async function AdminProjectInvoicesPage({
       orgCvrNumber={org?.cvr_number}
       projectId={projectId}
       invoices={invoicesWithUrls}
+      unbilledHours={unbilledHours ?? []}
       revalidatePaths={[`/admin/clients/${orgId}/projects/${projectId}/invoices`]}
       canManage
     />
