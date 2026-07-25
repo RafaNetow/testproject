@@ -7,10 +7,12 @@ export function ConfirmButton({
   confirmText,
   children,
   className,
+  ariaLabel,
 }: {
   confirmText: string;
   children: ReactNode;
   className?: string;
+  ariaLabel?: string;
 }) {
   function onClick(e: MouseEvent<HTMLButtonElement>) {
     if (!window.confirm(confirmText)) {
@@ -19,7 +21,12 @@ export function ConfirmButton({
   }
 
   return (
-    <button type="submit" onClick={onClick} className={className}>
+    <button
+      type="submit"
+      onClick={onClick}
+      className={className}
+      aria-label={ariaLabel}
+    >
       {children}
     </button>
   );

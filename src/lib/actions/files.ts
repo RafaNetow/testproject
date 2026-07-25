@@ -10,12 +10,21 @@ function revalidateAll(paths: string[]) {
   for (const p of paths) revalidatePath(p);
 }
 
-export async function uploadFile(projectId: string, paths: string[], formData: FormData) {
+export type UploadResult = {
+  success: boolean;
+  message?: string;
+};
+
+export async function uploadFile(
+  projectId: string,
+  paths: string[],
+  formData: FormData
+): Promise<UploadResult> {
   const user = await requireSessionUser();
 
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
-    throw new Error("Choose a file to upload.");
+    return { success: false, message: "Choose a file to upload." };
   }
 
   const supabase = await createClient();
@@ -25,7 +34,7 @@ export async function uploadFile(projectId: string, paths: string[], formData: F
     .from(BUCKET)
     .upload(storagePath, file, { contentType: file.type || undefined });
   if (uploadError) {
-    throw new Error(`Couldn't upload file: ${uploadError.message}`);
+    return { success: false, message: `Couldn't upload file: ${uploadError.message}` };
   }
 
   const { error: insertError } = await supabase.from("files").insert({
@@ -38,10 +47,11 @@ export async function uploadFile(projectId: string, paths: string[], formData: F
   });
   if (insertError) {
     await supabase.storage.from(BUCKET).remove([storagePath]);
-    throw new Error(`Couldn't save file record: ${insertError.message}`);
+    return { success: false, message: `Couldn't save file record: ${insertError.message}` };
   }
 
   revalidateAll(paths);
+  return { success: true, message: `"${file.name}" uploaded.` };
 }
 
 export async function deleteFile(fileId: string, storagePath: string, paths: string[]) {

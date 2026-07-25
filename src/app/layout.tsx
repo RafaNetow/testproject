@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import { CookieNotice } from "@/components/cookie-notice";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -40,6 +41,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-body">
         {children}
+        <CookieNotice />
       </body>
     </html>
   );

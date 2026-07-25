@@ -99,6 +99,7 @@ export function BoardView({
                         <form action={deleteThisCard}>
                           <ConfirmButton
                             confirmText={`Delete "${card.title}"?`}
+                            ariaLabel={`Delete card "${card.title}"`}
                             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                           >
                             <Trash size={13} />

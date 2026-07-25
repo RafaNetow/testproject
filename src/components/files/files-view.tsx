@@ -1,6 +1,7 @@
 import { DownloadSimple, FileText, Trash } from "@phosphor-icons/react/dist/ssr";
 import { ConfirmButton } from "@/components/confirm-button";
-import { uploadFile, deleteFile } from "@/lib/actions/files";
+import { deleteFile } from "@/lib/actions/files";
+import { UploadForm } from "./upload-form";
 
 type FileRow = {
   id: string;
@@ -29,30 +30,9 @@ export function FilesView({
   revalidatePaths: string[];
   canDelete: boolean;
 }) {
-  const uploadToThisProject = uploadFile.bind(null, projectId, revalidatePaths);
-
   return (
     <div className="flex flex-col gap-6">
-      <form
-        action={uploadToThisProject}
-        className="flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-5"
-      >
-        <div className="flex min-w-[220px] flex-1 flex-col gap-1.5">
-          <label htmlFor="file-upload" className="text-sm font-medium text-secondary">
-            Upload a file
-          </label>
-          <input
-            id="file-upload"
-            name="file"
-            type="file"
-            required
-            className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors file:mr-3 file:rounded-full file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-secondary focus:border-accent"
-          />
-        </div>
-        <button type="submit" className="btn-primary rounded-full px-5 py-2.5 text-sm font-medium">
-          Upload
-        </button>
-      </form>
+      <UploadForm projectId={projectId} revalidatePaths={revalidatePaths} />
 
       {!files.length ? (
         <p className="text-sm text-muted-foreground">No files yet.</p>
@@ -79,6 +59,7 @@ export function FilesView({
                       download={f.filename}
                       className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
                       title="Download"
+                      aria-label={`Download "${f.filename}"`}
                     >
                       <DownloadSimple size={16} />
                     </a>
@@ -87,6 +68,7 @@ export function FilesView({
                     <form action={deleteThis}>
                       <ConfirmButton
                         confirmText={`Delete "${f.filename}"? This can't be undone.`}
+                        ariaLabel={`Delete file "${f.filename}"`}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                       >
                         <Trash size={15} />

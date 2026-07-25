@@ -10,16 +10,18 @@ const LINKS = [
   { href: "#about", label: "About" },
 ];
 
-export function Nav() {
-  const [scrolled, setScrolled] = useState(false);
+export function Nav({ forceSolid = false }: { forceSolid?: boolean }) {
+  const [scrolledPast, setScrolledPast] = useState(false);
   const [open, setOpen] = useState(false);
+  const scrolled = forceSolid || scrolledPast;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    if (forceSolid) return;
+    const onScroll = () => setScrolledPast(window.scrollY > 40);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [forceSolid]);
 
   return (
     <header

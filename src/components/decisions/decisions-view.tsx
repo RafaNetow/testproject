@@ -121,6 +121,7 @@ export function DecisionsView({
                   <form action={deleteThis}>
                     <ConfirmButton
                       confirmText={`Delete the decision "${d.title}"? This can't be undone.`}
+                      ariaLabel={`Delete decision "${d.title}"`}
                       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                     >
                       <Trash size={15} />

@@ -55,9 +55,17 @@ export function Footer() {
           </div>
         </div>
 
-        <p className="pt-8 text-xs text-white/35">
-          © {new Date().getFullYear()} Alchemica. All rights reserved.
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-8">
+          <p className="text-xs text-white/35">
+            © {new Date().getFullYear()} Alchemica. All rights reserved.
+          </p>
+          <a
+            href="/privacy"
+            className="text-xs text-white/50 transition-colors hover:text-white"
+          >
+            Privacy &amp; data handling
+          </a>
+        </div>
       </div>
     </footer>
   );

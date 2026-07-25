@@ -187,6 +187,7 @@ export default async function ClientDetailPage({
                     <form action={removeThisMember}>
                       <ConfirmButton
                         confirmText={`Remove ${m.invited_email} from ${org.name}? They'll lose access immediately.`}
+                        ariaLabel={`Remove ${m.invited_email} from ${org.name}`}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                       >
                         <X size={16} />
@@ -279,6 +280,7 @@ export default async function ClientDetailPage({
                         href={`/admin/clients/${orgId}/projects/${project.id}/board`}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
                         title="Board"
+                        aria-label={`Open board for ${project.name}`}
                       >
                         <SquaresFour size={16} />
                       </Link>
@@ -286,6 +288,7 @@ export default async function ClientDetailPage({
                         href={`/admin/clients/${orgId}/projects/${project.id}/decisions`}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
                         title="Decisions"
+                        aria-label={`Open decisions for ${project.name}`}
                       >
                         <ChatCircleDots size={16} />
                       </Link>
@@ -293,6 +296,7 @@ export default async function ClientDetailPage({
                         href={`/admin/clients/${orgId}/projects/${project.id}/files`}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
                         title="Files"
+                        aria-label={`Open files for ${project.name}`}
                       >
                         <FolderOpen size={16} />
                       </Link>
