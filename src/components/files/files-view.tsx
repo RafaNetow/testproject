@@ -42,6 +42,71 @@ function folderHref(basePath: string, extraQuery: string | undefined, folderId: 
   return qs ? `${basePath}?${qs}` : basePath;
 }
 
+function FolderTree({
+  folders,
+  fileCountByFolder,
+  parentId,
+  depth,
+  currentFolderId,
+  basePath,
+  extraQuery,
+}: {
+  folders: FolderRow[];
+  fileCountByFolder: Map<string, number>;
+  parentId: string | null;
+  depth: number;
+  currentFolderId: string | null;
+  basePath: string;
+  extraQuery?: string;
+}) {
+  const children = folders
+    .filter((f) => (f.parent_folder_id ?? null) === parentId)
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  if (!children.length) return null;
+
+  return (
+    <ul className="flex flex-col gap-0.5">
+      {children.map((f) => {
+        const isActive = f.id === currentFolderId;
+        return (
+          <li key={f.id}>
+            <Link
+              href={folderHref(basePath, extraQuery, f.id)}
+              title={f.name}
+              style={{ paddingLeft: `${12 + depth * 14}px` }}
+              className={`flex items-center gap-2 rounded-lg py-1.5 pr-2.5 text-sm transition-colors ${
+                isActive
+                  ? "bg-accent/10 font-medium text-accent"
+                  : "text-secondary hover:bg-muted hover:text-primary"
+              }`}
+            >
+              <FolderSimple
+                size={15}
+                weight={isActive ? "fill" : "regular"}
+                className={`shrink-0 ${isActive ? "text-accent" : "text-muted-foreground"}`}
+              />
+              <span className="min-w-0 flex-1 truncate">{f.name}</span>
+              <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
+                {fileCountByFolder.get(f.id) ?? 0}
+              </span>
+            </Link>
+            <FolderTree
+              folders={folders}
+              fileCountByFolder={fileCountByFolder}
+              parentId={f.id}
+              depth={depth + 1}
+              currentFolderId={currentFolderId}
+              basePath={basePath}
+              extraQuery={extraQuery}
+            />
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export function FilesView({
   projectId,
   folders,
@@ -82,8 +147,66 @@ export function FilesView({
       .map((f) => ({ value: f.id, label: f.name })),
   ];
 
+  // Recursive file count per folder (includes files in nested subfolders),
+  // computed bottom-up so the sidebar tree can show "how much is really in
+  // here" at a glance instead of just direct children.
+  const directCount = new Map<string, number>();
+  for (const f of files) {
+    if (f.folder_id) directCount.set(f.folder_id, (directCount.get(f.folder_id) ?? 0) + 1);
+  }
+  const childrenOf = new Map<string | null, FolderRow[]>();
+  for (const f of folders) {
+    const key = f.parent_folder_id ?? null;
+    childrenOf.set(key, [...(childrenOf.get(key) ?? []), f]);
+  }
+  const fileCountByFolder = new Map<string, number>();
+  function countFolder(folderId: string): number {
+    if (fileCountByFolder.has(folderId)) return fileCountByFolder.get(folderId)!;
+    let total = directCount.get(folderId) ?? 0;
+    for (const child of childrenOf.get(folderId) ?? []) {
+      total += countFolder(child.id);
+    }
+    fileCountByFolder.set(folderId, total);
+    return total;
+  }
+  for (const f of folders) countFolder(f.id);
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[220px_1fr] lg:items-start lg:gap-8">
+      <nav
+        aria-label="Folder tree"
+        className="rounded-2xl border border-border bg-card p-3 lg:sticky lg:top-6"
+      >
+        <Link
+          href={folderHref(basePath, extraQuery, null)}
+          className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+            !currentFolderId
+              ? "bg-accent/10 font-medium text-accent"
+              : "text-secondary hover:bg-muted hover:text-primary"
+          }`}
+        >
+          <FolderSimple
+            size={15}
+            weight={!currentFolderId ? "fill" : "regular"}
+            className={`shrink-0 ${!currentFolderId ? "text-accent" : "text-muted-foreground"}`}
+          />
+          <span className="min-w-0 flex-1 truncate">All files</span>
+          <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
+            {files.length}
+          </span>
+        </Link>
+        <FolderTree
+          folders={folders}
+          fileCountByFolder={fileCountByFolder}
+          parentId={null}
+          depth={1}
+          currentFolderId={currentFolderId}
+          basePath={basePath}
+          extraQuery={extraQuery}
+        />
+      </nav>
+
+      <div className="flex flex-col gap-6">
       <nav className="flex flex-wrap items-center gap-1.5 text-sm">
         <Link
           href={folderHref(basePath, extraQuery, null)}
@@ -226,6 +349,7 @@ export function FilesView({
           })}
         </div>
       )}
+      </div>
     </div>
   );
 }
