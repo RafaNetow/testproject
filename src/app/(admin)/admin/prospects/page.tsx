@@ -1,8 +1,13 @@
-import { Plus, Trash } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRight, Plus, Trash } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
-import { createProspect, updateProspectStage, deleteProspect } from "@/lib/actions/prospects";
+import {
+  createProspect,
+  updateProspectStage,
+  deleteProspect,
+  convertProspectToClient,
+} from "@/lib/actions/prospects";
 
 const STAGES = [
   { value: "lead", label: "Lead" },
@@ -112,6 +117,7 @@ export default async function ProspectsPage() {
               {byStage(stage.value).map((p) => {
                 const updateThis = updateProspectStage.bind(null, p.id);
                 const deleteThis = deleteProspect.bind(null, p.id);
+                const convertThis = convertProspectToClient.bind(null, p.id);
                 const value = formatValue(p.estimated_value_cents);
                 return (
                   <div key={p.id} className="rounded-lg border border-border bg-background p-3">
@@ -125,6 +131,18 @@ export default async function ProspectsPage() {
                     )}
                     {value && (
                       <p className="mt-0.5 text-xs text-muted-foreground">{value}</p>
+                    )}
+                    {stage.value === "won" && (
+                      <form action={convertThis} className="mt-2">
+                        <ConfirmButton
+                          confirmText={`Create a client workspace for "${p.company_name}"?`}
+                          ariaLabel={`Convert ${p.company_name} to a client`}
+                          className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
+                        >
+                          Convert to client
+                          <ArrowRight size={12} weight="bold" />
+                        </ConfirmButton>
+                      </form>
                     )}
                     <div className="mt-2 flex items-center gap-2">
                       <form action={updateThis} className="flex-1">

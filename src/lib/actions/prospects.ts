@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireAxelAdmin } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
 
@@ -48,4 +49,40 @@ export async function deleteProspect(prospectId: string) {
     throw new Error(`Couldn't delete prospect: ${error.message}`);
   }
   revalidatePath("/admin/prospects");
+}
+
+/** Creates the client org from a won prospect and takes admin straight to it. */
+export async function convertProspectToClient(prospectId: string) {
+  await requireAxelAdmin();
+  const supabase = await createClient();
+
+  const { data: prospect } = await supabase
+    .from("prospects")
+    .select("company_name")
+    .eq("id", prospectId)
+    .maybeSingle();
+  if (!prospect) {
+    throw new Error("Prospect not found.");
+  }
+
+  const { data: org, error: orgError } = await supabase
+    .from("organizations")
+    .insert({ name: prospect.company_name, status: "onboarding" })
+    .select("id")
+    .single();
+  if (orgError || !org) {
+    throw new Error(`Couldn't create client: ${orgError?.message ?? "unknown error"}`);
+  }
+
+  const { error: stageError } = await supabase
+    .from("prospects")
+    .update({ stage: "won" })
+    .eq("id", prospectId);
+  if (stageError) {
+    throw new Error(`Client created, but couldn't update prospect stage: ${stageError.message}`);
+  }
+
+  revalidatePath("/admin/prospects");
+  revalidatePath("/admin/clients");
+  redirect(`/admin/clients/${org.id}`);
 }
