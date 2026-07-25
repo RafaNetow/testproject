@@ -11,9 +11,17 @@ export default async function AdminProjectInvoicesPage({
   const { orgId, projectId } = await params;
   const supabase = await createClient();
 
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("name")
+    .eq("id", orgId)
+    .maybeSingle();
+
   const { data: invoices } = await supabase
     .from("invoices")
-    .select("id, invoice_number, amount_cents, currency, status, due_date, pdf_storage_path")
+    .select(
+      "id, invoice_number, amount_cents, currency, status, due_date, issued_at, line_items, tax_rate_pct, discount_cents, pdf_storage_path"
+    )
     .eq("project_id", projectId)
     .order("created_at", { ascending: false });
 
@@ -30,6 +38,7 @@ export default async function AdminProjectInvoicesPage({
   return (
     <InvoicesView
       orgId={orgId}
+      orgName={org?.name ?? "Client"}
       projectId={projectId}
       invoices={invoicesWithUrls}
       revalidatePaths={[`/admin/clients/${orgId}/projects/${projectId}/invoices`]}

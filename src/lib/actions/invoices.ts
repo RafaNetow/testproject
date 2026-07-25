@@ -10,52 +10,70 @@ function revalidateAll(paths: string[]) {
   for (const p of paths) revalidatePath(p);
 }
 
-export async function createInvoice(
+export type InvoiceLineItem = {
+  description: string;
+  quantity: number;
+  unitPriceCents: number;
+};
+
+export type CreateInvoiceInput = {
+  invoiceNumber: string;
+  currency: string;
+  issuedAt: string;
+  dueDate: string;
+  lineItems: InvoiceLineItem[];
+  taxRatePct: number;
+  discountCents: number;
+  status: "draft" | "sent";
+};
+
+export type CreateInvoiceResult = {
+  success: boolean;
+  message?: string;
+};
+
+/** Called directly from the client builder (not a <form action>) since the
+ * line-item array doesn't serialize cleanly through FormData. */
+export async function createInvoiceWithLineItems(
   orgId: string,
   projectId: string,
   paths: string[],
-  formData: FormData
-) {
+  input: CreateInvoiceInput
+): Promise<CreateInvoiceResult> {
   await requireAxelAdmin();
 
-  const invoiceNumber = String(formData.get("invoice_number") ?? "").trim();
-  const amount = Number(formData.get("amount") ?? 0);
-  const currency = String(formData.get("currency") ?? "DKK");
-  const dueDate = String(formData.get("due_date") ?? "").trim();
-  if (!invoiceNumber || !Number.isFinite(amount) || amount <= 0) {
-    throw new Error("Enter an invoice number and a valid amount.");
+  const invoiceNumber = input.invoiceNumber.trim();
+  const items = input.lineItems.filter((li) => li.description.trim() && li.quantity > 0);
+  if (!invoiceNumber) {
+    return { success: false, message: "Enter an invoice number." };
   }
+  if (!items.length) {
+    return { success: false, message: "Add at least one line item." };
+  }
+
+  const subtotal = items.reduce((sum, li) => sum + li.quantity * li.unitPriceCents, 0);
+  const taxCents = Math.round(subtotal * (input.taxRatePct / 100));
+  const total = subtotal + taxCents - input.discountCents;
 
   const supabase = await createClient();
-  const file = formData.get("pdf");
-  let pdfStoragePath: string | null = null;
-
-  if (file instanceof File && file.size > 0) {
-    pdfStoragePath = `${orgId}/invoices/${crypto.randomUUID()}-${file.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from(BUCKET)
-      .upload(pdfStoragePath, file, { contentType: file.type || undefined });
-    if (uploadError) {
-      throw new Error(`Couldn't upload PDF: ${uploadError.message}`);
-    }
-  }
-
   const { error } = await supabase.from("invoices").insert({
     org_id: orgId,
     project_id: projectId,
     invoice_number: invoiceNumber,
-    amount_cents: Math.round(amount * 100),
-    currency,
-    due_date: dueDate || null,
-    pdf_storage_path: pdfStoragePath,
-    issued_at: new Date().toISOString(),
-    status: "sent",
+    currency: input.currency,
+    amount_cents: total,
+    line_items: items,
+    tax_rate_pct: input.taxRatePct,
+    discount_cents: input.discountCents,
+    due_date: input.dueDate || null,
+    issued_at: new Date(input.issuedAt).toISOString(),
+    status: input.status,
   });
   if (error) {
-    if (pdfStoragePath) await supabase.storage.from(BUCKET).remove([pdfStoragePath]);
-    throw new Error(`Couldn't create invoice: ${error.message}`);
+    return { success: false, message: `Couldn't create invoice: ${error.message}` };
   }
   revalidateAll(paths);
+  return { success: true, message: input.status === "draft" ? "Saved as draft." : "Invoice sent." };
 }
 
 export async function updateInvoiceStatus(invoiceId: string, paths: string[], formData: FormData) {
