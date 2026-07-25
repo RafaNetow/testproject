@@ -262,78 +262,39 @@ export default async function ClientDetailPage({
               const deleteThisProject = deleteProject.bind(null, orgId, project.id);
               return (
                 <div key={project.id} className="rounded-xl border border-border">
-                  <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
-                    <div className="flex items-center gap-3">
-                      <span className="font-medium text-primary">{project.name}</span>
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                          PROJECT_STATUS_STYLES[project.status] ?? PROJECT_STATUS_STYLES.active
-                        }`}
-                      >
-                        {project.status}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {project.progress_pct}%
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
+                  <div className="flex flex-wrap items-center gap-3 px-4 py-3.5">
+                    <span className="font-medium text-primary">{project.name}</span>
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                        PROJECT_STATUS_STYLES[project.status] ?? PROJECT_STATUS_STYLES.active
+                      }`}
+                    >
+                      {project.status}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {project.progress_pct}%
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 border-t border-border px-4 py-2.5">
+                    {[
+                      { href: "board", label: "Board", icon: SquaresFour },
+                      { href: "decisions", label: "Decisions", icon: ChatCircleDots },
+                      { href: "files", label: "Files", icon: FolderOpen },
+                      { href: "meetings", label: "Meetings", icon: VideoCamera },
+                      { href: "updates", label: "Updates", icon: NotePencil },
+                      { href: "invoices", label: "Invoices", icon: Receipt },
+                      { href: "contracts", label: "Contracts", icon: FileText },
+                    ].map(({ href, label, icon: ItemIcon }) => (
                       <Link
-                        href={`/admin/clients/${orgId}/projects/${project.id}/board`}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
-                        title="Board"
-                        aria-label={`Open board for ${project.name}`}
+                        key={href}
+                        href={`/admin/clients/${orgId}/projects/${project.id}/${href}`}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted hover:text-accent"
                       >
-                        <SquaresFour size={16} />
+                        <ItemIcon size={13} />
+                        {label}
                       </Link>
-                      <Link
-                        href={`/admin/clients/${orgId}/projects/${project.id}/decisions`}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
-                        title="Decisions"
-                        aria-label={`Open decisions for ${project.name}`}
-                      >
-                        <ChatCircleDots size={16} />
-                      </Link>
-                      <Link
-                        href={`/admin/clients/${orgId}/projects/${project.id}/files`}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
-                        title="Files"
-                        aria-label={`Open files for ${project.name}`}
-                      >
-                        <FolderOpen size={16} />
-                      </Link>
-                      <Link
-                        href={`/admin/clients/${orgId}/projects/${project.id}/meetings`}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
-                        title="Meetings"
-                        aria-label={`Open meetings for ${project.name}`}
-                      >
-                        <VideoCamera size={16} />
-                      </Link>
-                      <Link
-                        href={`/admin/clients/${orgId}/projects/${project.id}/updates`}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
-                        title="Updates"
-                        aria-label={`Open updates for ${project.name}`}
-                      >
-                        <NotePencil size={16} />
-                      </Link>
-                      <Link
-                        href={`/admin/clients/${orgId}/projects/${project.id}/invoices`}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
-                        title="Invoices"
-                        aria-label={`Open invoices for ${project.name}`}
-                      >
-                        <Receipt size={16} />
-                      </Link>
-                      <Link
-                        href={`/admin/clients/${orgId}/projects/${project.id}/contracts`}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
-                        title="Contracts"
-                        aria-label={`Open contracts for ${project.name}`}
-                      >
-                        <FileText size={16} />
-                      </Link>
-                    </div>
+                    ))}
                   </div>
 
                   <details className="group border-t border-border">
