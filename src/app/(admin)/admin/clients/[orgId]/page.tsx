@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   ChatCircleDots,
+  FileText,
   FolderOpen,
   NotePencil,
   Plus,
+  Receipt,
   SquaresFour,
   Trash,
   VideoCamera,
@@ -317,6 +319,22 @@ export default async function ClientDetailPage({
                         aria-label={`Open updates for ${project.name}`}
                       >
                         <NotePencil size={16} />
+                      </Link>
+                      <Link
+                        href={`/admin/clients/${orgId}/projects/${project.id}/invoices`}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                        title="Invoices"
+                        aria-label={`Open invoices for ${project.name}`}
+                      >
+                        <Receipt size={16} />
+                      </Link>
+                      <Link
+                        href={`/admin/clients/${orgId}/projects/${project.id}/contracts`}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                        title="Contracts"
+                        aria-label={`Open contracts for ${project.name}`}
+                      >
+                        <FileText size={16} />
                       </Link>
                     </div>
                   </summary>
