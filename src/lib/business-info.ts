@@ -7,6 +7,6 @@
 export const BUSINESS_INFO = {
   name: "Alchemica",
   email: "hello@alchemica.com",
-  cvrNumber: "", // e.g. "DK12345678" — required on invoices once you're VAT-registered
+  cvrNumber: "DK36168870",
   address: "", // street, postal code, city
 };
