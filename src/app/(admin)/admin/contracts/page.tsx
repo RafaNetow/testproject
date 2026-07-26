@@ -11,8 +11,8 @@ const TYPE_LABELS: Record<string, string> = {
 const STATUS_STYLES: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
   sent: "bg-accent/10 text-accent",
-  partially_signed: "bg-amber-100 text-amber-700",
-  signed: "bg-emerald-100 text-emerald-700",
+  partially_signed: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
+  signed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
 };
 
 type ContractRow = {

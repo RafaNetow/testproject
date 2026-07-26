@@ -5,8 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { ProjectSubNav } from "@/components/admin/project-sub-nav";
 
 const PROJECT_STATUS_STYLES: Record<string, string> = {
-  active: "bg-emerald-100 text-emerald-700",
-  paused: "bg-amber-100 text-amber-700",
+  active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
+  paused: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
   completed: "bg-muted text-muted-foreground",
 };
 

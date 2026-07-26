@@ -5,7 +5,7 @@ import { deriveInvoiceStatus } from "@/lib/invoice-status";
 const STATUS_STYLES: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
   sent: "bg-accent/10 text-accent",
-  paid: "bg-emerald-100 text-emerald-700",
+  paid: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
   overdue: "bg-destructive/10 text-destructive",
 };
 

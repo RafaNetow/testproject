@@ -62,7 +62,7 @@ export function AppShell({ variant, brandLabel, subtitle, userEmail, children }:
   );
 
   return (
-    <div className="flex min-h-dvh bg-muted">
+    <div className="app-shell flex min-h-dvh bg-muted">
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
         <div className="px-6 py-6">
           <Link href="/" className="font-display text-lg text-primary">

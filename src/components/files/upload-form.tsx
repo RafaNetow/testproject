@@ -45,7 +45,7 @@ export function UploadForm({
         <p
           role="status"
           className={`text-sm leading-relaxed ${
-            state.success ? "text-emerald-700" : "text-destructive"
+            state.success ? "text-emerald-700 dark:text-emerald-400" : "text-destructive"
           }`}
         >
           {state.message}

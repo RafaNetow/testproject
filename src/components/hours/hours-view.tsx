@@ -164,7 +164,7 @@ export function HoursView({
                     </span>
                   )}
                   {e.invoice_id && (
-                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs text-emerald-700">
+                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">
                       Invoiced
                     </span>
                   )}

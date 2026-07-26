@@ -25,7 +25,7 @@ export default async function InvoicePrintPage({
   const org = invoice.organizations as unknown as { name: string; cvr_number: string | null } | null;
 
   return (
-    <div className="min-h-dvh bg-muted px-4 py-10 sm:px-8">
+    <div className="app-shell min-h-dvh bg-muted px-4 py-10 sm:px-8">
       <div className="mx-auto flex max-w-2xl flex-col gap-4">
         <div className="print:hidden flex justify-end">
           <PrintButton />

@@ -29,7 +29,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  paid: "text-emerald-600 border-emerald-600/40",
+  paid: "text-emerald-600 border-emerald-600/40 dark:text-emerald-400 dark:border-emerald-400/40",
   overdue: "text-destructive border-destructive/40",
 };
 

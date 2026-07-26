@@ -31,14 +31,14 @@ const PROJECT_STATUS_OPTIONS = ["active", "paused", "completed"] as const;
 
 const STATUS_STYLES: Record<string, string> = {
   onboarding: "bg-accent/10 text-accent",
-  active: "bg-emerald-100 text-emerald-700",
-  at_risk: "bg-amber-100 text-amber-700",
+  active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
+  at_risk: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
   offboarded: "bg-muted text-muted-foreground",
 };
 
 const PROJECT_STATUS_STYLES: Record<string, string> = {
-  active: "bg-emerald-100 text-emerald-700",
-  paused: "bg-amber-100 text-amber-700",
+  active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
+  paused: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
   completed: "bg-muted text-muted-foreground",
 };
 
@@ -207,7 +207,7 @@ export default async function ClientDetailPage({
                     <span
                       className={`rounded-full px-2.5 py-1 text-xs font-medium ${
                         m.accepted_at
-                          ? "bg-emerald-100 text-emerald-700"
+                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"
                           : "bg-muted text-muted-foreground"
                       }`}
                     >
@@ -394,7 +394,7 @@ export default async function ClientDetailPage({
                     <form action={deleteThisProject} className="mt-4">
                       <ConfirmButton
                         confirmText={`Permanently delete "${project.name}" and its board, files, and decisions? This can't be undone.`}
-                        className="inline-flex items-center gap-2 rounded-full border border-destructive/30 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive hover:text-white"
+                        className="inline-flex items-center gap-2 rounded-full border border-destructive/30 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground"
                       >
                         <Trash size={14} weight="bold" />
                         Delete project
@@ -424,7 +424,7 @@ export default async function ClientDetailPage({
         <form action={deleteThisOrg} className="mt-4">
           <ConfirmButton
             confirmText={`Permanently delete ${org.name} and everything under it? This can't be undone.`}
-            className="inline-flex items-center gap-2 rounded-full border border-destructive/30 px-5 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive hover:text-white"
+            className="inline-flex items-center gap-2 rounded-full border border-destructive/30 px-5 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground"
           >
             <Trash size={16} weight="bold" />
             Delete client

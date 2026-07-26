@@ -358,7 +358,7 @@ export function InvoiceBuilder({
           <p
             role="status"
             className={`text-sm leading-relaxed ${
-              message.success ? "text-emerald-700" : "text-destructive"
+              message.success ? "text-emerald-700 dark:text-emerald-400" : "text-destructive"
             }`}
           >
             {message.text}

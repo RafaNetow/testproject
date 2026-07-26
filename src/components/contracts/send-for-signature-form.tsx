@@ -71,7 +71,7 @@ export function SendForSignatureForm({
         <p
           role="status"
           className={`text-xs leading-relaxed ${
-            state.success ? "text-emerald-700" : "text-destructive"
+            state.success ? "text-emerald-700 dark:text-emerald-400" : "text-destructive"
           }`}
         >
           {state.message}

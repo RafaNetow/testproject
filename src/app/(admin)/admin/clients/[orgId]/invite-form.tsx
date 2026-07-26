@@ -57,8 +57,8 @@ export function InviteForm({ orgId }: { orgId: string }) {
             !state.success
               ? "text-destructive"
               : state.emailSent
-                ? "text-emerald-700"
-                : "text-amber-700"
+                ? "text-emerald-700 dark:text-emerald-400"
+                : "text-amber-700 dark:text-amber-400"
           }`}
         >
           {state.message}

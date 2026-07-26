@@ -137,7 +137,7 @@ export default async function ProspectsPage() {
                         <ConfirmButton
                           confirmText={`Create a client workspace for "${p.company_name}"?`}
                           ariaLabel={`Convert ${p.company_name} to a client`}
-                          className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
+                          className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-xs font-medium text-accent-foreground transition-opacity hover:opacity-90"
                         >
                           Convert to client
                           <ArrowRight size={12} weight="bold" />
