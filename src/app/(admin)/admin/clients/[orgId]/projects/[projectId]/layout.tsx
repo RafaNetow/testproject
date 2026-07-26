@@ -1,13 +1,14 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { ProjectSubNav } from "@/components/admin/project-sub-nav";
+import { SectionHeader } from "@/components/shared/section-header";
 
-const PROJECT_STATUS_STYLES: Record<string, string> = {
-  active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
-  paused: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
-  completed: "bg-muted text-muted-foreground",
+// Always sits on the header's fixed-dark background, regardless of OS
+// light/dark mode — see the same pattern in admin/clients/[orgId]/page.tsx.
+const PROJECT_STATUS_STYLES_ON_DARK: Record<string, string> = {
+  active: "bg-emerald-500/20 text-emerald-300",
+  paused: "bg-amber-500/20 text-amber-300",
+  completed: "bg-white/10 text-white/60",
 };
 
 export default async function ProjectLayout({
@@ -31,25 +32,19 @@ export default async function ProjectLayout({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <Link
-          href={`/admin/clients/${orgId}`}
-          className="inline-flex items-center gap-2 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-        >
-          <ArrowLeft size={16} />
-          {orgName}
-        </Link>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <h1 className="font-display text-2xl font-medium text-primary">{project.name}</h1>
+      <SectionHeader
+        backLink={{ href: `/admin/clients/${orgId}`, label: orgName }}
+        title={project.name}
+        titleExtra={
           <span
             className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-              PROJECT_STATUS_STYLES[project.status] ?? PROJECT_STATUS_STYLES.active
+              PROJECT_STATUS_STYLES_ON_DARK[project.status] ?? PROJECT_STATUS_STYLES_ON_DARK.active
             }`}
           >
             {project.status}
           </span>
-        </div>
-      </div>
+        }
+      />
 
       <ProjectSubNav orgId={orgId} projectId={projectId} />
 

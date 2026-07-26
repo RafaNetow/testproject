@@ -9,6 +9,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { getPortalProjectContext } from "@/lib/portal-context";
 import { DashboardHero } from "@/components/shared/dashboard-hero";
+import { SectionHeader } from "@/components/shared/section-header";
 
 type ActivityItem = {
   type: "card" | "decision" | "update" | "meeting" | "file";
@@ -23,12 +24,7 @@ export default async function PortalHome() {
   if (!org) {
     return (
       <div className="flex flex-col gap-10">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
-            Executive Summary
-          </p>
-          <h1 className="mt-2 font-display text-2xl font-medium text-primary">Welcome</h1>
-        </div>
+        <SectionHeader eyebrow="Executive Summary" title="Welcome" />
         <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-10 text-center">
           <p className="font-display text-lg font-medium text-primary">
             Your workspace is being set up
@@ -46,12 +42,7 @@ export default async function PortalHome() {
   if (!projectIds.length) {
     return (
       <div className="flex flex-col gap-10">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
-            Executive Summary
-          </p>
-          <h1 className="mt-2 font-display text-2xl font-medium text-primary">{org.name}</h1>
-        </div>
+        <SectionHeader eyebrow="Executive Summary" title={org.name} />
         <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-10 text-center">
           <p className="font-display text-lg font-medium text-primary">
             Your first project is being set up

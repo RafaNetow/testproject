@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { VideoCamera } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
+import { SectionHeader } from "@/components/shared/section-header";
 
 const STATUS_STYLES: Record<string, string> = {
   upcoming: "bg-accent/10 text-accent",
@@ -96,12 +97,7 @@ export default async function CalendarPage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Calendar</p>
-        <h1 className="mt-2 font-display text-2xl font-medium text-primary">
-          Meetings across all clients
-        </h1>
-      </div>
+      <SectionHeader eyebrow="Calendar" title="Meetings across all clients" />
 
       <div className="flex flex-col gap-4">
         <p className="text-sm font-medium text-secondary">Upcoming</p>

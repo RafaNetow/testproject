@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  ArrowLeft,
   ChatCircleDots,
   Clock,
   FileText,
@@ -16,6 +15,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { ConfirmButton } from "@/components/confirm-button";
+import { SectionHeader } from "@/components/shared/section-header";
 import { InviteForm } from "./invite-form";
 import { ResendInviteButton } from "./resend-invite-button";
 import {
@@ -41,6 +41,16 @@ const PROJECT_STATUS_STYLES: Record<string, string> = {
   active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
   paused: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
   completed: "bg-muted text-muted-foreground",
+};
+
+// The header itself is always dark (regardless of OS light/dark mode), so its
+// status pill needs its own always-legible palette rather than the light-card
+// styles above, which only get a dark: variant when the OS is in dark mode.
+const STATUS_STYLES_ON_DARK: Record<string, string> = {
+  onboarding: "bg-accent/20 text-[#7dd3fc]",
+  active: "bg-emerald-500/20 text-emerald-300",
+  at_risk: "bg-amber-500/20 text-amber-300",
+  offboarded: "bg-white/10 text-white/60",
 };
 
 export default async function ClientDetailPage({
@@ -77,27 +87,19 @@ export default async function ClientDetailPage({
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <Link
-          href="/admin/clients"
-          className="inline-flex items-center gap-2 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-        >
-          <ArrowLeft size={16} />
-          All clients
-        </Link>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <h1 className="font-display text-2xl font-medium text-primary">
-            {org.name}
-          </h1>
+      <SectionHeader
+        backLink={{ href: "/admin/clients", label: "All clients" }}
+        title={org.name}
+        titleExtra={
           <span
             className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-              STATUS_STYLES[org.status] ?? STATUS_STYLES.onboarding
+              STATUS_STYLES_ON_DARK[org.status] ?? STATUS_STYLES_ON_DARK.onboarding
             }`}
           >
             {org.status.replace("_", " ")}
           </span>
-        </div>
-      </div>
+        }
+      />
 
       <div className="rounded-2xl border border-border bg-card p-6">
         <p className="font-mono text-xs uppercase tracking-widest text-accent">

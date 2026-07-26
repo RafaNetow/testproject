@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Pagination } from "@/components/shared/pagination";
+import { SectionHeader } from "@/components/shared/section-header";
 
 const PAGE_SIZE = 25;
 
@@ -49,20 +50,17 @@ export default async function AdminContractsPage({
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Contracts</p>
-        <h1 className="mt-2 font-display text-2xl font-medium text-primary">
-          All contracts across clients
-        </h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          To create or edit a contract, open the client&apos;s project.
-        </p>
-      </div>
+      <SectionHeader
+        eyebrow="Contracts"
+        title="All contracts across clients"
+        subtitle="To create or edit a contract, open the client's project."
+      />
 
       {!contracts.length ? (
         <p className="text-sm text-muted-foreground">No contracts yet.</p>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
@@ -113,6 +111,7 @@ export default async function AdminContractsPage({
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 

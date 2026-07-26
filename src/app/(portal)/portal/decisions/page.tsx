@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPortalProjectContext } from "@/lib/portal-context";
 import { DecisionsView } from "@/components/decisions/decisions-view";
 import { ProjectSwitcher } from "@/components/board/project-switcher";
+import { SectionHeader } from "@/components/shared/section-header";
 import { isAxelAdmin } from "@/lib/dal";
 
 export default async function DecisionsPage({
@@ -15,10 +16,7 @@ export default async function DecisionsPage({
   if (!project) {
     return (
       <div className="flex flex-col gap-8">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Decisions</p>
-          <h1 className="mt-2 font-display text-2xl font-medium text-primary">Decisions</h1>
-        </div>
+        <SectionHeader eyebrow="Decisions" title="Decisions" />
         <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
           <p className="font-display text-lg font-medium text-primary">No project yet</p>
           <p className="mt-1.5 text-sm text-muted-foreground">
@@ -40,15 +38,15 @@ export default async function DecisionsPage({
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Decisions</p>
-          <h1 className="mt-2 font-display text-2xl font-medium text-primary">{project.name}</h1>
-        </div>
-        {projects.length > 1 && (
-          <ProjectSwitcher projects={projects} current={project.id} basePath="/portal/decisions" />
-        )}
-      </div>
+      <SectionHeader
+        eyebrow="Decisions"
+        title={project.name}
+        actions={
+          projects.length > 1 ? (
+            <ProjectSwitcher projects={projects} current={project.id} basePath="/portal/decisions" />
+          ) : undefined
+        }
+      />
 
       <DecisionsView
         projectId={project.id}

@@ -2,6 +2,7 @@ import { UsersThree } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { getPortalProjectContext } from "@/lib/portal-context";
 import { updateOrgDetails } from "@/lib/actions/organization-details";
+import { SectionHeader } from "@/components/shared/section-header";
 
 export default async function TeamPage() {
   const { org, role } = await getPortalProjectContext();
@@ -9,10 +10,7 @@ export default async function TeamPage() {
   if (!org) {
     return (
       <div className="flex flex-col gap-8">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Team</p>
-          <h1 className="mt-2 font-display text-2xl font-medium text-primary">Team</h1>
-        </div>
+        <SectionHeader eyebrow="Team" title="Team" />
         <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
           <p className="font-display text-lg font-medium text-primary">No workspace yet</p>
           <p className="mt-1.5 text-sm text-muted-foreground">
@@ -35,10 +33,7 @@ export default async function TeamPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Team</p>
-        <h1 className="mt-2 font-display text-2xl font-medium text-primary">{org.name}</h1>
-      </div>
+      <SectionHeader eyebrow="Team" title={org.name} />
 
       <div className="rounded-2xl border border-border bg-card p-6">
         <p className="font-mono text-xs uppercase tracking-widest text-accent">Company details</p>

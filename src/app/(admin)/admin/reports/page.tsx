@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DownloadSimple } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { deriveInvoiceStatus } from "@/lib/invoice-status";
+import { SectionHeader } from "@/components/shared/section-header";
 
 type InvoiceRow = {
   id: string;
@@ -104,31 +105,29 @@ export default async function AdminReportsPage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Reports</p>
-          <h1 className="mt-2 font-display text-2xl font-medium text-primary">Business overview</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Revenue, outstanding invoices, and billable hours across every client.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <a
-            href="/api/export/invoices"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-sm font-medium text-secondary transition-colors hover:bg-muted"
-          >
-            <DownloadSimple size={15} />
-            Export invoices
-          </a>
-          <a
-            href="/api/export/hours"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-sm font-medium text-secondary transition-colors hover:bg-muted"
-          >
-            <DownloadSimple size={15} />
-            Export hours
-          </a>
-        </div>
-      </div>
+      <SectionHeader
+        eyebrow="Reports"
+        title="Business overview"
+        subtitle="Revenue, outstanding invoices, and billable hours across every client."
+        actions={
+          <>
+            <a
+              href="/api/export/invoices"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              <DownloadSimple size={15} />
+              Export invoices
+            </a>
+            <a
+              href="/api/export/hours"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              <DownloadSimple size={15} />
+              Export hours
+            </a>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
@@ -168,6 +167,7 @@ export default async function AdminReportsPage() {
           </div>
         ) : (
           <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
@@ -213,6 +213,7 @@ export default async function AdminReportsPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>

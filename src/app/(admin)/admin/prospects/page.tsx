@@ -2,6 +2,7 @@ import { ArrowRight, Plus, Trash } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
+import { SectionHeader } from "@/components/shared/section-header";
 import {
   createProspect,
   updateProspectStage,
@@ -35,10 +36,7 @@ export default async function ProspectsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Prospects</p>
-        <h1 className="mt-2 font-display text-2xl font-medium text-primary">Sales pipeline</h1>
-      </div>
+      <SectionHeader eyebrow="Prospects" title="Sales pipeline" />
 
       <form
         action={createProspect}

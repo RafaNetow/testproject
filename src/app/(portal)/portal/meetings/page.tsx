@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPortalProjectContext } from "@/lib/portal-context";
 import { MeetingsView } from "@/components/meetings/meetings-view";
 import { ProjectSwitcher } from "@/components/board/project-switcher";
+import { SectionHeader } from "@/components/shared/section-header";
 
 export default async function MeetingsPage({
   searchParams,
@@ -14,10 +15,7 @@ export default async function MeetingsPage({
   if (!project) {
     return (
       <div className="flex flex-col gap-8">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Meetings</p>
-          <h1 className="mt-2 font-display text-2xl font-medium text-primary">Meetings</h1>
-        </div>
+        <SectionHeader eyebrow="Meetings" title="Meetings" />
         <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
           <p className="font-display text-lg font-medium text-primary">No project yet</p>
           <p className="mt-1.5 text-sm text-muted-foreground">
@@ -37,15 +35,15 @@ export default async function MeetingsPage({
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Meetings</p>
-          <h1 className="mt-2 font-display text-2xl font-medium text-primary">{project.name}</h1>
-        </div>
-        {projects.length > 1 && (
-          <ProjectSwitcher projects={projects} current={project.id} basePath="/portal/meetings" />
-        )}
-      </div>
+      <SectionHeader
+        eyebrow="Meetings"
+        title={project.name}
+        actions={
+          projects.length > 1 ? (
+            <ProjectSwitcher projects={projects} current={project.id} basePath="/portal/meetings" />
+          ) : undefined
+        }
+      />
 
       <MeetingsView
         projectId={project.id}

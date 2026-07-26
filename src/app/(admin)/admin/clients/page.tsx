@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Buildings, Plus } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
+import { SectionHeader } from "@/components/shared/section-header";
 import { createOrganization } from "./actions";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -19,10 +20,7 @@ export default async function ClientsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Clients</p>
-        <h1 className="mt-2 font-display text-2xl font-medium text-primary">All clients</h1>
-      </div>
+      <SectionHeader eyebrow="Clients" title="All clients" />
 
       <form
         action={createOrganization}
@@ -59,6 +57,7 @@ export default async function ClientsPage() {
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
@@ -98,6 +97,7 @@ export default async function ClientsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>
