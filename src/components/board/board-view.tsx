@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useTransition } from "react";
 import { Plus, Trash } from "@phosphor-icons/react/dist/ssr";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "./auto-submit-select";
@@ -38,6 +41,10 @@ export function BoardView({
   revalidatePaths: string[];
   canDelete: boolean;
 }) {
+  const [draggedCardId, setDraggedCardId] = useState<string | null>(null);
+  const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
+
   if (!columns.length) {
     return (
       <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
@@ -56,6 +63,20 @@ export function BoardView({
   ];
   const memberById = new Map(members.map((m) => [m.id, m]));
 
+  function dropCardOn(columnId: string) {
+    setDragOverColumnId(null);
+    if (!draggedCardId) return;
+    const cardId = draggedCardId;
+    setDraggedCardId(null);
+    const currentCard = cards.find((c) => c.id === cardId);
+    if (!currentCard || currentCard.column_id === columnId) return;
+    const formData = new FormData();
+    formData.set("column_id", columnId);
+    startTransition(() => {
+      moveCard(cardId, revalidatePaths, formData);
+    });
+  }
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {columns.map((col) => {
@@ -67,7 +88,20 @@ export function BoardView({
         return (
           <div
             key={col.id}
-            className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4"
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOverColumnId(col.id);
+            }}
+            onDragLeave={() => setDragOverColumnId((cur) => (cur === col.id ? null : cur))}
+            onDrop={(e) => {
+              e.preventDefault();
+              dropCardOn(col.id);
+            }}
+            className={`flex flex-col gap-3 rounded-2xl border p-4 transition-colors ${
+              dragOverColumnId === col.id
+                ? "border-accent bg-accent/5"
+                : "border-border bg-card"
+            }`}
           >
             <div className="flex items-center justify-between">
               <h3 className="font-display text-sm font-medium text-primary">{col.name}</h3>
@@ -85,7 +119,18 @@ export function BoardView({
                 return (
                   <div
                     key={card.id}
-                    className="rounded-lg border border-border bg-background p-3"
+                    draggable
+                    onDragStart={(e) => {
+                      setDraggedCardId(card.id);
+                      e.dataTransfer.effectAllowed = "move";
+                    }}
+                    onDragEnd={() => {
+                      setDraggedCardId(null);
+                      setDragOverColumnId(null);
+                    }}
+                    className={`cursor-grab rounded-lg border border-border bg-background p-3 transition-opacity active:cursor-grabbing ${
+                      draggedCardId === card.id ? "opacity-40" : "opacity-100"
+                    }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-sm font-medium text-primary">{card.title}</p>

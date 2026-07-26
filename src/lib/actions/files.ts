@@ -69,6 +69,22 @@ export async function uploadFile(
   return { success: true, message: `"${file.name}" uploaded.` };
 }
 
+/** Renames a file's display name only — the underlying storage path is untouched. */
+export async function renameFile(fileId: string, paths: string[], formData: FormData) {
+  await requireAxelAdmin();
+  const filename = String(formData.get("filename") ?? "").trim();
+  if (!filename) {
+    throw new Error("File name is required.");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("files").update({ filename }).eq("id", fileId);
+  if (error) {
+    throw new Error(`Couldn't rename file: ${error.message}`);
+  }
+  revalidateAll(paths);
+}
+
 export async function deleteFile(fileId: string, storagePath: string, paths: string[]) {
   await requireAxelAdmin();
   const supabase = await createClient();

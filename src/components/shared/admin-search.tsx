@@ -2,7 +2,15 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Buildings, FileText, MagnifyingGlass, Receipt, SquaresFour } from "@phosphor-icons/react/dist/ssr";
+import {
+  Buildings,
+  ChatCircleDots,
+  FileText,
+  FolderOpen,
+  MagnifyingGlass,
+  Receipt,
+  SquaresFour,
+} from "@phosphor-icons/react/dist/ssr";
 import { searchAdmin, type SearchResult } from "@/lib/actions/search";
 
 const ICONS = {
@@ -10,6 +18,9 @@ const ICONS = {
   project: SquaresFour,
   invoice: Receipt,
   contract: FileText,
+  file: FolderOpen,
+  card: SquaresFour,
+  decision: ChatCircleDots,
 } as const;
 
 export function AdminSearch() {
@@ -19,6 +30,7 @@ export function AdminSearch() {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
@@ -29,6 +41,22 @@ export function AdminSearch() {
     }
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  // This component is mounted twice at once (desktop sidebar + mobile menu),
+  // one of them always display:none — only the one actually visible should
+  // respond, or Cmd+K would fight between two hidden/visible instances.
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        if (inputRef.current && inputRef.current.offsetParent !== null) {
+          e.preventDefault();
+          inputRef.current.focus();
+        }
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
   function handleChange(value: string) {
@@ -59,12 +87,16 @@ export function AdminSearch() {
       <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 transition-colors focus-within:border-white/25">
         <MagnifyingGlass size={15} className="shrink-0 text-white/40" />
         <input
+          ref={inputRef}
           value={query}
           onChange={(e) => handleChange(e.target.value)}
           onFocus={() => setOpen(true)}
-          placeholder="Search clients, invoices, contracts…"
+          placeholder="Search everything…"
           className="w-full min-w-0 bg-transparent text-sm text-white outline-none placeholder:text-white/35"
         />
+        <kbd className="hidden shrink-0 rounded border border-white/15 px-1.5 py-0.5 font-mono text-[10px] text-white/40 sm:block">
+          ⌘K
+        </kbd>
       </div>
 
       {open && query.trim().length >= 2 && (

@@ -1,6 +1,6 @@
-import { Plus, Trash } from "@phosphor-icons/react/dist/ssr";
-import { ConfirmButton } from "@/components/confirm-button";
-import { logHours, deleteHoursEntry } from "@/lib/actions/hours";
+import { Plus } from "@phosphor-icons/react/dist/ssr";
+import { logHours, updateHoursEntry, deleteHoursEntry } from "@/lib/actions/hours";
+import { EditableHoursRow } from "./editable-hours-row";
 
 type HoursEntry = {
   id: string;
@@ -140,50 +140,15 @@ export function HoursView({
       ) : (
         <div className="divide-y divide-border border-t border-border">
           {entries.map((e) => {
-            const deleteThis = deleteHoursEntry.bind(null, e.id, revalidatePaths);
+            const updateThis = canLog ? updateHoursEntry.bind(null, e.id, revalidatePaths) : undefined;
+            const deleteThis = canLog ? deleteHoursEntry.bind(null, e.id, revalidatePaths) : undefined;
             return (
-              <div key={e.id} className="flex items-center justify-between gap-3 py-3.5">
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {new Date(e.entry_date).toLocaleDateString("en-GB", {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                  <span className="text-sm font-medium text-primary">
-                    {Number(e.hours).toFixed(2)}h
-                  </span>
-                  {e.category && (
-                    <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
-                      {e.category}
-                    </span>
-                  )}
-                  {!e.billable && (
-                    <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-xs text-accent">
-                      Non-billable
-                    </span>
-                  )}
-                  {e.invoice_id && (
-                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">
-                      Invoiced
-                    </span>
-                  )}
-                  {e.description && (
-                    <span className="text-sm text-secondary">{e.description}</span>
-                  )}
-                </div>
-                {canLog && (
-                  <form action={deleteThis}>
-                    <ConfirmButton
-                      confirmText={`Delete this ${e.hours}h entry?`}
-                      ariaLabel={`Delete ${e.hours} hour entry`}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    >
-                      <Trash size={15} />
-                    </ConfirmButton>
-                  </form>
-                )}
-              </div>
+              <EditableHoursRow
+                key={e.id}
+                entry={e}
+                updateAction={updateThis}
+                deleteAction={deleteThis}
+              />
             );
           })}
         </div>

@@ -12,7 +12,15 @@ import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { UploadForm } from "./upload-form";
 import { FilePreviewDialog } from "./file-preview-dialog";
-import { createFolder, deleteFolder, deleteFile, moveFile } from "@/lib/actions/files";
+import { RenameButton } from "./rename-button";
+import {
+  createFolder,
+  deleteFolder,
+  deleteFile,
+  moveFile,
+  renameFolder,
+  renameFile,
+} from "@/lib/actions/files";
 
 type FolderRow = { id: string; name: string; parent_folder_id: string | null };
 type FileRow = {
@@ -257,6 +265,7 @@ export function FilesView({
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {subfolders.map((f) => {
             const deleteThis = deleteFolder.bind(null, f.id, revalidatePaths);
+            const renameThis = renameFolder.bind(null, f.id, revalidatePaths);
             return (
               <div
                 key={f.id}
@@ -269,6 +278,17 @@ export function FilesView({
                   <FolderSimple size={18} weight="fill" className="shrink-0 text-accent" />
                   <span className="truncate">{f.name}</span>
                 </Link>
+                {canManage && (
+                  <form action={renameThis}>
+                    <RenameButton
+                      fieldName="name"
+                      currentValue={f.name}
+                      promptText="Rename folder"
+                      ariaLabel={`Rename folder ${f.name}`}
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                    />
+                  </form>
+                )}
                 {canManage && (
                   <form action={deleteThis}>
                     <ConfirmButton
@@ -300,6 +320,7 @@ export function FilesView({
           {filesHere.map((f) => {
             const deleteThis = deleteFile.bind(null, f.id, f.storage_path, revalidatePaths);
             const moveThis = moveFile.bind(null, f.id, revalidatePaths);
+            const renameThis = renameFile.bind(null, f.id, revalidatePaths);
             return (
               <div key={f.id} className="flex items-center justify-between gap-3 py-3.5">
                 <div className="flex min-w-0 items-center gap-3">
@@ -336,6 +357,17 @@ export function FilesView({
                         <DownloadSimple size={16} />
                       </a>
                     </>
+                  )}
+                  {canManage && (
+                    <form action={renameThis}>
+                      <RenameButton
+                        fieldName="filename"
+                        currentValue={f.filename}
+                        promptText="Rename file"
+                        ariaLabel={`Rename file ${f.filename}`}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                      />
+                    </form>
                   )}
                   {canManage && (
                     <form action={deleteThis}>
