@@ -5,10 +5,13 @@ const BUCKET = "org-documents";
 
 export default async function AdminProjectInvoicesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ orgId: string; projectId: string }>;
+  searchParams: Promise<{ duplicate?: string }>;
 }) {
   const { orgId, projectId } = await params;
+  const { duplicate } = await searchParams;
   const supabase = await createClient();
 
   const { data: org } = await supabase
@@ -43,6 +46,19 @@ export default async function AdminProjectInvoicesPage({
     .is("invoice_id", null)
     .order("entry_date", { ascending: false });
 
+  const sourceInvoice = duplicate ? invoicesWithUrls.find((inv) => inv.id === duplicate) : null;
+  const duplicateFrom = sourceInvoice
+    ? {
+        sourceId: sourceInvoice.id,
+        currency: sourceInvoice.currency,
+        lineItems: sourceInvoice.line_items ?? [],
+        vatTreatment: sourceInvoice.vat_treatment ?? "domestic",
+        taxRatePct: sourceInvoice.tax_rate_pct ?? 25,
+        buyerVatNumber: sourceInvoice.buyer_vat_number,
+        discountCents: sourceInvoice.discount_cents ?? 0,
+      }
+    : null;
+
   return (
     <InvoicesView
       orgId={orgId}
@@ -53,6 +69,8 @@ export default async function AdminProjectInvoicesPage({
       unbilledHours={unbilledHours ?? []}
       revalidatePaths={[`/admin/clients/${orgId}/projects/${projectId}/invoices`]}
       canManage
+      basePath={`/admin/clients/${orgId}/projects/${projectId}/invoices`}
+      duplicateFrom={duplicateFrom}
     />
   );
 }

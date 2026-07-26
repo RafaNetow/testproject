@@ -26,6 +26,15 @@ export type UnbilledHoursEntry = {
   description: string | null;
 };
 
+export type DuplicateFrom = {
+  currency: string;
+  lineItems: InvoiceLineItem[];
+  vatTreatment: VatTreatment;
+  taxRatePct: number;
+  buyerVatNumber: string | null;
+  discountCents: number;
+};
+
 export function InvoiceBuilder({
   orgId,
   projectId,
@@ -33,6 +42,7 @@ export function InvoiceBuilder({
   orgCvrNumber,
   unbilledHours,
   revalidatePaths,
+  duplicateFrom,
 }: {
   orgId: string;
   projectId: string;
@@ -40,18 +50,23 @@ export function InvoiceBuilder({
   orgCvrNumber?: string | null;
   unbilledHours: UnbilledHoursEntry[];
   revalidatePaths: string[];
+  duplicateFrom?: DuplicateFrom;
 }) {
   const [invoiceNumber, setInvoiceNumber] = useState("");
-  const [currency, setCurrency] = useState("DKK");
+  const [currency, setCurrency] = useState(duplicateFrom?.currency ?? "DKK");
   const [issuedAt, setIssuedAt] = useState(new Date().toISOString().slice(0, 10));
   const [dueDate, setDueDate] = useState("");
-  const [vatTreatment, setVatTreatment] = useState<VatTreatment>("domestic");
-  const [taxRatePct, setTaxRatePct] = useState(25);
-  const [buyerVatNumber, setBuyerVatNumber] = useState("");
-  const [discountCents, setDiscountCents] = useState(0);
-  const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([
-    { description: "", quantity: 1, unitPriceCents: 0 },
-  ]);
+  const [vatTreatment, setVatTreatment] = useState<VatTreatment>(
+    duplicateFrom?.vatTreatment ?? "domestic"
+  );
+  const [taxRatePct, setTaxRatePct] = useState(duplicateFrom?.taxRatePct ?? 25);
+  const [buyerVatNumber, setBuyerVatNumber] = useState(duplicateFrom?.buyerVatNumber ?? "");
+  const [discountCents, setDiscountCents] = useState(duplicateFrom?.discountCents ?? 0);
+  const [lineItems, setLineItems] = useState<InvoiceLineItem[]>(
+    duplicateFrom?.lineItems.length
+      ? duplicateFrom.lineItems
+      : [{ description: "", quantity: 1, unitPriceCents: 0 }]
+  );
   const [selectedHourIds, setSelectedHourIds] = useState<Set<string>>(new Set());
   const [importedHourIds, setImportedHourIds] = useState<string[]>([]);
   const [hourlyRate, setHourlyRate] = useState(0);
@@ -137,6 +152,11 @@ export function InvoiceBuilder({
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5">
         <p className="font-mono text-xs uppercase tracking-widest text-accent">New invoice</p>
+        {duplicateFrom && (
+          <p className="-mt-2 text-xs text-muted-foreground">
+            Pre-filled from that invoice — give it a new number and due date before sending.
+          </p>
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">

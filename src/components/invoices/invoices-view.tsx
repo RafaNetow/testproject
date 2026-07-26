@@ -1,9 +1,10 @@
-import { DownloadSimple, Paperclip, Trash } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
+import { CopySimple, DownloadSimple, Paperclip, Trash } from "@phosphor-icons/react/dist/ssr";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { updateInvoiceStatus, deleteInvoice } from "@/lib/actions/invoices";
 import { deriveInvoiceStatus } from "@/lib/invoice-status";
-import { InvoiceBuilder, type UnbilledHoursEntry } from "./invoice-builder";
+import { InvoiceBuilder, type DuplicateFrom, type UnbilledHoursEntry } from "./invoice-builder";
 import { InvoicePreview, type PreviewLineItem, type VatTreatment } from "./invoice-preview";
 
 type Invoice = {
@@ -43,6 +44,8 @@ export function InvoicesView({
   unbilledHours,
   revalidatePaths,
   canManage,
+  basePath,
+  duplicateFrom,
 }: {
   orgId: string;
   orgName: string;
@@ -52,6 +55,8 @@ export function InvoicesView({
   unbilledHours: UnbilledHoursEntry[];
   revalidatePaths: string[];
   canManage: boolean;
+  basePath?: string;
+  duplicateFrom?: (DuplicateFrom & { sourceId: string }) | null;
 }) {
   const statusOptions = [
     { value: "draft", label: "Draft" },
@@ -64,12 +69,14 @@ export function InvoicesView({
     <div className="flex flex-col gap-6">
       {canManage && (
         <InvoiceBuilder
+          key={duplicateFrom?.sourceId ?? "new"}
           orgId={orgId}
           projectId={projectId}
           orgName={orgName}
           orgCvrNumber={orgCvrNumber}
           unbilledHours={unbilledHours}
           revalidatePaths={revalidatePaths}
+          duplicateFrom={duplicateFrom ?? undefined}
         />
       )}
 
@@ -127,6 +134,16 @@ export function InvoicesView({
                       >
                         <Paperclip size={16} />
                       </a>
+                    )}
+                    {canManage && basePath && (
+                      <Link
+                        href={`${basePath}?duplicate=${inv.id}`}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                        title="Duplicate"
+                        aria-label={`Duplicate invoice ${inv.invoice_number}`}
+                      >
+                        <CopySimple size={16} />
+                      </Link>
                     )}
                     {canManage && (
                       <>
