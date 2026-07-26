@@ -7,6 +7,7 @@ import { List, X } from "@phosphor-icons/react/dist/ssr";
 import { SignOutButton } from "@/components/sign-out-button";
 import { AdminSearch } from "@/components/shared/admin-search";
 import { MolecularAccent } from "@/components/molecular-accent";
+import { NotificationBell, type NotificationItem } from "@/components/shared/notification-bell";
 import { PORTAL_NAV, ADMIN_NAV } from "@/lib/nav-items";
 
 type AppShellProps = {
@@ -14,6 +15,7 @@ type AppShellProps = {
   brandLabel: string;
   subtitle: string;
   userEmail: string;
+  notifications: NotificationItem[];
   children: ReactNode;
 };
 
@@ -24,7 +26,14 @@ type AppShellProps = {
  * component references) are looked up here rather than passed as a prop,
  * since functions can't cross the Server->Client Component boundary.
  */
-export function AppShell({ variant, brandLabel, subtitle, userEmail, children }: AppShellProps) {
+export function AppShell({
+  variant,
+  brandLabel,
+  subtitle,
+  userEmail,
+  notifications,
+  children,
+}: AppShellProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const navItems = variant === "portal" ? PORTAL_NAV : ADMIN_NAV;
@@ -77,6 +86,9 @@ export function AppShell({ variant, brandLabel, subtitle, userEmail, children }:
       <aside className="hidden w-64 shrink-0 flex-col bg-[#0a0e16] lg:flex">
         <div className="relative h-44 shrink-0 overflow-hidden">
           <MolecularAccent tone="bright" className="absolute inset-0 h-full w-full opacity-70" />
+          <div className="absolute right-4 top-4 z-10">
+            <NotificationBell notifications={notifications} dark />
+          </div>
           <div className="relative z-10 flex h-full flex-col justify-end px-6 pb-6">
             <Link href="/" className="font-display text-lg text-white">
               {brandLabel}
@@ -100,15 +112,18 @@ export function AppShell({ variant, brandLabel, subtitle, userEmail, children }:
           <Link href="/" className="font-display text-lg text-white">
             {brandLabel}
           </Link>
-          <button
-            type="button"
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-            className="flex h-11 w-11 items-center justify-center text-white"
-          >
-            {open ? <X size={22} /> : <List size={22} />}
-          </button>
+          <div className="flex items-center gap-1">
+            <NotificationBell notifications={notifications} dark />
+            <button
+              type="button"
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              onClick={() => setOpen((v) => !v)}
+              className="flex h-11 w-11 items-center justify-center text-white"
+            >
+              {open ? <X size={22} /> : <List size={22} />}
+            </button>
+          </div>
         </header>
 
         {open && (

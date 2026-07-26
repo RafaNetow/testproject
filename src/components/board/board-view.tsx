@@ -49,7 +49,14 @@ type CardComment = {
 };
 type CardLink = { id: string; card_id: string; url: string; label: string | null };
 type CardFileLink = { card_id: string; file_id: string };
-type ProjectFile = { id: string; filename: string; url: string | null; mime_type: string | null };
+type ProjectFile = {
+  id: string;
+  filename: string;
+  folder_id: string | null;
+  url: string | null;
+  mime_type: string | null;
+};
+type Folder = { id: string; name: string };
 
 function parseLocalDate(dateStr: string) {
   const [y, m, d] = dateStr.split("-").map(Number);
@@ -85,6 +92,8 @@ function groupByColumn(columns: Column[], cards: Card[]) {
 
 export function BoardView({
   projectId,
+  filesBaseUrl,
+  folders,
   columns,
   cards,
   members,
@@ -98,6 +107,8 @@ export function BoardView({
   canDelete,
 }: {
   projectId: string;
+  filesBaseUrl: string;
+  folders: Folder[];
   columns: Column[];
   cards: Card[];
   members: Member[];
@@ -285,6 +296,8 @@ export function BoardView({
       <CardDetailModal
         card={modalCard}
         projectId={projectId}
+        filesBaseUrl={filesBaseUrl}
+        folders={folders}
         columnName={openColumn?.name ?? ""}
         members={members}
         assigneeIds={openCardId ? (assigneesByCard.get(openCardId) ?? []) : []}

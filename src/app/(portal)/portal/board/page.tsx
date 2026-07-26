@@ -50,7 +50,7 @@ export default async function BoardPage({
 
   const cardIds = (cards ?? []).map((c) => c.id);
 
-  const [{ data: memberships }, { data: admins }, { data: assignees }, { data: comments }, { data: links }, { data: cardFiles }, { data: files }] =
+  const [{ data: memberships }, { data: admins }, { data: assignees }, { data: comments }, { data: links }, { data: cardFiles }, { data: files }, { data: folders }] =
     await Promise.all([
       supabase
         .from("org_memberships")
@@ -76,8 +76,9 @@ export default async function BoardPage({
         : Promise.resolve({ data: [] }),
       supabase
         .from("files")
-        .select("id, filename, storage_path, mime_type")
+        .select("id, filename, folder_id, storage_path, mime_type")
         .eq("project_id", project.id),
+      supabase.from("folders").select("id, name").eq("project_id", project.id),
     ]);
 
   const orgMembers = (memberships ?? []).map((m) => ({
@@ -93,7 +94,13 @@ export default async function BoardPage({
   const projectFiles = await Promise.all(
     (files ?? []).map(async (f) => {
       const { data } = await supabase.storage.from(BUCKET).createSignedUrl(f.storage_path, 3600);
-      return { id: f.id, filename: f.filename, mime_type: f.mime_type, url: data?.signedUrl ?? null };
+      return {
+        id: f.id,
+        filename: f.filename,
+        folder_id: f.folder_id,
+        mime_type: f.mime_type,
+        url: data?.signedUrl ?? null,
+      };
     })
   );
 
@@ -113,6 +120,8 @@ export default async function BoardPage({
 
       <BoardView
         projectId={project.id}
+        filesBaseUrl={`/portal/files?project=${project.id}`}
+        folders={folders ?? []}
         columns={columns ?? []}
         cards={cards ?? []}
         members={members}

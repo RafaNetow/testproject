@@ -12,10 +12,13 @@ import {
   UploadSimple,
   UserPlus,
   FileText,
-  ArrowSquareOut,
+  FolderOpen,
+  DownloadSimple,
   Tag,
 } from "@phosphor-icons/react/dist/ssr";
 import { ConfirmButton } from "@/components/confirm-button";
+import { Popover } from "@/components/shared/popover";
+import { timeAgo } from "@/lib/time-ago";
 import { colorFor, initials } from "./board-colors";
 import {
   updateCardTitle,
@@ -36,7 +39,14 @@ import {
 } from "@/lib/actions/board";
 
 type Member = { id: string; full_name: string | null };
-type ProjectFile = { id: string; filename: string; url: string | null; mime_type: string | null };
+type Folder = { id: string; name: string };
+type ProjectFile = {
+  id: string;
+  filename: string;
+  folder_id: string | null;
+  url: string | null;
+  mime_type: string | null;
+};
 type CardComment = {
   id: string;
   author_id: string | null;
@@ -55,22 +65,10 @@ export type ModalCard = {
   column_id: string;
 };
 
-/** Closes the popover this form lives in right after a valid submit — native
- * required-field validation still blocks invalid submits from closing it. */
-function closeParentDetails(e: React.SyntheticEvent<HTMLElement>) {
-  e.currentTarget.closest("details")?.removeAttribute("open");
-}
-
-function timeAgo(iso: string) {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString("en-GB");
+function fileHref(filesBaseUrl: string, folderId: string | null) {
+  if (!folderId) return filesBaseUrl;
+  const sep = filesBaseUrl.includes("?") ? "&" : "?";
+  return `${filesBaseUrl}${sep}folder=${folderId}`;
 }
 
 function SidebarBlock({
@@ -96,6 +94,8 @@ function SidebarBlock({
 export function CardDetailModal({
   card,
   projectId,
+  filesBaseUrl,
+  folders,
   columnName,
   members,
   assigneeIds,
@@ -110,6 +110,8 @@ export function CardDetailModal({
 }: {
   card: ModalCard | null;
   projectId: string;
+  filesBaseUrl: string;
+  folders: Folder[];
   columnName: string;
   members: Member[];
   assigneeIds: string[];
@@ -149,6 +151,8 @@ export function CardDetailModal({
         <CardDetailBody
           card={card}
           projectId={projectId}
+          filesBaseUrl={filesBaseUrl}
+          folders={folders}
           columnName={columnName}
           members={members}
           memberById={memberById}
@@ -170,6 +174,8 @@ export function CardDetailModal({
 function CardDetailBody({
   card,
   projectId,
+  filesBaseUrl,
+  folders,
   columnName,
   members,
   memberById,
@@ -185,6 +191,8 @@ function CardDetailBody({
 }: {
   card: ModalCard;
   projectId: string;
+  filesBaseUrl: string;
+  folders: Folder[];
   columnName: string;
   members: Member[];
   memberById: Map<string, Member>;
@@ -325,19 +333,27 @@ function CardDetailBody({
                   return (
                     <div
                       key={f.id}
-                      className="flex items-center gap-2.5 rounded-lg border border-border bg-background px-3 py-2"
+                      className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2"
                     >
                       <FileText size={16} className="shrink-0 text-muted-foreground" />
                       <span className="min-w-0 flex-1 truncate text-sm text-primary">{f.filename}</span>
+                      <a
+                        href={fileHref(filesBaseUrl, f.folder_id)}
+                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                        title="View in Files"
+                        aria-label={`View ${f.filename} in Files`}
+                      >
+                        <FolderOpen size={14} />
+                      </a>
                       {f.url && (
                         <a
                           href={f.url}
-                          target="_blank"
-                          rel="noreferrer"
+                          download={f.filename}
                           className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
-                          aria-label={`Open ${f.filename}`}
+                          title="Download"
+                          aria-label={`Download ${f.filename}`}
                         >
-                          <ArrowSquareOut size={14} />
+                          <DownloadSimple size={14} />
                         </a>
                       )}
                       <form action={detach}>
@@ -386,58 +402,80 @@ function CardDetailBody({
 
             <div className="flex flex-wrap gap-2">
               {attachable.length > 0 && (
-                <details className="group relative">
-                  <summary className="inline-flex list-none items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted">
-                    <FileText size={13} />
-                    Existing file
-                  </summary>
-                  <div className="absolute left-0 z-20 mt-2 flex max-h-56 w-64 flex-col gap-0.5 overflow-y-auto rounded-xl border border-border bg-card p-1.5 shadow-lg">
-                    {attachable.map((f) => {
-                      const attach = attachCardFile.bind(null, card.id, f.id, paths);
-                      return (
-                        <form action={attach} key={f.id} onSubmit={closeParentDetails}>
-                          <button
-                            type="submit"
-                            className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-secondary transition-colors hover:bg-muted hover:text-primary"
+                <Popover
+                  trigger={({ toggle }) => (
+                    <button
+                      type="button"
+                      onClick={toggle}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted"
+                    >
+                      <FileText size={13} />
+                      Existing file
+                    </button>
+                  )}
+                >
+                  {(close) => (
+                    <div className="flex max-h-56 w-64 flex-col gap-0.5 overflow-y-auto rounded-xl border border-border bg-card p-1.5 shadow-lg">
+                      {attachable.map((f) => {
+                        const attach = attachCardFile.bind(null, card.id, f.id, paths);
+                        return (
+                          <form
+                            action={attach}
+                            key={f.id}
+                            onSubmit={close}
                           >
-                            <FileText size={14} className="shrink-0 text-muted-foreground" />
-                            <span className="min-w-0 flex-1 truncate">{f.filename}</span>
-                          </button>
-                        </form>
-                      );
-                    })}
-                  </div>
-                </details>
+                            <button
+                              type="submit"
+                              className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-secondary transition-colors hover:bg-muted hover:text-primary"
+                            >
+                              <FileText size={14} className="shrink-0 text-muted-foreground" />
+                              <span className="min-w-0 flex-1 truncate">{f.filename}</span>
+                            </button>
+                          </form>
+                        );
+                      })}
+                    </div>
+                  )}
+                </Popover>
               )}
 
-              <UploadAttachmentForm projectId={projectId} cardId={card.id} paths={paths} />
+              <UploadAttachmentForm projectId={projectId} cardId={card.id} folders={folders} paths={paths} />
 
-              <details className="group relative">
-                <summary className="inline-flex list-none items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted">
-                  <LinkSimple size={13} />
-                  Link
-                </summary>
-                <form
-                  action={addThisLink}
-                  onSubmit={closeParentDetails}
-                  className="absolute left-0 z-20 mt-2 flex w-64 flex-col gap-2 rounded-xl border border-border bg-card p-3 shadow-lg"
-                >
-                  <input
-                    name="url"
-                    required
-                    placeholder="https://…"
-                    className="rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-primary outline-none focus:border-accent"
-                  />
-                  <input
-                    name="label"
-                    placeholder="Label (optional)"
-                    className="rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-primary outline-none focus:border-accent"
-                  />
-                  <button type="submit" className="btn-primary rounded-md py-1.5 text-xs font-medium">
-                    Attach
+              <Popover
+                trigger={({ toggle }) => (
+                  <button
+                    type="button"
+                    onClick={toggle}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted"
+                  >
+                    <LinkSimple size={13} />
+                    Link
                   </button>
-                </form>
-              </details>
+                )}
+              >
+                {(close) => (
+                  <form
+                    action={addThisLink}
+                    onSubmit={close}
+                    className="flex w-64 flex-col gap-2 rounded-xl border border-border bg-card p-3 shadow-lg"
+                  >
+                    <input
+                      name="url"
+                      required
+                      placeholder="https://…"
+                      className="rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-primary outline-none focus:border-accent"
+                    />
+                    <input
+                      name="label"
+                      placeholder="Label (optional)"
+                      className="rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-primary outline-none focus:border-accent"
+                    />
+                    <button type="submit" className="btn-primary rounded-md py-1.5 text-xs font-medium">
+                      Attach
+                    </button>
+                  </form>
+                )}
+              </Popover>
             </div>
           </div>
 
@@ -553,38 +591,48 @@ function CardDetailBody({
                   </span>
                 );
               })}
-              <details className="group relative">
-                <summary className="flex h-7 w-7 list-none items-center justify-center rounded-full border border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-accent">
-                  <Plus size={13} weight="bold" />
-                </summary>
-                <div className="absolute left-0 z-20 mt-2 flex w-52 flex-col gap-0.5 rounded-xl border border-border bg-card p-1.5 shadow-lg">
-                  {members.length === 0 && (
-                    <p className="px-2 py-1.5 text-xs text-muted-foreground">No members yet.</p>
-                  )}
-                  {members.map((m) => {
-                    const isAssigned = assigneeIds.includes(m.id);
-                    const toggle = toggleCardAssignee.bind(null, card.id, m.id, isAssigned, paths);
-                    return (
-                      <form action={toggle} key={m.id} onSubmit={closeParentDetails}>
-                        <button
-                          type="submit"
-                          className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted ${
-                            isAssigned ? "text-primary" : "text-secondary"
-                          }`}
-                        >
-                          <span
-                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-mono text-[9px] font-medium ${colorFor(m.id).bg} ${colorFor(m.id).text}`}
+              <Popover
+                trigger={({ toggle }) => (
+                  <button
+                    type="button"
+                    onClick={toggle}
+                    aria-label="Add assignee"
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-accent"
+                  >
+                    <Plus size={13} weight="bold" />
+                  </button>
+                )}
+              >
+                {(close) => (
+                  <div className="flex w-52 flex-col gap-0.5 rounded-xl border border-border bg-card p-1.5 shadow-lg">
+                    {members.length === 0 && (
+                      <p className="px-2 py-1.5 text-xs text-muted-foreground">No members yet.</p>
+                    )}
+                    {members.map((m) => {
+                      const isAssigned = assigneeIds.includes(m.id);
+                      const toggle = toggleCardAssignee.bind(null, card.id, m.id, isAssigned, paths);
+                      return (
+                        <form action={toggle} key={m.id} onSubmit={close}>
+                          <button
+                            type="submit"
+                            className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted ${
+                              isAssigned ? "text-primary" : "text-secondary"
+                            }`}
                           >
-                            {initials(m.full_name)}
-                          </span>
-                          <span className="min-w-0 flex-1 truncate">{m.full_name ?? "Unnamed"}</span>
-                          {isAssigned && <span className="shrink-0 text-accent">✓</span>}
-                        </button>
-                      </form>
-                    );
-                  })}
-                </div>
-              </details>
+                            <span
+                              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-mono text-[9px] font-medium ${colorFor(m.id).bg} ${colorFor(m.id).text}`}
+                            >
+                              {initials(m.full_name)}
+                            </span>
+                            <span className="min-w-0 flex-1 truncate">{m.full_name ?? "Unnamed"}</span>
+                            {isAssigned && <span className="shrink-0 text-accent">✓</span>}
+                          </button>
+                        </form>
+                      );
+                    })}
+                  </div>
+                )}
+              </Popover>
             </div>
           </SidebarBlock>
 
@@ -611,27 +659,36 @@ function CardDetailBody({
                   </span>
                 );
               })}
-              <details className="group relative">
-                <summary className="flex list-none items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-[10px] font-medium text-muted-foreground transition-colors hover:border-accent hover:text-accent">
-                  <Plus size={11} weight="bold" />
-                  Add
-                </summary>
-                <form
-                  action={addThisTag}
-                  onSubmit={closeParentDetails}
-                  className="absolute left-0 z-20 mt-2 flex w-48 gap-1.5 rounded-xl border border-border bg-card p-2 shadow-lg"
-                >
-                  <input
-                    name="tag"
-                    required
-                    placeholder="e.g. urgent"
-                    className="w-full min-w-0 rounded-md border border-border bg-background px-2 py-1 text-xs text-primary outline-none focus:border-accent"
-                  />
-                  <button type="submit" className="btn-primary shrink-0 rounded-md px-2 py-1 text-xs font-medium">
+              <Popover
+                trigger={({ toggle }) => (
+                  <button
+                    type="button"
+                    onClick={toggle}
+                    className="flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-[10px] font-medium text-muted-foreground transition-colors hover:border-accent hover:text-accent"
+                  >
+                    <Plus size={11} weight="bold" />
                     Add
                   </button>
-                </form>
-              </details>
+                )}
+              >
+                {(close) => (
+                  <form
+                    action={addThisTag}
+                    onSubmit={close}
+                    className="flex w-48 gap-1.5 rounded-xl border border-border bg-card p-2 shadow-lg"
+                  >
+                    <input
+                      name="tag"
+                      required
+                      placeholder="e.g. urgent"
+                      className="w-full min-w-0 rounded-md border border-border bg-background px-2 py-1 text-xs text-primary outline-none focus:border-accent"
+                    />
+                    <button type="submit" className="btn-primary shrink-0 rounded-md px-2 py-1 text-xs font-medium">
+                      Add
+                    </button>
+                  </form>
+                )}
+              </Popover>
             </div>
           </SidebarBlock>
 
@@ -655,49 +712,77 @@ function CardDetailBody({
 function UploadAttachmentForm({
   projectId,
   cardId,
+  folders,
   paths,
 }: {
   projectId: string;
   cardId: string;
+  folders: Folder[];
   paths: string[];
 }) {
-  const detailsRef = useRef<HTMLDetailsElement>(null);
   const [state, formAction, isPending] = useActionState<UploadAttachResult | null, FormData>(
     async (_prev, formData) => uploadAndAttachCardFile(projectId, cardId, paths, formData),
     null
   );
+  const closeRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    if (state?.success) detailsRef.current?.removeAttribute("open");
+    if (state?.success) closeRef.current?.();
   }, [state]);
 
   return (
-    <details ref={detailsRef} className="group relative">
-      <summary className="inline-flex list-none items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted">
-        <UploadSimple size={13} />
-        Upload a file
-      </summary>
-      <form
-        action={formAction}
-        className="absolute left-0 z-20 mt-2 flex w-64 flex-col gap-2 rounded-xl border border-border bg-card p-3 shadow-lg"
-      >
-        <input
-          name="file"
-          type="file"
-          required
-          className="w-full rounded-md border border-border bg-background text-xs text-primary outline-none file:mr-2 file:rounded-full file:border-0 file:bg-muted file:px-2.5 file:py-1 file:text-[11px] file:font-medium file:text-secondary focus:border-accent"
-        />
+    <Popover
+      trigger={({ toggle }) => (
         <button
-          type="submit"
-          disabled={isPending}
-          className="btn-primary rounded-md py-1.5 text-xs font-medium disabled:opacity-60"
+          type="button"
+          onClick={toggle}
+          className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted"
         >
-          {isPending ? "Uploading…" : "Upload & attach"}
+          <UploadSimple size={13} />
+          Upload a file
         </button>
-        {state && !state.success && (
-          <p className="text-[11px] text-destructive">{state.message}</p>
-        )}
-      </form>
-    </details>
+      )}
+    >
+      {(close) => {
+        closeRef.current = close;
+        return (
+          <form
+            action={formAction}
+            className="flex w-64 flex-col gap-2 rounded-xl border border-border bg-card p-3 shadow-lg"
+          >
+            <input
+              name="file"
+              type="file"
+              required
+              className="w-full rounded-md border border-border bg-background text-xs text-primary outline-none file:mr-2 file:rounded-full file:border-0 file:bg-muted file:px-2.5 file:py-1 file:text-[11px] file:font-medium file:text-secondary focus:border-accent"
+            />
+            {folders.length > 0 && (
+              <select
+                name="folder_id"
+                defaultValue=""
+                className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-primary outline-none focus:border-accent"
+              >
+                <option value="">Top level</option>
+                {folders.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            <button
+              type="submit"
+              disabled={isPending}
+              className="btn-primary rounded-md py-1.5 text-xs font-medium disabled:opacity-60"
+            >
+              {isPending ? "Uploading…" : "Upload & attach"}
+            </button>
+            {state && !state.success && (
+              <p className="text-[11px] text-destructive">{state.message}</p>
+            )}
+          </form>
+        );
+      }}
+    </Popover>
   );
 }

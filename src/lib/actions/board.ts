@@ -30,6 +30,7 @@ export async function uploadAndAttachCardFile(
   if (!(file instanceof File) || file.size === 0) {
     return { success: false, message: "Choose a file to upload." };
   }
+  const folderId = String(formData.get("folder_id") ?? "").trim() || null;
 
   const supabase = await createClient();
   const storagePath = `${projectId}/${crypto.randomUUID()}-${file.name}`;
@@ -45,7 +46,7 @@ export async function uploadAndAttachCardFile(
     .from("files")
     .insert({
       project_id: projectId,
-      folder_id: null,
+      folder_id: folderId,
       storage_path: storagePath,
       filename: file.name,
       size_bytes: file.size,
@@ -250,6 +251,47 @@ export async function removeCardTag(cardId: string, tag: string, paths: string[]
   revalidateAll(paths);
 }
 
+/** Notifies everyone who'd want to know about new activity on a card — its
+ * assignees and whoever created it — excluding the person who just acted.
+ * Best-effort: a notification failing must never fail the comment itself. */
+async function notifyCardActivity(cardId: string, actorId: string, message: string) {
+  try {
+    const supabase = await createClient();
+    const { data: card } = await supabase
+      .from("board_cards")
+      .select("project_id, created_by, projects(org_id)")
+      .eq("id", cardId)
+      .maybeSingle();
+    if (!card) return;
+
+    const { data: assignees } = await supabase
+      .from("board_card_assignees")
+      .select("profile_id")
+      .eq("card_id", cardId);
+
+    const recipientIds = new Set<string>();
+    for (const a of assignees ?? []) recipientIds.add(a.profile_id);
+    if (card.created_by) recipientIds.add(card.created_by);
+    recipientIds.delete(actorId);
+    if (recipientIds.size === 0) return;
+
+    const orgId = (card.projects as unknown as { org_id: string } | null)?.org_id ?? null;
+
+    await supabase.from("notifications").insert(
+      Array.from(recipientIds).map((recipientId) => ({
+        recipient_id: recipientId,
+        actor_id: actorId,
+        card_id: cardId,
+        project_id: card.project_id,
+        org_id: orgId,
+        message,
+      }))
+    );
+  } catch (err) {
+    console.error("notifyCardActivity: failed", err);
+  }
+}
+
 export async function addCardComment(
   cardId: string,
   parentCommentId: string | null,
@@ -267,6 +309,18 @@ export async function addCardComment(
   if (error) {
     throw new Error(`Couldn't post comment: ${error.message}`);
   }
+
+  const [{ data: profile }, { data: card }] = await Promise.all([
+    supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
+    supabase.from("board_cards").select("title").eq("id", cardId).maybeSingle(),
+  ]);
+  const verb = parentCommentId ? "replied on" : "commented on";
+  await notifyCardActivity(
+    cardId,
+    user.id,
+    `${profile?.full_name ?? "Someone"} ${verb} "${card?.title ?? "a card"}"`
+  );
+
   revalidateAll(paths);
 }
 
