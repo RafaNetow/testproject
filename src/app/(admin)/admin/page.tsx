@@ -170,17 +170,17 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
           <p className="text-sm font-medium text-secondary">Active clients</p>
           <p className="mt-2 font-display text-4xl font-medium text-primary">{orgCount ?? "—"}</p>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
           <p className="text-sm font-medium text-secondary">Projects</p>
           <p className="mt-2 font-display text-4xl font-medium text-primary">
             {projectCount ?? "—"}
           </p>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
           <p className="text-sm font-medium text-secondary">Upcoming meetings</p>
           <p className="mt-2 font-display text-4xl font-medium text-primary">
             {upcomingMeetingsCount ?? "—"}

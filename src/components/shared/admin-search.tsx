@@ -56,14 +56,14 @@ export function AdminSearch() {
 
   return (
     <div ref={containerRef} className="relative">
-      <div className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
-        <MagnifyingGlass size={15} className="shrink-0 text-muted-foreground" />
+      <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 transition-colors focus-within:border-white/25">
+        <MagnifyingGlass size={15} className="shrink-0 text-white/40" />
         <input
           value={query}
           onChange={(e) => handleChange(e.target.value)}
           onFocus={() => setOpen(true)}
           placeholder="Search clients, invoices, contracts…"
-          className="w-full min-w-0 bg-transparent text-sm text-primary outline-none placeholder:text-muted-foreground"
+          className="w-full min-w-0 bg-transparent text-sm text-white outline-none placeholder:text-white/35"
         />
       </div>
 

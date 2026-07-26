@@ -131,27 +131,27 @@ export default async function AdminReportsPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
           <p className="text-sm font-medium text-secondary">Collected this month</p>
           <p className="mt-2 font-display text-2xl font-medium text-primary">
             {paidThisMonth.length ? sumByCurrency(paidThisMonth).join(" · ") : "—"}
           </p>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
           <p className="text-sm font-medium text-secondary">Outstanding</p>
           <p className="mt-2 font-display text-2xl font-medium text-primary">
             {outstanding.length ? sumByCurrency(outstanding).join(" · ") : "—"}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">{outstanding.length} invoice(s)</p>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
           <p className="text-sm font-medium text-secondary">Overdue</p>
           <p className="mt-2 font-display text-2xl font-medium text-destructive">
             {overdue.length ? sumByCurrency(overdue).join(" · ") : "—"}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">{overdue.length} invoice(s)</p>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
           <p className="text-sm font-medium text-secondary">Hours this month</p>
           <p className="mt-2 font-display text-2xl font-medium text-primary">
             {totalHoursThisMonth.toFixed(1)}h

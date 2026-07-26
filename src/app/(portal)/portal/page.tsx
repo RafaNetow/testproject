@@ -201,7 +201,7 @@ export default async function PortalHome() {
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {KPI_TILES.map((tile) => (
-          <div key={tile.label} className="rounded-2xl border border-border bg-card p-5">
+          <div key={tile.label} className="rounded-2xl border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
             <p className="text-sm font-medium text-secondary">{tile.label}</p>
             <p className="mt-2 font-display text-3xl font-medium text-primary">{tile.value}</p>
           </div>

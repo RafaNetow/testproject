@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { List, X } from "@phosphor-icons/react/dist/ssr";
 import { SignOutButton } from "@/components/sign-out-button";
 import { AdminSearch } from "@/components/shared/admin-search";
+import { MolecularAccent } from "@/components/molecular-accent";
 import { PORTAL_NAV, ADMIN_NAV } from "@/lib/nav-items";
 
 type AppShellProps = {
@@ -31,7 +32,7 @@ export function AppShell({ variant, brandLabel, subtitle, userEmail, children }:
   const isActive = (href: string) =>
     href === pathname || (href !== "/portal" && href !== "/admin" && pathname.startsWith(href));
 
-  const navList = (
+  const navList = (dark: boolean) => (
     <nav className="flex flex-1 flex-col gap-1 px-3">
       {navItems.map(({ label, href, icon: ItemIcon }) => {
         const active = isActive(href);
@@ -42,8 +43,12 @@ export function AppShell({ variant, brandLabel, subtitle, userEmail, children }:
             onClick={() => setOpen(false)}
             className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
               active
-                ? "bg-accent/10 text-accent"
-                : "text-secondary hover:bg-muted hover:text-primary"
+                ? dark
+                  ? "bg-white/10 text-[#7dd3fc]"
+                  : "bg-accent/10 text-accent"
+                : dark
+                  ? "text-white/60 hover:bg-white/5 hover:text-white"
+                  : "text-secondary hover:bg-muted hover:text-primary"
             }`}
           >
             <ItemIcon size={18} weight={active ? "fill" : "regular"} />
@@ -54,36 +59,45 @@ export function AppShell({ variant, brandLabel, subtitle, userEmail, children }:
     </nav>
   );
 
-  const userBlock = (
-    <div className="border-t border-border px-6 py-5">
-      <p className="truncate text-sm text-secondary">{userEmail}</p>
-      <SignOutButton className="mt-1 inline-block py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-primary" />
+  const userBlock = (dark: boolean) => (
+    <div className={`border-t px-6 py-5 ${dark ? "border-white/10" : "border-border"}`}>
+      <p className={`truncate text-sm ${dark ? "text-white/50" : "text-secondary"}`}>
+        {userEmail}
+      </p>
+      <SignOutButton
+        className={`mt-1 inline-block py-3 text-sm font-medium transition-colors ${
+          dark ? "text-white/40 hover:text-white" : "text-muted-foreground hover:text-primary"
+        }`}
+      />
     </div>
   );
 
   return (
     <div className="app-shell flex min-h-dvh bg-muted">
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card lg:flex">
-        <div className="px-6 py-6">
-          <Link href="/" className="font-display text-lg text-primary">
-            {brandLabel}
-          </Link>
-          <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-            {subtitle}
-          </p>
+      <aside className="hidden w-64 shrink-0 flex-col bg-[#0a0e16] lg:flex">
+        <div className="relative h-44 shrink-0 overflow-hidden">
+          <MolecularAccent className="absolute inset-0 h-full w-full opacity-50" />
+          <div className="relative z-10 flex h-full flex-col justify-end px-6 pb-6">
+            <Link href="/" className="font-display text-lg text-white">
+              {brandLabel}
+            </Link>
+            <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.2em] text-white/40">
+              {subtitle}
+            </p>
+          </div>
         </div>
         {variant === "admin" && (
-          <div className="px-3 pb-3">
+          <div className="px-3 pb-3 pt-3">
             <AdminSearch />
           </div>
         )}
-        {navList}
-        {userBlock}
+        {navList(true)}
+        {userBlock(true)}
       </aside>
 
       <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-border bg-card px-6 py-4 lg:hidden">
-          <Link href="/" className="font-display text-lg text-primary">
+        <header className="flex items-center justify-between bg-[#0a0e16] px-6 py-4 lg:hidden">
+          <Link href="/" className="font-display text-lg text-white">
             {brandLabel}
           </Link>
           <button
@@ -91,25 +105,30 @@ export function AppShell({ variant, brandLabel, subtitle, userEmail, children }:
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="flex h-11 w-11 items-center justify-center text-primary"
+            className="flex h-11 w-11 items-center justify-center text-white"
           >
             {open ? <X size={22} /> : <List size={22} />}
           </button>
         </header>
 
         {open && (
-          <div className="border-b border-border bg-card lg:hidden">
+          <div className="bg-[#0a0e16] lg:hidden">
             {variant === "admin" && (
               <div className="px-3 pt-3">
                 <AdminSearch />
               </div>
             )}
-            <div className="flex flex-col py-2">{navList}</div>
-            {userBlock}
+            <div className="flex flex-col py-2">{navList(true)}</div>
+            {userBlock(true)}
           </div>
         )}
 
-        <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">{children}</main>
+        <main
+          key={pathname}
+          className="app-shell-main flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10"
+        >
+          {children}
+        </main>
       </div>
     </div>
   );
