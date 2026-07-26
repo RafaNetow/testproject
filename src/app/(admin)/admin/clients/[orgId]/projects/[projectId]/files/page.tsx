@@ -22,7 +22,7 @@ export default async function AdminProjectFilesPage({
 
   const { data: files } = await supabase
     .from("files")
-    .select("id, filename, size_bytes, version_tag, created_at, storage_path, folder_id")
+    .select("id, filename, size_bytes, version_tag, created_at, storage_path, folder_id, mime_type")
     .eq("project_id", projectId)
     .order("created_at", { ascending: false });
 

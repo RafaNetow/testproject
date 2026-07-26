@@ -11,6 +11,7 @@ import {
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { UploadForm } from "./upload-form";
+import { FilePreviewDialog } from "./file-preview-dialog";
 import { createFolder, deleteFolder, deleteFile, moveFile } from "@/lib/actions/files";
 
 type FolderRow = { id: string; name: string; parent_folder_id: string | null };
@@ -22,6 +23,7 @@ type FileRow = {
   created_at: string;
   storage_path: string;
   folder_id: string | null;
+  mime_type: string | null;
   url: string | null;
 };
 
@@ -322,15 +324,18 @@ export function FilesView({
                     </form>
                   )}
                   {f.url && (
-                    <a
-                      href={f.url}
-                      download={f.filename}
-                      className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
-                      title="Download"
-                      aria-label={`Download "${f.filename}"`}
-                    >
-                      <DownloadSimple size={16} />
-                    </a>
+                    <>
+                      <FilePreviewDialog filename={f.filename} url={f.url} mimeType={f.mime_type} />
+                      <a
+                        href={f.url}
+                        download={f.filename}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                        title="Download"
+                        aria-label={`Download "${f.filename}"`}
+                      >
+                        <DownloadSimple size={16} />
+                      </a>
+                    </>
                   )}
                   {canManage && (
                     <form action={deleteThis}>
