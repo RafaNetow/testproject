@@ -4,8 +4,70 @@ import { revalidatePath } from "next/cache";
 import { requireSessionUser } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
 
+const BUCKET = "project-files";
+
 function revalidateAll(paths: string[]) {
   for (const p of paths) revalidatePath(p);
+}
+
+export type UploadAttachResult = {
+  success: boolean;
+  message?: string;
+};
+
+/** Uploads a new file straight into storage and attaches it to the card in
+ * one step, for when the file doesn't exist in the project yet — no need to
+ * go to Files first and come back to pick it. */
+export async function uploadAndAttachCardFile(
+  projectId: string,
+  cardId: string,
+  paths: string[],
+  formData: FormData
+): Promise<UploadAttachResult> {
+  const user = await requireSessionUser();
+
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    return { success: false, message: "Choose a file to upload." };
+  }
+
+  const supabase = await createClient();
+  const storagePath = `${projectId}/${crypto.randomUUID()}-${file.name}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from(BUCKET)
+    .upload(storagePath, file, { contentType: file.type || undefined });
+  if (uploadError) {
+    return { success: false, message: `Couldn't upload file: ${uploadError.message}` };
+  }
+
+  const { data: inserted, error: insertError } = await supabase
+    .from("files")
+    .insert({
+      project_id: projectId,
+      folder_id: null,
+      storage_path: storagePath,
+      filename: file.name,
+      size_bytes: file.size,
+      mime_type: file.type || null,
+      uploaded_by: user.id,
+    })
+    .select("id")
+    .single();
+  if (insertError || !inserted) {
+    await supabase.storage.from(BUCKET).remove([storagePath]);
+    return { success: false, message: `Couldn't save file record: ${insertError?.message}` };
+  }
+
+  const { error: attachError } = await supabase
+    .from("board_card_files")
+    .insert({ card_id: cardId, file_id: inserted.id });
+  if (attachError) {
+    return { success: false, message: `Uploaded, but couldn't attach it: ${attachError.message}` };
+  }
+
+  revalidateAll(paths);
+  return { success: true, message: `"${file.name}" uploaded and attached.` };
 }
 
 export async function createCard(
@@ -188,7 +250,12 @@ export async function removeCardTag(cardId: string, tag: string, paths: string[]
   revalidateAll(paths);
 }
 
-export async function addCardComment(cardId: string, paths: string[], formData: FormData) {
+export async function addCardComment(
+  cardId: string,
+  parentCommentId: string | null,
+  paths: string[],
+  formData: FormData
+) {
   const user = await requireSessionUser();
   const body = String(formData.get("body") ?? "").trim();
   if (!body) return;
@@ -196,7 +263,7 @@ export async function addCardComment(cardId: string, paths: string[], formData: 
   const supabase = await createClient();
   const { error } = await supabase
     .from("board_card_comments")
-    .insert({ card_id: cardId, author_id: user.id, body });
+    .insert({ card_id: cardId, author_id: user.id, body, parent_comment_id: parentCommentId });
   if (error) {
     throw new Error(`Couldn't post comment: ${error.message}`);
   }

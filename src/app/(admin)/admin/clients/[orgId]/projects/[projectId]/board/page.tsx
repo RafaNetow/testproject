@@ -43,7 +43,7 @@ export default async function AdminProjectBoardPage({
       cardIds.length
         ? supabase
             .from("board_card_comments")
-            .select("id, card_id, author_id, body, created_at")
+            .select("id, card_id, author_id, body, created_at, parent_comment_id")
             .in("card_id", cardIds)
             .order("created_at")
         : Promise.resolve({ data: [] }),

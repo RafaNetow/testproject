@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -39,7 +39,14 @@ type Card = {
 };
 type Member = { id: string; full_name: string | null };
 type Assignee = { card_id: string; profile_id: string };
-type CardComment = { id: string; card_id: string; author_id: string | null; body: string; created_at: string };
+type CardComment = {
+  id: string;
+  card_id: string;
+  author_id: string | null;
+  body: string;
+  created_at: string;
+  parent_comment_id: string | null;
+};
 type CardLink = { id: string; card_id: string; url: string; label: string | null };
 type CardFileLink = { card_id: string; file_id: string };
 type ProjectFile = { id: string; filename: string; url: string | null; mime_type: string | null };
@@ -108,6 +115,14 @@ export function BoardView({
   );
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [openCardId, setOpenCardId] = useState<string | null>(null);
+
+  // Resyncs local drag state with the server's data after every revalidation
+  // (new card, moved-elsewhere update, etc.) — without this, anything that
+  // isn't purely reflected in an existing card's own fields (i.e. a brand
+  // new card) would only show up after a manual page reload.
+  useEffect(() => {
+    setColumnCardIds(groupByColumn(columns, cards));
+  }, [columns, cards]);
 
   const cardById = useMemo(() => new Map(cards.map((c) => [c.id, c])), [cards]);
   const memberById = useMemo(() => new Map(members.map((m) => [m.id, m])), [members]);
@@ -213,6 +228,7 @@ export function BoardView({
   return (
     <>
       <DndContext
+        id={`board-${projectId}`}
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragStart={onDragStart}
@@ -268,6 +284,7 @@ export function BoardView({
 
       <CardDetailModal
         card={modalCard}
+        projectId={projectId}
         columnName={openColumn?.name ?? ""}
         members={members}
         assigneeIds={openCardId ? (assigneesByCard.get(openCardId) ?? []) : []}
