@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getEnvelope, downloadEnvelopeItem } from "@/lib/documenso";
+import { notifyAxel } from "@/lib/notify-axel";
 
 const BUCKET = "org-documents";
 
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
   const supabase = createAdminClient();
   const { data: contract } = await supabase
     .from("contracts")
-    .select("id, org_id, project_id, documenso_document_id")
+    .select("id, org_id, project_id, title, documenso_document_id, organizations(name)")
     .eq("id", contractId)
     .maybeSingle();
   if (!contract) {
@@ -64,6 +65,10 @@ export async function POST(request: Request) {
               .from("contracts")
               .update({ signing_status: "signed", signed_pdf_storage_path: storagePath })
               .eq("id", contractId);
+            const orgName = (contract.organizations as unknown as { name: string } | null)?.name;
+            await notifyAxel(`Contract signed${orgName ? ` — ${orgName}` : ""}`, [
+              `"${contract.title}" has been fully signed by all parties.`,
+            ]);
           }
         }
       } catch (err) {

@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireSessionUser } from "@/lib/dal";
+import { requireSessionUser, isAxelAdmin } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
+import { notifyAxel } from "@/lib/notify-axel";
 
 function revalidateAll(paths: string[]) {
   for (const p of paths) revalidatePath(p);
@@ -48,6 +49,19 @@ export async function logDecision(projectId: string, paths: string[], formData: 
         `Decision logged, but couldn't save participants: ${participantsError.message}`
       );
     }
+  }
+
+  if (!(await isAxelAdmin())) {
+    const { data: project } = await supabase
+      .from("projects")
+      .select("name, organizations(name)")
+      .eq("id", projectId)
+      .maybeSingle();
+    const orgName = (project?.organizations as unknown as { name: string } | null)?.name;
+    await notifyAxel(`New decision logged${orgName ? ` — ${orgName}` : ""}`, [
+      `"${title}" was logged on ${project?.name ?? "a project"}${orgName ? ` (${orgName})` : ""}.`,
+      body ? `\n${body}` : "",
+    ]);
   }
 
   revalidateAll(paths);

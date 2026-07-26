@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireSessionUser, requireAxelAdmin } from "@/lib/dal";
+import { requireSessionUser, requireAxelAdmin, isAxelAdmin } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
+import { notifyAxel } from "@/lib/notify-axel";
 
 const BUCKET = "project-files";
 
@@ -50,6 +51,18 @@ export async function uploadFile(
   if (insertError) {
     await supabase.storage.from(BUCKET).remove([storagePath]);
     return { success: false, message: `Couldn't save file record: ${insertError.message}` };
+  }
+
+  if (!(await isAxelAdmin())) {
+    const { data: project } = await supabase
+      .from("projects")
+      .select("name, organizations(name)")
+      .eq("id", projectId)
+      .maybeSingle();
+    const orgName = (project?.organizations as unknown as { name: string } | null)?.name;
+    await notifyAxel(`New file uploaded${orgName ? ` — ${orgName}` : ""}`, [
+      `"${file.name}" was uploaded to ${project?.name ?? "a project"}${orgName ? ` (${orgName})` : ""}.`,
+    ]);
   }
 
   revalidateAll(paths);
