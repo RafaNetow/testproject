@@ -33,6 +33,7 @@ export const PORTAL_NAV: NavItem[] = [
 export const ADMIN_NAV: NavItem[] = [
   { label: "Dashboard", href: "/admin", icon: SquaresFour },
   { label: "Clients", href: "/admin/clients", icon: Buildings },
+  { label: "Reports", href: "/admin/reports", icon: ChartLineUp },
   { label: "Calendar", href: "/admin/calendar", icon: CalendarBlank },
   { label: "Invoices", href: "/admin/invoices", icon: Receipt },
   { label: "Contracts", href: "/admin/contracts", icon: FileText },

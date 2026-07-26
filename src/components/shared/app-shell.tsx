@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { List, X } from "@phosphor-icons/react/dist/ssr";
 import { SignOutButton } from "@/components/sign-out-button";
+import { AdminSearch } from "@/components/shared/admin-search";
 import { PORTAL_NAV, ADMIN_NAV } from "@/lib/nav-items";
 
 type AppShellProps = {
@@ -71,6 +72,11 @@ export function AppShell({ variant, brandLabel, subtitle, userEmail, children }:
             {subtitle}
           </p>
         </div>
+        {variant === "admin" && (
+          <div className="px-3 pb-3">
+            <AdminSearch />
+          </div>
+        )}
         {navList}
         {userBlock}
       </aside>
@@ -93,6 +99,11 @@ export function AppShell({ variant, brandLabel, subtitle, userEmail, children }:
 
         {open && (
           <div className="border-b border-border bg-card lg:hidden">
+            {variant === "admin" && (
+              <div className="px-3 pt-3">
+                <AdminSearch />
+              </div>
+            )}
             <div className="flex flex-col py-2">{navList}</div>
             {userBlock}
           </div>
