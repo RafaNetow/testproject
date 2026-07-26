@@ -12,6 +12,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { getSessionUser } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
+import { DashboardHero } from "@/components/shared/dashboard-hero";
 
 const QUICK_LINKS = [
   { label: "Clients", href: "/admin/clients", icon: Buildings },
@@ -162,12 +163,10 @@ export default async function AdminDashboard() {
 
   return (
     <div className="flex flex-col gap-10">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">Dashboard</p>
-        <h1 className="mt-2 font-display text-2xl font-medium text-primary">
-          Welcome back{user?.email ? `, ${user.email.split("@")[0]}` : ""}.
-        </h1>
-      </div>
+      <DashboardHero
+        name={user?.email ? user.email.split("@")[0] : undefined}
+        subtitle="Here's what needs your attention across every client."
+      />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">

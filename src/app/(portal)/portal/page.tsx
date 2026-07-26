@@ -8,6 +8,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { getPortalProjectContext } from "@/lib/portal-context";
+import { DashboardHero } from "@/components/shared/dashboard-hero";
 
 type ActivityItem = {
   type: "card" | "decision" | "update" | "meeting" | "file";
@@ -192,12 +193,7 @@ export default async function PortalHome() {
 
   return (
     <div className="flex flex-col gap-10">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
-          Executive Summary
-        </p>
-        <h1 className="mt-2 font-display text-2xl font-medium text-primary">{org.name}</h1>
-      </div>
+      <DashboardHero name={org.name} subtitle="Here's where your engagement stands today." />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {KPI_TILES.map((tile) => (

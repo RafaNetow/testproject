@@ -4,12 +4,31 @@ import { useEffect, useRef } from "react";
 
 type Particle = { x: number; y: number; vx: number; vy: number };
 
+const TONES = {
+  // Accent blue — the original login-page treatment.
+  accent: { line: "3,105,161", dot: "3,105,161" },
+  // Whiter/brighter — for small dark panels (sidebar, dashboard hero) where
+  // the muted accent blue all but disappears against a near-black background.
+  bright: { line: "224,242,254", dot: "255,255,255" },
+} as const;
+
 /**
  * Contained ambient network of drifting dots with connecting lines —
  * the same "molecular bond" motif used in the client/admin portal, scaled
  * down to fill a single bounded panel rather than the whole viewport.
  */
-export function MolecularAccent({ className }: { className?: string }) {
+export function MolecularAccent({
+  className,
+  tone = "accent",
+  particleCount = 26,
+  desktopOnly = true,
+}: {
+  className?: string;
+  tone?: keyof typeof TONES;
+  particleCount?: number;
+  /** Skip the rAF loop below 1024px — set false when the panel is actually visible on mobile too. */
+  desktopOnly?: boolean;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -20,12 +39,13 @@ export function MolecularAccent({ className }: { className?: string }) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // This accent only ever appears inside a "hidden lg:block" panel — skip
-    // the whole effect below that breakpoint so the particle-physics rAF
-    // loop doesn't run forever off-screen on mobile.
-    if (!window.matchMedia("(min-width: 1024px)").matches) return;
+    // In desktopOnly contexts (sidebar, login) this panel is hidden below
+    // 1024px, so skip the particle-physics rAF loop entirely rather than
+    // running it forever off-screen.
+    if (desktopOnly && !window.matchMedia("(min-width: 1024px)").matches) return;
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const { line: lineRgb, dot: dotRgb } = TONES[tone];
     let particles: Particle[] = [];
     let raf = 0;
 
@@ -60,7 +80,7 @@ export function MolecularAccent({ className }: { className?: string }) {
           const b = particles[j];
           const dist = Math.hypot(a.x - b.x, a.y - b.y);
           if (dist < 110) {
-            ctx!.strokeStyle = `rgba(3,105,161,${(1 - dist / 110) * 0.4})`;
+            ctx!.strokeStyle = `rgba(${lineRgb},${(1 - dist / 110) * 0.4})`;
             ctx!.lineWidth = 1;
             ctx!.beginPath();
             ctx!.moveTo(a.x, a.y);
@@ -70,7 +90,7 @@ export function MolecularAccent({ className }: { className?: string }) {
         }
       }
       particles.forEach((p) => {
-        ctx!.fillStyle = "rgba(3,105,161,0.6)";
+        ctx!.fillStyle = `rgba(${dotRgb},0.6)`;
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, 2, 0, Math.PI * 2);
         ctx!.fill();
@@ -83,7 +103,7 @@ export function MolecularAccent({ className }: { className?: string }) {
     }
 
     resize();
-    initParticles(26);
+    initParticles(particleCount);
     render();
     if (!reduceMotion) tick();
 
@@ -97,7 +117,7 @@ export function MolecularAccent({ className }: { className?: string }) {
       window.removeEventListener("resize", onResize);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [tone, particleCount, desktopOnly]);
 
   return <canvas ref={canvasRef} className={className} aria-hidden="true" />;
 }

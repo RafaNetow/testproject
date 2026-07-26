@@ -76,7 +76,7 @@ export function AppShell({ variant, brandLabel, subtitle, userEmail, children }:
     <div className="app-shell flex min-h-dvh bg-muted">
       <aside className="hidden w-64 shrink-0 flex-col bg-[#0a0e16] lg:flex">
         <div className="relative h-44 shrink-0 overflow-hidden">
-          <MolecularAccent className="absolute inset-0 h-full w-full opacity-50" />
+          <MolecularAccent tone="bright" className="absolute inset-0 h-full w-full opacity-70" />
           <div className="relative z-10 flex h-full flex-col justify-end px-6 pb-6">
             <Link href="/" className="font-display text-lg text-white">
               {brandLabel}
