@@ -16,6 +16,9 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { ConfirmButton } from "@/components/confirm-button";
 import { SectionHeader } from "@/components/shared/section-header";
+import { StatusBadge } from "@/components/shared/status-badge";
+import { SelectField } from "@/components/shared/select-field";
+import { ClientSettingsDrawer } from "@/components/admin/client-settings-drawer";
 import { InviteForm } from "./invite-form";
 import { ResendInviteButton } from "./resend-invite-button";
 import {
@@ -30,28 +33,8 @@ import {
 const STATUS_OPTIONS = ["onboarding", "active", "at_risk", "offboarded"] as const;
 const PROJECT_STATUS_OPTIONS = ["active", "paused", "completed"] as const;
 
-const STATUS_STYLES: Record<string, string> = {
-  onboarding: "bg-accent/10 text-accent",
-  active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
-  at_risk: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
-  offboarded: "bg-muted text-muted-foreground",
-};
-
-const PROJECT_STATUS_STYLES: Record<string, string> = {
-  active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
-  paused: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
-  completed: "bg-muted text-muted-foreground",
-};
-
-// The header itself is always dark (regardless of OS light/dark mode), so its
-// status pill needs its own always-legible palette rather than the light-card
-// styles above, which only get a dark: variant when the OS is in dark mode.
-const STATUS_STYLES_ON_DARK: Record<string, string> = {
-  onboarding: "bg-accent/20 text-[#7dd3fc]",
-  active: "bg-emerald-500/20 text-emerald-300",
-  at_risk: "bg-amber-500/20 text-amber-300",
-  offboarded: "bg-white/10 text-white/60",
-};
+const fieldInputClass =
+  "rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent";
 
 export default async function ClientDetailPage({
   params,
@@ -90,224 +73,222 @@ export default async function ClientDetailPage({
       <SectionHeader
         backLink={{ href: "/admin/clients", label: "All clients" }}
         title={org.name}
-        titleExtra={
-          <span
-            className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-              STATUS_STYLES_ON_DARK[org.status] ?? STATUS_STYLES_ON_DARK.onboarding
-            }`}
-          >
-            {org.status.replace("_", " ")}
-          </span>
+        titleExtra={<StatusBadge status={org.status} tone="dark" />}
+        actions={
+          <ClientSettingsDrawer>
+            <div className="flex flex-col gap-8">
+              <section className="flex flex-col gap-4">
+                <p className="font-mono text-xs uppercase tracking-widest text-accent">
+                  Client details
+                </p>
+                <form action={updateThisOrg} className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="name" className="text-sm font-medium text-secondary">
+                      Name
+                    </label>
+                    <input
+                      id="name"
+                      name="name"
+                      required
+                      defaultValue={org.name}
+                      className={fieldInputClass}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="status" className="text-sm font-medium text-secondary">
+                      Status
+                    </label>
+                    <SelectField id="status" name="status" defaultValue={org.status}>
+                      {STATUS_OPTIONS.map((status) => (
+                        <option key={status} value={status}>
+                          {status.replace("_", " ")}
+                        </option>
+                      ))}
+                    </SelectField>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="cvr_number" className="text-sm font-medium text-secondary">
+                      CVR number
+                    </label>
+                    <input
+                      id="cvr_number"
+                      name="cvr_number"
+                      defaultValue={org.cvr_number ?? ""}
+                      placeholder="12345678"
+                      className={fieldInputClass}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label
+                      htmlFor="billing_address"
+                      className="text-sm font-medium text-secondary"
+                    >
+                      Billing address
+                    </label>
+                    <input
+                      id="billing_address"
+                      name="billing_address"
+                      defaultValue={org.billing_address ?? ""}
+                      placeholder="Street, postal code, city"
+                      className={fieldInputClass}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="btn-primary self-start rounded-full px-5 py-2.5 text-sm font-medium"
+                  >
+                    Save changes
+                  </button>
+                </form>
+              </section>
+
+              <div className="h-px bg-border" />
+
+              <section className="flex flex-col gap-4">
+                <div>
+                  <p className="font-mono text-xs uppercase tracking-widest text-accent">Team</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    Invited members sign in at the client login with this email — no account
+                    setup needed on their end.
+                  </p>
+                </div>
+
+                <InviteForm orgId={orgId} />
+
+                {!members?.length ? (
+                  <p className="text-sm text-muted-foreground">No one invited yet.</p>
+                ) : (
+                  <div className="flex flex-col divide-y divide-border border-t border-border">
+                    {members.map((m) => {
+                      const removeThisMember = removeMember.bind(null, orgId, m.id);
+                      return (
+                        <div key={m.id} className="flex flex-col gap-2 py-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="min-w-0 truncate text-sm font-medium text-primary">
+                              {m.invited_email}
+                            </p>
+                            <StatusBadge
+                              status={m.accepted_at ? "active" : "onboarding"}
+                              label={m.accepted_at ? "Active" : "Pending"}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-xs text-muted-foreground">
+                              {m.role === "owner" ? "Owner" : "Collaborator"}
+                            </p>
+                            <div className="flex items-center gap-1">
+                              {!m.accepted_at && (
+                                <ResendInviteButton orgId={orgId} email={m.invited_email} />
+                              )}
+                              <form action={removeThisMember}>
+                                <ConfirmButton
+                                  confirmText={`Remove ${m.invited_email} from ${org.name}? They'll lose access immediately.`}
+                                  ariaLabel={`Remove ${m.invited_email} from ${org.name}`}
+                                  className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                                >
+                                  <X size={15} />
+                                </ConfirmButton>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+
+              <div className="h-px bg-border" />
+
+              <section>
+                <form action={deleteThisOrg}>
+                  <ConfirmButton
+                    confirmText={`Permanently delete ${org.name} and everything under it — team access, board, files, decisions, invoices? This can't be undone.`}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-destructive/70 transition-colors hover:text-destructive"
+                  >
+                    <Trash size={14} />
+                    Delete this client
+                  </ConfirmButton>
+                </form>
+              </section>
+            </div>
+          </ClientSettingsDrawer>
         }
       />
 
-      <div className="rounded-2xl border border-border bg-card p-6">
-        <p className="font-mono text-xs uppercase tracking-widest text-accent">
-          Details
-        </p>
-        <h2 className="mt-2 font-display text-lg font-medium text-primary">
-          Edit client
-        </h2>
-        <form action={updateThisOrg} className="mt-5 flex flex-wrap items-end gap-3">
-          <div className="flex min-w-[200px] flex-1 flex-col gap-1.5">
-            <label htmlFor="name" className="text-sm font-medium text-secondary">
-              Name
-            </label>
-            <input
-              id="name"
-              name="name"
-              required
-              defaultValue={org.name}
-              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="status" className="text-sm font-medium text-secondary">
-              Status
-            </label>
-            <select
-              id="status"
-              name="status"
-              defaultValue={org.status}
-              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="font-display text-xl font-medium text-primary">Projects</h2>
+          <details className="group relative">
+            <summary className="btn-primary inline-flex list-none items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
+              <Plus size={15} weight="bold" />
+              New project
+            </summary>
+            <form
+              action={createThisProject}
+              className="absolute right-0 z-10 mt-2 flex w-80 flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-lg"
             >
-              {STATUS_OPTIONS.map((status) => (
-                <option key={status} value={status}>
-                  {status.replace("_", " ")}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="cvr_number" className="text-sm font-medium text-secondary">
-              CVR number
-            </label>
-            <input
-              id="cvr_number"
-              name="cvr_number"
-              defaultValue={org.cvr_number ?? ""}
-              placeholder="12345678"
-              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            />
-          </div>
-          <div className="flex min-w-[220px] flex-1 flex-col gap-1.5">
-            <label htmlFor="billing_address" className="text-sm font-medium text-secondary">
-              Billing address
-            </label>
-            <input
-              id="billing_address"
-              name="billing_address"
-              defaultValue={org.billing_address ?? ""}
-              placeholder="Street, postal code, city"
-              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            />
-          </div>
-          <button
-            type="submit"
-            className="rounded-full border border-primary px-5 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-          >
-            Save changes
-          </button>
-        </form>
-      </div>
-
-      <div className="rounded-2xl border border-border bg-card p-6">
-        <p className="font-mono text-xs uppercase tracking-widest text-accent">
-          Team
-        </p>
-        <h2 className="mt-2 font-display text-lg font-medium text-primary">
-          Invite someone to this workspace
-        </h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-          They&apos;ll be able to sign in at the client login using this
-          email — no account setup needed on their end.
-        </p>
-
-        <InviteForm orgId={orgId} />
-
-        {!members?.length ? (
-          <p className="mt-6 text-sm text-muted-foreground">
-            No one invited yet.
-          </p>
-        ) : (
-          <div className="mt-6 divide-y divide-border border-t border-border">
-            {members.map((m) => {
-              const removeThisMember = removeMember.bind(null, orgId, m.id);
-              return (
-                <div
-                  key={m.id}
-                  className="flex items-center justify-between gap-3 py-3"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-primary">
-                      {m.invited_email}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {m.role === "owner" ? "Owner" : "Collaborator"}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                        m.accepted_at
-                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {m.accepted_at ? "Active" : "Pending"}
-                    </span>
-                    {!m.accepted_at && (
-                      <ResendInviteButton orgId={orgId} email={m.invited_email} />
-                    )}
-                    <form action={removeThisMember}>
-                      <ConfirmButton
-                        confirmText={`Remove ${m.invited_email} from ${org.name}? They'll lose access immediately.`}
-                        ariaLabel={`Remove ${m.invited_email} from ${org.name}`}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                      >
-                        <X size={16} />
-                      </ConfirmButton>
-                    </form>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      <div className="rounded-2xl border border-border bg-card p-6">
-        <p className="font-mono text-xs uppercase tracking-widest text-accent">
-          Engagements
-        </p>
-        <h2 className="mt-2 font-display text-lg font-medium text-primary">
-          Projects
-        </h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-          Each project gets its own board, decisions log, and files —
-          {org.name} can run more than one at a time.
-        </p>
-
-        <form
-          action={createThisProject}
-          className="mt-5 flex flex-wrap items-end gap-3 rounded-xl border border-border bg-background p-4"
-        >
-          <div className="flex min-w-[200px] flex-1 flex-col gap-1.5">
-            <label htmlFor="project-name" className="text-sm font-medium text-secondary">
-              New project name
-            </label>
-            <input
-              id="project-name"
-              name="name"
-              required
-              placeholder="Coating formulation review"
-              className="rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="project-start" className="text-sm font-medium text-secondary">
-              Start date
-            </label>
-            <input
-              id="project-start"
-              name="start_date"
-              type="date"
-              className="rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            />
-          </div>
-          <button
-            type="submit"
-            className="btn-primary inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium"
-          >
-            <Plus size={16} weight="bold" />
-            Add project
-          </button>
-        </form>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="project-name" className="text-sm font-medium text-secondary">
+                  Project name
+                </label>
+                <input
+                  id="project-name"
+                  name="name"
+                  required
+                  placeholder="Coating formulation review"
+                  className={fieldInputClass}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="project-start" className="text-sm font-medium text-secondary">
+                  Start date
+                </label>
+                <input
+                  id="project-start"
+                  name="start_date"
+                  type="date"
+                  className={fieldInputClass}
+                />
+              </div>
+              <button
+                type="submit"
+                className="btn-primary inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium"
+              >
+                Create project
+              </button>
+            </form>
+          </details>
+        </div>
 
         {!projects?.length ? (
-          <p className="mt-6 text-sm text-muted-foreground">No projects yet.</p>
+          <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+            <p className="font-display text-lg font-medium text-primary">No projects yet</p>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              Start {org.name}&apos;s first engagement above.
+            </p>
+          </div>
         ) : (
-          <div className="mt-6 flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             {projects.map((project) => {
               const updateThisProject = updateProject.bind(null, orgId, project.id);
               const deleteThisProject = deleteProject.bind(null, orgId, project.id);
               return (
-                <div key={project.id} className="rounded-xl border border-border">
-                  <div className="flex flex-wrap items-center gap-3 px-4 py-3.5">
-                    <span className="font-medium text-primary">{project.name}</span>
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                        PROJECT_STATUS_STYLES[project.status] ?? PROJECT_STATUS_STYLES.active
-                      }`}
-                    >
-                      {project.status}
+                <div
+                  key={project.id}
+                  className="rounded-2xl border border-border bg-card transition-shadow hover:shadow-sm"
+                >
+                  <div className="flex flex-wrap items-center gap-3 px-5 py-4">
+                    <span className="font-display text-base font-medium text-primary">
+                      {project.name}
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <StatusBadge status={project.status} />
+                    <span className="font-mono text-xs text-muted-foreground">
                       {project.progress_pct}%
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap gap-1.5 border-t border-border px-4 py-2.5">
+                  <div className="flex flex-wrap gap-1.5 border-t border-border px-5 py-3">
                     {[
                       { href: "board", label: "Board", icon: SquaresFour },
                       { href: "decisions", label: "Decisions", icon: ChatCircleDots },
@@ -321,7 +302,7 @@ export default async function ClientDetailPage({
                       <Link
                         key={href}
                         href={`/admin/clients/${orgId}/projects/${project.id}/${href}`}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted hover:text-accent"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:border-accent/40 hover:bg-accent/5 hover:text-accent"
                       >
                         <ItemIcon size={13} />
                         {label}
@@ -330,82 +311,84 @@ export default async function ClientDetailPage({
                   </div>
 
                   <details className="group border-t border-border">
-                    <summary className="cursor-pointer list-none px-4 py-2.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary">
-                      Manage
+                    <summary className="cursor-pointer list-none px-5 py-2.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary">
+                      Edit project
                     </summary>
-                    <div className="border-t border-border p-4">
-                      <form action={updateThisProject} className="flex flex-wrap items-end gap-3">
-                      <div className="flex min-w-[180px] flex-1 flex-col gap-1.5">
-                        <label className="text-sm font-medium text-secondary">Name</label>
-                        <input
-                          name="name"
-                          required
-                          defaultValue={project.name}
-                          className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-secondary">Status</label>
-                        <select
-                          name="status"
-                          defaultValue={project.status}
-                          className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+                    <div className="flex flex-col gap-5 border-t border-border p-5">
+                      <form action={updateThisProject} className="flex flex-col gap-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-sm font-medium text-secondary">Name</label>
+                            <input
+                              name="name"
+                              required
+                              defaultValue={project.name}
+                              className={fieldInputClass}
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-sm font-medium text-secondary">Status</label>
+                            <SelectField name="status" defaultValue={project.status}>
+                              {PROJECT_STATUS_OPTIONS.map((s) => (
+                                <option key={s} value={s}>
+                                  {s}
+                                </option>
+                              ))}
+                            </SelectField>
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-sm font-medium text-secondary">
+                              Progress %
+                            </label>
+                            <input
+                              name="progress_pct"
+                              type="number"
+                              min={0}
+                              max={100}
+                              defaultValue={project.progress_pct}
+                              className={fieldInputClass}
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-sm font-medium text-secondary">
+                              Start date
+                            </label>
+                            <input
+                              name="start_date"
+                              type="date"
+                              defaultValue={project.start_date ?? ""}
+                              className={fieldInputClass}
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1.5 sm:col-span-2">
+                            <label className="text-sm font-medium text-secondary">
+                              Engagement note
+                            </label>
+                            <input
+                              name="engagement_note"
+                              defaultValue={project.engagement_note ?? ""}
+                              placeholder="Internal note about scope"
+                              className={fieldInputClass}
+                            />
+                          </div>
+                        </div>
+                        <button
+                          type="submit"
+                          className="btn-primary self-start rounded-full px-5 py-2.5 text-sm font-medium"
                         >
-                          {PROJECT_STATUS_OPTIONS.map((s) => (
-                            <option key={s} value={s}>
-                              {s}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="flex w-24 flex-col gap-1.5">
-                        <label className="text-sm font-medium text-secondary">Progress %</label>
-                        <input
-                          name="progress_pct"
-                          type="number"
-                          min={0}
-                          max={100}
-                          defaultValue={project.progress_pct}
-                          className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-secondary">Start date</label>
-                        <input
-                          name="start_date"
-                          type="date"
-                          defaultValue={project.start_date ?? ""}
-                          className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-                        />
-                      </div>
-                      <div className="flex min-w-[220px] flex-1 flex-col gap-1.5">
-                        <label className="text-sm font-medium text-secondary">
-                          Engagement note
-                        </label>
-                        <input
-                          name="engagement_note"
-                          defaultValue={project.engagement_note ?? ""}
-                          placeholder="Internal note about scope"
-                          className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        className="rounded-full border border-primary px-5 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-                      >
-                        Save
-                      </button>
-                    </form>
+                          Save
+                        </button>
+                      </form>
 
-                    <form action={deleteThisProject} className="mt-4">
-                      <ConfirmButton
-                        confirmText={`Permanently delete "${project.name}" and its board, files, and decisions? This can't be undone.`}
-                        className="inline-flex items-center gap-2 rounded-full border border-destructive/30 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground"
-                      >
-                        <Trash size={14} weight="bold" />
-                        Delete project
-                      </ConfirmButton>
-                    </form>
+                      <form action={deleteThisProject}>
+                        <ConfirmButton
+                          confirmText={`Permanently delete "${project.name}" and its board, files, and decisions? This can't be undone.`}
+                          className="inline-flex items-center gap-1.5 text-sm font-medium text-destructive/70 transition-colors hover:text-destructive"
+                        >
+                          <Trash size={14} />
+                          Delete project
+                        </ConfirmButton>
+                      </form>
                     </div>
                   </details>
                 </div>
@@ -413,29 +396,6 @@ export default async function ClientDetailPage({
             })}
           </div>
         )}
-      </div>
-
-      <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6">
-        <p className="font-mono text-xs uppercase tracking-widest text-destructive">
-          Danger zone
-        </p>
-        <h2 className="mt-2 font-display text-lg font-medium text-primary">
-          Delete this client
-        </h2>
-        <p className="mt-1 max-w-md text-sm leading-relaxed text-muted-foreground">
-          Permanently deletes {org.name} and everything under it — team
-          access, board, files, decisions, invoices. This can&apos;t be
-          undone.
-        </p>
-        <form action={deleteThisOrg} className="mt-4">
-          <ConfirmButton
-            confirmText={`Permanently delete ${org.name} and everything under it? This can't be undone.`}
-            className="inline-flex items-center gap-2 rounded-full border border-destructive/30 px-5 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground"
-          >
-            <Trash size={16} weight="bold" />
-            Delete client
-          </ConfirmButton>
-        </form>
       </div>
     </div>
   );
