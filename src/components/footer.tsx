@@ -59,12 +59,20 @@ export function Footer() {
           <p className="text-xs text-white/35">
             © {new Date().getFullYear()} Alchemica. All rights reserved.
           </p>
-          <a
-            href="/privacy"
-            className="text-xs text-white/50 transition-colors hover:text-white"
-          >
-            Privacy &amp; data handling
-          </a>
+          <div className="flex items-center gap-4">
+            <a
+              href="/terms"
+              className="text-xs text-white/50 transition-colors hover:text-white"
+            >
+              Terms of service
+            </a>
+            <a
+              href="/privacy"
+              className="text-xs text-white/50 transition-colors hover:text-white"
+            >
+              Privacy &amp; data handling
+            </a>
+          </div>
         </div>
       </div>
     </footer>
