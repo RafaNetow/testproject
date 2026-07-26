@@ -14,6 +14,36 @@ export type InviteResult = {
   message?: string;
 };
 
+/** Shared by inviteMember and resendInvite — same email, same failure messaging. */
+async function sendInviteEmail(
+  orgName: string,
+  email: string
+): Promise<{ emailSent: boolean; message: string }> {
+  if (!resend) {
+    return {
+      emailSent: false,
+      message: "Email isn't configured yet — let them know directly to sign in at /login.",
+    };
+  }
+
+  const { error } = await resend.emails.send({
+    from: "Alchemica <onboarding@resend.dev>",
+    to: email,
+    subject: "You've been invited to the Alchemica client portal",
+    text: `You've been added to ${orgName}'s workspace on Alchemica.\n\nSign in at https://alchemica.vercel.app/login using this email address (${email}) — no password needed, just a one-time link sent to your inbox.`,
+  });
+
+  if (error) {
+    return {
+      emailSent: false,
+      message:
+        "The email couldn't be sent (the Resend sending domain isn't verified yet, so it can only email your own inbox) — let them know directly to sign in at /login with this address.",
+    };
+  }
+
+  return { emailSent: true, message: "Invite sent." };
+}
+
 /**
  * Invites someone into an org by email. Doesn't create an auth account —
  * it just records the invite (org_memberships.invited_email), and the
@@ -63,31 +93,26 @@ export async function inviteMember(orgId: string, formData: FormData): Promise<I
 
   revalidatePath(`/admin/clients/${orgId}`);
 
-  if (!resend) {
-    return {
-      success: true,
-      emailSent: false,
-      message: "Invite recorded, but email isn't configured yet — let them know directly to sign in at /login.",
-    };
+  const { emailSent, message } = await sendInviteEmail(org.name, email);
+  return { success: true, emailSent, message: emailSent ? message : `Invite recorded, but ${message.charAt(0).toLowerCase()}${message.slice(1)}` };
+}
+
+/** Re-sends the invite email for an already-invited (but not yet accepted) member. */
+export async function resendInvite(orgId: string, email: string): Promise<InviteResult> {
+  await requireAxelAdmin();
+  const supabase = await createClient();
+
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("name")
+    .eq("id", orgId)
+    .maybeSingle();
+  if (!org) {
+    return { success: false, emailSent: false, message: "Client not found." };
   }
 
-  const { error } = await resend.emails.send({
-    from: "Alchemica <onboarding@resend.dev>",
-    to: email,
-    subject: "You've been invited to the Alchemica client portal",
-    text: `You've been added to ${org.name}'s workspace on Alchemica.\n\nSign in at https://alchemica.vercel.app/login using this email address (${email}) — no password needed, just a one-time link sent to your inbox.`,
-  });
-
-  if (error) {
-    return {
-      success: true,
-      emailSent: false,
-      message:
-        "Invite recorded, but the email couldn't be sent (the Resend sending domain isn't verified yet, so it can only email your own inbox) — let them know directly to sign in at /login with this address.",
-    };
-  }
-
-  return { success: true, emailSent: true, message: "Invite sent." };
+  const { emailSent, message } = await sendInviteEmail(org.name, email);
+  return { success: true, emailSent, message };
 }
 
 export async function removeMember(orgId: string, membershipId: string) {
@@ -126,10 +151,42 @@ export async function updateOrganization(orgId: string, formData: FormData) {
   revalidatePath("/admin/clients");
 }
 
-/** Cascades to delete every project, board, file, decision, etc. under this org. */
+/**
+ * Cascades to delete every project, board, file, decision, etc. under this
+ * org at the database level — but Postgres cascade only removes rows, not
+ * the actual blobs sitting in Supabase Storage, so those are removed
+ * explicitly first or they'd be orphaned (and billed) forever.
+ */
 export async function deleteOrganization(orgId: string) {
   await requireAxelAdmin();
   const supabase = await createClient();
+
+  const { data: projects } = await supabase.from("projects").select("id").eq("org_id", orgId);
+  const projectIds = (projects ?? []).map((p) => p.id);
+
+  if (projectIds.length) {
+    const { data: files } = await supabase
+      .from("files")
+      .select("storage_path")
+      .in("project_id", projectIds);
+    const filePaths = (files ?? []).map((f) => f.storage_path).filter(Boolean);
+    if (filePaths.length) {
+      await supabase.storage.from("project-files").remove(filePaths);
+    }
+  }
+
+  const { data: contracts } = await supabase
+    .from("contracts")
+    .select("signed_pdf_storage_path")
+    .eq("org_id", orgId)
+    .not("signed_pdf_storage_path", "is", null);
+  const contractPaths = (contracts ?? [])
+    .map((c) => c.signed_pdf_storage_path)
+    .filter((p): p is string => Boolean(p));
+  if (contractPaths.length) {
+    await supabase.storage.from("org-documents").remove(contractPaths);
+  }
+
   const { error } = await supabase.from("organizations").delete().eq("id", orgId);
   if (error) {
     throw new Error(`Couldn't delete client: ${error.message}`);
@@ -224,10 +281,36 @@ export async function updateProject(orgId: string, projectId: string, formData: 
   revalidatePath(`/admin/clients/${orgId}`);
 }
 
-/** Cascades to delete the project's board, files, decisions, meetings, etc. */
+/**
+ * Cascades to delete the project's board, files, decisions, meetings, etc.
+ * at the database level — Storage blobs are removed explicitly first (see
+ * deleteOrganization above for why).
+ */
 export async function deleteProject(orgId: string, projectId: string) {
   await requireAxelAdmin();
   const supabase = await createClient();
+
+  const { data: files } = await supabase
+    .from("files")
+    .select("storage_path")
+    .eq("project_id", projectId);
+  const filePaths = (files ?? []).map((f) => f.storage_path).filter(Boolean);
+  if (filePaths.length) {
+    await supabase.storage.from("project-files").remove(filePaths);
+  }
+
+  const { data: contracts } = await supabase
+    .from("contracts")
+    .select("signed_pdf_storage_path")
+    .eq("project_id", projectId)
+    .not("signed_pdf_storage_path", "is", null);
+  const contractPaths = (contracts ?? [])
+    .map((c) => c.signed_pdf_storage_path)
+    .filter((p): p is string => Boolean(p));
+  if (contractPaths.length) {
+    await supabase.storage.from("org-documents").remove(contractPaths);
+  }
+
   const { error } = await supabase.from("projects").delete().eq("id", projectId);
   if (error) {
     throw new Error(`Couldn't delete project: ${error.message}`);

@@ -17,6 +17,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { ConfirmButton } from "@/components/confirm-button";
 import { InviteForm } from "./invite-form";
+import { ResendInviteButton } from "./resend-invite-button";
 import {
   removeMember,
   updateOrganization,
@@ -213,6 +214,9 @@ export default async function ClientDetailPage({
                     >
                       {m.accepted_at ? "Active" : "Pending"}
                     </span>
+                    {!m.accepted_at && (
+                      <ResendInviteButton orgId={orgId} email={m.invited_email} />
+                    )}
                     <form action={removeThisMember}>
                       <ConfirmButton
                         confirmText={`Remove ${m.invited_email} from ${org.name}? They'll lose access immediately.`}

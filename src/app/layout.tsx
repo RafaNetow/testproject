@@ -23,10 +23,26 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
+const TITLE = "Alchemica | Chemistry & Materials Advisory";
+const DESCRIPTION =
+  "Alchemica turns formulation data, characterisation results and chemical mechanisms into clear next experiments — for teams building bio-based, polymeric and industrial material systems.";
+
 export const metadata: Metadata = {
-  title: "Alchemica | Chemistry & Materials Advisory",
-  description:
-    "Alchemica turns formulation data, characterisation results and chemical mechanisms into clear next experiments — for teams building bio-based, polymeric and industrial material systems.",
+  metadataBase: new URL("https://alchemica.vercel.app"),
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/",
+    siteName: "Alchemica",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };
 
 export default function RootLayout({
