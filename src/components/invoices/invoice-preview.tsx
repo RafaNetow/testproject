@@ -1,7 +1,7 @@
 import { BUSINESS_INFO } from "@/lib/business-info";
+import { computeInvoiceTotals, type PreviewLineItem, type VatTreatment } from "@/lib/invoice-totals";
 
-export type PreviewLineItem = { description: string; quantity: number; unitPriceCents: number };
-export type VatTreatment = "domestic" | "eu_reverse_charge" | "outside_eu";
+export type { PreviewLineItem, VatTreatment };
 
 function formatMoney(cents: number, currency: string) {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency }).format(cents / 100);
@@ -60,9 +60,12 @@ export function InvoicePreview({
   buyerVatNumber?: string | null;
   status?: string;
 }) {
-  const subtotal = lineItems.reduce((sum, li) => sum + li.quantity * li.unitPriceCents, 0);
-  const taxCents = vatTreatment === "domestic" ? Math.round(subtotal * (taxRatePct / 100)) : 0;
-  const total = subtotal + taxCents - discountCents;
+  const { subtotal, taxCents, total } = computeInvoiceTotals(
+    lineItems,
+    vatTreatment,
+    taxRatePct,
+    discountCents
+  );
   const note = VAT_NOTES[vatTreatment];
   const statusLabel = status ? STATUS_LABELS[status] : undefined;
 
