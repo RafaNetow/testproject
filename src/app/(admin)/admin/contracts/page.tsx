@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { Pagination } from "@/components/shared/pagination";
+
+const PAGE_SIZE = 25;
 
 const TYPE_LABELS: Record<string, string> = {
   msa: "MSA",
@@ -25,12 +28,22 @@ type ContractRow = {
   organizations: { name: string } | null;
 };
 
-export default async function AdminContractsPage() {
+export default async function AdminContractsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, Number(pageParam) || 1);
+
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, count } = await supabase
     .from("contracts")
-    .select("id, title, contract_type, signing_status, project_id, org_id, organizations(name)")
-    .order("created_at", { ascending: false });
+    .select("id, title, contract_type, signing_status, project_id, org_id, organizations(name)", {
+      count: "exact",
+    })
+    .order("created_at", { ascending: false })
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
   const contracts = (data ?? []) as unknown as ContractRow[];
 
@@ -102,6 +115,8 @@ export default async function AdminContractsPage() {
           </table>
         </div>
       )}
+
+      <Pagination page={page} pageSize={PAGE_SIZE} total={count ?? 0} basePath="/admin/contracts" />
     </div>
   );
 }

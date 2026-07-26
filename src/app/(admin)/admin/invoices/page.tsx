@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { deriveInvoiceStatus } from "@/lib/invoice-status";
+import { Pagination } from "@/components/shared/pagination";
+
+const PAGE_SIZE = 25;
 
 const STATUS_STYLES: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -25,14 +28,23 @@ function formatAmount(cents: number, currency: string) {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency }).format(cents / 100);
 }
 
-export default async function AdminInvoicesPage() {
+export default async function AdminInvoicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, Number(pageParam) || 1);
+
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, count } = await supabase
     .from("invoices")
     .select(
-      "id, invoice_number, amount_cents, currency, status, due_date, project_id, org_id, organizations(name)"
+      "id, invoice_number, amount_cents, currency, status, due_date, project_id, org_id, organizations(name)",
+      { count: "exact" }
     )
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
   const invoices = (data ?? []) as unknown as InvoiceRow[];
 
@@ -123,6 +135,8 @@ export default async function AdminInvoicesPage() {
           </table>
         </div>
       )}
+
+      <Pagination page={page} pageSize={PAGE_SIZE} total={count ?? 0} basePath="/admin/invoices" />
     </div>
   );
 }
