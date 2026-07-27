@@ -28,7 +28,7 @@ const DESCRIPTION =
   "Alchemica turns formulation data, characterisation results and chemical mechanisms into clear next experiments — for teams building bio-based, polymeric and industrial material systems.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://alchemica.dk"),
+  metadataBase: new URL("https://www.alchemica.dk"),
   title: TITLE,
   description: DESCRIPTION,
   openGraph: {

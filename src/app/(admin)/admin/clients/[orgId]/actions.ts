@@ -31,7 +31,7 @@ async function sendInviteEmail(
     to: email,
     replyTo: "hello@alchemica.dk",
     subject: "You've been invited to the Alchemica client portal",
-    text: `You've been added to ${orgName}'s workspace on Alchemica.\n\nSign in at https://alchemica.dk/login using this email address (${email}) — no password needed, just a one-time link sent to your inbox.`,
+    text: `You've been added to ${orgName}'s workspace on Alchemica.\n\nSign in at https://www.alchemica.dk/login using this email address (${email}) — no password needed, just a one-time link sent to your inbox.`,
   });
 
   if (error) {
