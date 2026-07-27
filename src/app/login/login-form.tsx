@@ -5,6 +5,20 @@ import { createClient } from "@/lib/supabase/client";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
+const GENERIC_SEND_ERROR =
+  "We couldn't send the sign-in link right now. Please try again in a moment.";
+
+/** Supabase's client sometimes surfaces a network/API failure as an empty
+ * or raw-JSON message (e.g. "{}") rather than a real sentence — fall back
+ * to something readable instead of showing that to the user. */
+function readableAuthError(message: string | undefined) {
+  const trimmed = (message ?? "").trim();
+  if (!trimmed || trimmed.startsWith("{") || trimmed.startsWith("[")) {
+    return GENERIC_SEND_ERROR;
+  }
+  return trimmed;
+}
+
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
@@ -38,7 +52,7 @@ export function LoginForm() {
 
     if (error) {
       setStatus("error");
-      setErrorMessage(error.message);
+      setErrorMessage(readableAuthError(error.message));
       return;
     }
 
