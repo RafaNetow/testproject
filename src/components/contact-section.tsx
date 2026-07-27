@@ -2,8 +2,6 @@ import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr";
 import { Reveal } from "@/components/reveal";
 import { ContactForm } from "@/components/contact-form";
 
-// hello@alchemica.com is a placeholder matching the placeholder brand name — replace with the real inbox before launch.
-
 export function ContactSection() {
   return (
     <section id="contact" className="bg-muted py-16 sm:py-24 lg:py-32">
@@ -20,11 +18,11 @@ export function ContactSection() {
             next steps.
           </p>
           <a
-            href="mailto:hello@alchemica.com"
+            href="mailto:hello@alchemica.dk"
             className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-accent"
           >
             <EnvelopeSimple size={18} />
-            hello@alchemica.com
+            hello@alchemica.dk
           </a>
         </Reveal>
 

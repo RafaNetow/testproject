@@ -122,10 +122,10 @@ export default function TermsPage() {
             <p className="mt-2">
               Email{" "}
               <a
-                href="mailto:hello@alchemica.com"
+                href="mailto:hello@alchemica.dk"
                 className="text-accent underline underline-offset-2"
               >
-                hello@alchemica.com
+                hello@alchemica.dk
               </a>{" "}
               about anything on this page, or see the{" "}
               <a href="/privacy" className="text-accent underline underline-offset-2">

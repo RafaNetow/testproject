@@ -72,7 +72,7 @@ export function PortalShowcase() {
                   <span className="h-2.5 w-2.5 rounded-full bg-border" />
                   <span className="h-2.5 w-2.5 rounded-full bg-border" />
                   <span className="ml-3 flex-1 rounded-full bg-card px-3 py-1 font-mono text-[10px] text-muted-foreground">
-                    alchemica.com/portal
+                    alchemica.dk/portal
                   </span>
                 </div>
                 <div className="flex">

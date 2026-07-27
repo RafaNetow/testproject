@@ -27,17 +27,17 @@ async function sendInviteEmail(
   }
 
   const { error } = await resend.emails.send({
-    from: "Alchemica <onboarding@resend.dev>",
+    from: "Alchemica <hello@alchemica.dk>",
     to: email,
+    replyTo: "hello@alchemica.dk",
     subject: "You've been invited to the Alchemica client portal",
-    text: `You've been added to ${orgName}'s workspace on Alchemica.\n\nSign in at https://alchemica.vercel.app/login using this email address (${email}) — no password needed, just a one-time link sent to your inbox.`,
+    text: `You've been added to ${orgName}'s workspace on Alchemica.\n\nSign in at https://alchemica.dk/login using this email address (${email}) — no password needed, just a one-time link sent to your inbox.`,
   });
 
   if (error) {
     return {
       emailSent: false,
-      message:
-        "The email couldn't be sent (the Resend sending domain isn't verified yet, so it can only email your own inbox) — let them know directly to sign in at /login with this address.",
+      message: "The email couldn't be sent — let them know directly to sign in at /login with this address.",
     };
   }
 

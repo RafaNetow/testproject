@@ -17,10 +17,10 @@ export function Footer() {
               industrial material systems.
             </p>
             <a
-              href="mailto:hello@alchemica.com"
+              href="mailto:hello@alchemica.dk"
               className="mt-4 inline-block text-sm text-white/70 transition-colors hover:text-white"
             >
-              hello@alchemica.com
+              hello@alchemica.dk
             </a>
           </div>
 

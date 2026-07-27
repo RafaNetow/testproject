@@ -4,7 +4,7 @@ import { Resend } from "resend";
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 const FALLBACK_ERROR =
-  "We couldn't send your message right now — please email hello@alchemica.com directly.";
+  "We couldn't send your message right now — please email hello@alchemica.dk directly.";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -36,11 +36,8 @@ export async function POST(request: Request) {
 
   try {
     const { error } = await resend.emails.send({
-      // Resend's shared testing sender — works with no domain setup. Swap
-      // for a verified address on your own domain (e.g. hello@alchemica.com)
-      // once that domain is added and verified in the Resend dashboard.
-      from: "Alchemica <onboarding@resend.dev>",
-      to: process.env.CONTACT_TO_EMAIL || "hello@alchemica.com",
+      from: "Alchemica <hello@alchemica.dk>",
+      to: process.env.CONTACT_TO_EMAIL || "hello@alchemica.dk",
       replyTo: email,
       subject: `New enquiry from ${name}${company ? ` (${company})` : ""}`,
       text: `Name: ${name}\nEmail: ${email}\nCompany: ${company || "—"}\n\n${message}`,

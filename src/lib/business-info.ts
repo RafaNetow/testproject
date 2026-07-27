@@ -12,7 +12,7 @@
  */
 export const BUSINESS_INFO = {
   name: "Webxite",
-  email: "hello@alchemica.com",
+  email: "hello@alchemica.dk",
   cvrNumber: "DK36168870",
   address: "", // street, postal code, city — still missing, required for a fully compliant invoice
 };
