@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = "https://alchemica.vercel.app";
+const BASE_URL = "https://alchemica.dk";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
