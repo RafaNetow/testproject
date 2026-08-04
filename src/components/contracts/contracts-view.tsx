@@ -4,6 +4,8 @@ import { useState } from "react";
 import { DownloadSimple, PenNib, Plus, Trash } from "@phosphor-icons/react/dist/ssr";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
+import { SelectField } from "@/components/shared/select-field";
+import { StatusBadge } from "@/components/shared/status-badge";
 import { createContract, updateContractStatus, deleteContract } from "@/lib/actions/contracts";
 import { SendForSignatureForm } from "./send-for-signature-form";
 
@@ -23,13 +25,6 @@ const TYPE_LABELS: Record<string, string> = {
   nda: "NDA",
   ip_agreement: "IP Agreement",
   sow: "SOW",
-};
-
-const STATUS_STYLES: Record<string, string> = {
-  draft: "bg-muted text-muted-foreground",
-  sent: "bg-accent/10 text-accent",
-  partially_signed: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
-  signed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
 };
 
 export function ContractsView({
@@ -88,17 +83,12 @@ export function ContractsView({
             <label htmlFor="contract-type" className="text-sm font-medium text-secondary">
               Type
             </label>
-            <select
-              id="contract-type"
-              name="contract_type"
-              defaultValue="msa"
-              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            >
+            <SelectField id="contract-type" name="contract_type" defaultValue="msa">
               <option value="msa">MSA</option>
               <option value="nda">NDA</option>
               <option value="ip_agreement">IP Agreement</option>
               <option value="sow">SOW</option>
-            </select>
+            </SelectField>
           </div>
           <div className="flex min-w-[180px] flex-1 flex-col gap-1.5">
             <label htmlFor="contract-pdf" className="text-sm font-medium text-secondary">
@@ -175,13 +165,7 @@ export function ContractsView({
                       <span className="rounded-full bg-muted px-2.5 py-0.5 font-mono text-xs text-muted-foreground">
                         {TYPE_LABELS[c.contract_type] ?? c.contract_type}
                       </span>
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          STATUS_STYLES[c.signing_status] ?? STATUS_STYLES.draft
-                        }`}
-                      >
-                        {c.signing_status.replace("_", " ")}
-                      </span>
+                      <StatusBadge status={c.signing_status} />
                     </div>
                   </div>
                   <div className="flex items-center gap-2">

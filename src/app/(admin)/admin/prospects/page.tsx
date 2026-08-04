@@ -118,7 +118,7 @@ export default async function ProspectsPage() {
                 const convertThis = convertProspectToClient.bind(null, p.id);
                 const value = formatValue(p.estimated_value_cents);
                 return (
-                  <div key={p.id} className="rounded-lg border border-border bg-background p-3">
+                  <div key={p.id} className="rounded-xl border border-border bg-card p-3">
                     <p className="text-sm font-medium text-primary">{p.company_name}</p>
                     {(p.contact_name || p.contact_email) && (
                       <p className="mt-0.5 text-xs text-muted-foreground">

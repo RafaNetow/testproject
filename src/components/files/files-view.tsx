@@ -269,7 +269,7 @@ export function FilesView({
             return (
               <div
                 key={f.id}
-                className="flex items-center justify-between gap-2 rounded-xl border border-border bg-card px-4 py-3"
+                className="flex items-center justify-between gap-2 rounded-2xl border border-border bg-card px-4 py-3"
               >
                 <Link
                   href={folderHref(basePath, extraQuery, f.id)}

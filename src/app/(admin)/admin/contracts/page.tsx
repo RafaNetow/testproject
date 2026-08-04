@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Pagination } from "@/components/shared/pagination";
 import { SectionHeader } from "@/components/shared/section-header";
+import { StatusBadge } from "@/components/shared/status-badge";
 
 const PAGE_SIZE = 25;
 
@@ -10,13 +11,6 @@ const TYPE_LABELS: Record<string, string> = {
   nda: "NDA",
   ip_agreement: "IP Agreement",
   sow: "SOW",
-};
-
-const STATUS_STYLES: Record<string, string> = {
-  draft: "bg-muted text-muted-foreground",
-  sent: "bg-accent/10 text-accent",
-  partially_signed: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
-  signed: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
 };
 
 type ContractRow = {
@@ -97,13 +91,7 @@ export default async function AdminContractsPage({
                     </td>
                     <td className="p-0">
                       <Link href={href} className="flex items-center px-5 py-3.5">
-                        <span
-                          className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                            STATUS_STYLES[c.signing_status] ?? STATUS_STYLES.draft
-                          }`}
-                        >
-                          {c.signing_status.replace("_", " ")}
-                        </span>
+                        <StatusBadge status={c.signing_status} />
                       </Link>
                     </td>
                   </tr>

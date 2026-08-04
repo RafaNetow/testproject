@@ -11,6 +11,9 @@ const DOT_COLORS: Record<string, string> = {
   paid: "bg-emerald-400",
   signed: "bg-emerald-400",
   partially_signed: "bg-amber-400",
+  upcoming: "bg-sky-400",
+  past: "bg-slate-400",
+  cancelled: "bg-red-400",
 };
 
 /**

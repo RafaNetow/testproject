@@ -2,12 +2,7 @@ import Link from "next/link";
 import { VideoCamera } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { SectionHeader } from "@/components/shared/section-header";
-
-const STATUS_STYLES: Record<string, string> = {
-  upcoming: "bg-accent/10 text-accent",
-  past: "bg-muted text-muted-foreground",
-  cancelled: "bg-destructive/10 text-destructive",
-};
+import { StatusBadge } from "@/components/shared/status-badge";
 
 type MeetingRow = {
   id: string;
@@ -50,13 +45,7 @@ export default async function CalendarPage() {
         <div>
           <div className="flex items-center gap-2">
             <p className="font-display text-base font-medium text-primary">{m.title}</p>
-            <span
-              className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                STATUS_STYLES[m.status] ?? STATUS_STYLES.upcoming
-              }`}
-            >
-              {m.status}
-            </span>
+            <StatusBadge status={m.status} />
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {orgName} · {m.projects?.name ?? "—"}

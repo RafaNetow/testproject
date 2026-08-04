@@ -2,14 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProjectSubNav } from "@/components/admin/project-sub-nav";
 import { SectionHeader } from "@/components/shared/section-header";
-
-// Always sits on the header's fixed-dark background, regardless of OS
-// light/dark mode — see the same pattern in admin/clients/[orgId]/page.tsx.
-const PROJECT_STATUS_STYLES_ON_DARK: Record<string, string> = {
-  active: "bg-emerald-500/20 text-emerald-300",
-  paused: "bg-amber-500/20 text-amber-300",
-  completed: "bg-white/10 text-white/60",
-};
+import { StatusBadge } from "@/components/shared/status-badge";
 
 export default async function ProjectLayout({
   params,
@@ -35,15 +28,7 @@ export default async function ProjectLayout({
       <SectionHeader
         backLink={{ href: `/admin/clients/${orgId}`, label: orgName }}
         title={project.name}
-        titleExtra={
-          <span
-            className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-              PROJECT_STATUS_STYLES_ON_DARK[project.status] ?? PROJECT_STATUS_STYLES_ON_DARK.active
-            }`}
-          >
-            {project.status}
-          </span>
-        }
+        titleExtra={<StatusBadge status={project.status} tone="dark" />}
       />
 
       <ProjectSubNav orgId={orgId} projectId={projectId} />

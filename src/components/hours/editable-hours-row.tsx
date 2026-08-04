@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { PencilSimple, Trash, X } from "@phosphor-icons/react/dist/ssr";
 import { ConfirmButton } from "@/components/confirm-button";
+import { SelectField } from "@/components/shared/select-field";
+import { StatusBadge } from "@/components/shared/status-badge";
 
 const CATEGORIES = ["Analysis", "Formulation work", "Meeting", "Report writing", "Other"];
 
@@ -64,13 +66,13 @@ export function EditableHoursRow({
         </div>
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-medium text-secondary">Category</label>
-          <select name="category" defaultValue={entry.category ?? CATEGORIES[0]} className={inputClass}>
+          <SelectField name="category" defaultValue={entry.category ?? CATEGORIES[0]}>
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>
             ))}
-          </select>
+          </SelectField>
         </div>
         <div className="flex min-w-[180px] flex-1 flex-col gap-1.5">
           <label className="text-xs font-medium text-secondary">Description</label>
@@ -117,11 +119,7 @@ export function EditableHoursRow({
             Non-billable
           </span>
         )}
-        {entry.invoice_id && (
-          <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">
-            Invoiced
-          </span>
-        )}
+        {entry.invoice_id && <StatusBadge status="paid" label="Invoiced" />}
         {entry.description && <span className="text-sm text-secondary">{entry.description}</span>}
       </div>
       {canManage && (

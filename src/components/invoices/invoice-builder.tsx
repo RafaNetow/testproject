@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Clock, Plus, Trash } from "@phosphor-icons/react/dist/ssr";
+import { SelectField } from "@/components/shared/select-field";
 import {
   createInvoiceWithLineItems,
   type InvoiceLineItem,
@@ -170,15 +171,11 @@ export function InvoiceBuilder({
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-secondary">Currency</label>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className={inputClass}
-            >
+            <SelectField value={currency} onChange={(e) => setCurrency(e.target.value)}>
               <option value="DKK">DKK</option>
               <option value="EUR">EUR</option>
               <option value="USD">USD</option>
-            </select>
+            </SelectField>
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-secondary">Issued</label>
@@ -302,17 +299,16 @@ export function InvoiceBuilder({
 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-secondary">VAT treatment</label>
-          <select
+          <SelectField
             value={vatTreatment}
             onChange={(e) => changeVatTreatment(e.target.value as VatTreatment)}
-            className={inputClass}
           >
             {VAT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
             ))}
-          </select>
+          </SelectField>
         </div>
 
         {vatTreatment === "eu_reverse_charge" && (

@@ -1,5 +1,7 @@
 import { Plus, Trash, VideoCamera } from "@phosphor-icons/react/dist/ssr";
 import { ConfirmButton } from "@/components/confirm-button";
+import { SelectField } from "@/components/shared/select-field";
+import { StatusBadge } from "@/components/shared/status-badge";
 import { createMeeting, updateMeeting, deleteMeeting } from "@/lib/actions/meetings";
 
 type Meeting = {
@@ -10,12 +12,6 @@ type Meeting = {
   duration_minutes: number | null;
   status: string;
   notes: string | null;
-};
-
-const STATUS_STYLES: Record<string, string> = {
-  upcoming: "bg-accent/10 text-accent",
-  past: "bg-muted text-muted-foreground",
-  cancelled: "bg-destructive/10 text-destructive",
 };
 
 export function MeetingsView({
@@ -113,13 +109,7 @@ export function MeetingsView({
                       <p className="font-display text-base font-medium text-primary">
                         {m.title}
                       </p>
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          STATUS_STYLES[m.status] ?? STATUS_STYLES.upcoming
-                        }`}
-                      >
-                        {m.status}
-                      </span>
+                      <StatusBadge status={m.status} />
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {when.toLocaleDateString("en-GB", {
@@ -162,15 +152,11 @@ export function MeetingsView({
                       <form action={updateThis} className="flex flex-1 flex-wrap items-end gap-3">
                         <div className="flex flex-col gap-1.5">
                           <label className="text-sm font-medium text-secondary">Status</label>
-                          <select
-                            name="status"
-                            defaultValue={m.status}
-                            className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-                          >
+                          <SelectField name="status" defaultValue={m.status}>
                             <option value="upcoming">Upcoming</option>
                             <option value="past">Past</option>
                             <option value="cancelled">Cancelled</option>
-                          </select>
+                          </SelectField>
                         </div>
                         <div className="flex min-w-[220px] flex-1 flex-col gap-1.5">
                           <label className="text-sm font-medium text-secondary">Notes</label>

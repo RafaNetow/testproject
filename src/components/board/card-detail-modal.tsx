@@ -18,6 +18,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { ConfirmButton } from "@/components/confirm-button";
 import { Popover } from "@/components/shared/popover";
+import { SelectField } from "@/components/shared/select-field";
 import { timeAgo } from "@/lib/time-ago";
 import { colorFor, initials } from "./board-colors";
 import {
@@ -757,18 +758,14 @@ function UploadAttachmentForm({
               className="w-full rounded-md border border-border bg-background text-xs text-primary outline-none file:mr-2 file:rounded-full file:border-0 file:bg-muted file:px-2.5 file:py-1 file:text-[11px] file:font-medium file:text-secondary focus:border-accent"
             />
             {folders.length > 0 && (
-              <select
-                name="folder_id"
-                defaultValue=""
-                className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-primary outline-none focus:border-accent"
-              >
+              <SelectField name="folder_id" defaultValue="">
                 <option value="">Top level</option>
                 {folders.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.name}
                   </option>
                 ))}
-              </select>
+              </SelectField>
             )}
             <button
               type="submit"

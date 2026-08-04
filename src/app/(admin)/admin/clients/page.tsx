@@ -2,14 +2,8 @@ import Link from "next/link";
 import { Buildings, Plus } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/server";
 import { SectionHeader } from "@/components/shared/section-header";
+import { StatusBadge } from "@/components/shared/status-badge";
 import { createOrganization } from "./actions";
-
-const STATUS_STYLES: Record<string, string> = {
-  onboarding: "bg-accent/10 text-accent",
-  active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
-  at_risk: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
-  offboarded: "bg-muted text-muted-foreground",
-};
 
 export default async function ClientsPage() {
   const supabase = await createClient();
@@ -84,13 +78,7 @@ export default async function ClientsPage() {
                       href={`/admin/clients/${org.id}`}
                       className="flex items-center px-5 py-3.5"
                     >
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                          STATUS_STYLES[org.status] ?? STATUS_STYLES.onboarding
-                        }`}
-                      >
-                        {org.status.replace("_", " ")}
-                      </span>
+                      <StatusBadge status={org.status} />
                     </Link>
                   </td>
                 </tr>

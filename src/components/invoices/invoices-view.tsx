@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CopySimple, DownloadSimple, Paperclip, Trash } from "@phosphor-icons/react/dist/ssr";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
+import { StatusBadge } from "@/components/shared/status-badge";
 import { updateInvoiceStatus, deleteInvoice } from "@/lib/actions/invoices";
 import { deriveInvoiceStatus } from "@/lib/invoice-status";
 import { InvoiceBuilder, type DuplicateFrom, type UnbilledHoursEntry } from "./invoice-builder";
@@ -22,13 +23,6 @@ type Invoice = {
   discount_cents: number | null;
   pdf_storage_path: string | null;
   url: string | null;
-};
-
-const STATUS_STYLES: Record<string, string> = {
-  draft: "bg-muted text-muted-foreground",
-  sent: "bg-accent/10 text-accent",
-  paid: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
-  overdue: "bg-destructive/10 text-destructive",
 };
 
 function formatAmount(cents: number, currency: string) {
@@ -99,13 +93,7 @@ export function InvoicesView({
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-primary">{inv.invoice_number}</p>
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          STATUS_STYLES[displayStatus] ?? STATUS_STYLES.draft
-                        }`}
-                      >
-                        {displayStatus}
-                      </span>
+                      <StatusBadge status={displayStatus} />
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {formatAmount(inv.amount_cents, inv.currency)}

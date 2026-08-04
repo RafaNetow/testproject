@@ -1,4 +1,5 @@
 import { Plus } from "@phosphor-icons/react/dist/ssr";
+import { SelectField } from "@/components/shared/select-field";
 import { logHours, updateHoursEntry, deleteHoursEntry } from "@/lib/actions/hours";
 import { EditableHoursRow } from "./editable-hours-row";
 
@@ -92,18 +93,13 @@ export function HoursView({
             <label htmlFor="entry-category" className="text-sm font-medium text-secondary">
               Category
             </label>
-            <select
-              id="entry-category"
-              name="category"
-              defaultValue={CATEGORIES[0]}
-              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            >
+            <SelectField id="entry-category" name="category" defaultValue={CATEGORIES[0]}>
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>
               ))}
-            </select>
+            </SelectField>
           </div>
           <div className="flex min-w-[200px] flex-1 flex-col gap-1.5">
             <label htmlFor="entry-description" className="text-sm font-medium text-secondary">

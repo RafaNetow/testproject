@@ -3,15 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { deriveInvoiceStatus } from "@/lib/invoice-status";
 import { Pagination } from "@/components/shared/pagination";
 import { SectionHeader } from "@/components/shared/section-header";
+import { StatusBadge } from "@/components/shared/status-badge";
 
 const PAGE_SIZE = 25;
-
-const STATUS_STYLES: Record<string, string> = {
-  draft: "bg-muted text-muted-foreground",
-  sent: "bg-accent/10 text-accent",
-  paid: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
-  overdue: "bg-destructive/10 text-destructive",
-};
 
 type InvoiceRow = {
   id: string;
@@ -117,13 +111,7 @@ export default async function AdminInvoicesPage({
                       href={`/admin/clients/${inv.org_id}/projects/${inv.project_id}/invoices`}
                       className="flex items-center px-5 py-3.5"
                     >
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                          STATUS_STYLES[displayStatus] ?? STATUS_STYLES.draft
-                        }`}
-                      >
-                        {displayStatus}
-                      </span>
+                      <StatusBadge status={displayStatus} />
                     </Link>
                   </td>
                 </tr>
