@@ -27,7 +27,7 @@ Cada hallazgo indica cómo se comprobó:
 
 1. **SEC-01**: escalada a administrador por la política de `profiles`.
 2. **SEC-02**: actualizar `next` a 16.4.0.
-3. **QA-01 a QA-06**: tablero del portal y errores de facturación.
+3. **QA-02 a QA-06**: errores de facturación.
 
 ---
 
@@ -178,13 +178,10 @@ Cada hallazgo indica cómo se comprobó:
 
 ## 🔴 Graves
 
-### QA-01 · Los clientes no pueden editar el tablero, aunque la interfaz se lo permite 📄
+### ~~QA-01 · Los clientes no pueden editar el tablero~~ — descartado
 
-- **Pasos:** entrar al portal como cliente → Board → arrastrar una tarjeta, o cambiarle el título, la fecha, la descripción o las etiquetas.
-- **Esperado:** el cambio se guarda, o la interfaz no ofrece esa acción.
-- **Actual:** el cambio se ve en pantalla y, tras la revalidación, se revierte sin ningún error. Crear una tarjeta falla con un error genérico. Adjuntar un archivo a una tarjeta también falla, porque `board_card_files` solo permite insertar al admin.
-- **Causa:** `/portal/board` usa el mismo `BoardView` que el admin, pero `board_cards` solo permite INSERT, UPDATE y DELETE al admin (`0001_init.sql:369-371`). Un UPDATE bloqueado por RLS devuelve 0 filas sin error, así que la action lo da por bueno.
-- **Decisión pendiente:** definir si los clientes pueden editar el tablero. Si pueden, añadir las políticas. Si no, ocultar los controles en el portal.
+- **Corrección:** este hallazgo era incorrecto. `0003_client_collaboration.sql` añade políticas que permiten a los miembros crear y editar tarjetas, y `0012_kanban_upgrade.sql` les permite adjuntar y quitar archivos. Solo el borrado de tarjetas queda reservado al admin, y la interfaz ya oculta ese botón con `canDelete`.
+- **Origen del error:** la revisión inicial buscó las políticas línea a línea y no detectó las que están escritas en varias líneas. Los demás hallazgos de RLS se volvieron a comprobar y se mantienen.
 
 ### QA-02 · El descuento en facturas calcula mal el IVA 📄
 
