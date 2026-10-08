@@ -100,7 +100,7 @@ body {
 
 /* Anchor jumps land below the fixed nav instead of under it. */
 section[id] {
-  scroll-margin-top: 5.5rem;
+  scroll-margin-top: 2rem;
 }
 
 .text-balance {
