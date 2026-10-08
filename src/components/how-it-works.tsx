@@ -35,8 +35,6 @@ export function HowItWorks() {
             <div className="lg:sticky lg:top-32">
               <SectionHeader
                 dark
-                index="01"
-                label="How we work"
                 title="From ambiguous data to a confident next step."
               />
               <p className="mt-6 max-w-sm text-[15px] leading-relaxed text-white/55">

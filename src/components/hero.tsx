@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-import { ArrowDown } from "@phosphor-icons/react/dist/ssr";
+import { Fragment, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 
@@ -141,21 +140,23 @@ export function Hero() {
         ref={contentRef}
         className="relative z-10 mx-auto flex min-h-dvh max-w-7xl flex-col items-start justify-end gap-5 px-6 pb-16 pt-28 sm:gap-6 sm:pb-24 lg:px-10 lg:pb-32"
       >
-        <p className="font-mono text-xs uppercase tracking-[0.25em] text-white/70">
-          Chemistry &amp; Materials Advisory
-        </p>
         <h1
           ref={headlineRef}
           className="max-w-3xl text-balance font-display text-5xl font-medium leading-[1.05] text-white sm:text-6xl lg:text-7xl"
         >
+          {/* Real spaces between the masked words, so the heading reads (and
+              copies, and is announced) as a sentence rather than one long token. */}
           {HEADLINE.map((word, i) => (
-            <span key={i} className="mr-[0.28em] inline-block overflow-hidden align-bottom">
-              <span
-                className={`word-inner inline-block ${word.italic ? "italic text-white/90" : ""}`}
-              >
-                {word.text}
+            <Fragment key={i}>
+              {i > 0 && " "}
+              <span className="inline-block overflow-hidden align-bottom">
+                <span
+                  className={`word-inner inline-block ${word.italic ? "italic text-white/90" : ""}`}
+                >
+                  {word.text}
+                </span>
               </span>
-            </span>
+            </Fragment>
           ))}
         </h1>
         <p className="max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
@@ -176,16 +177,9 @@ export function Hero() {
             See how we work
           </a>
         </div>
-        <p className="pt-3 font-mono text-[10px] uppercase leading-relaxed tracking-[0.14em] text-white/45 sm:pt-4 sm:text-[11px] sm:tracking-[0.2em]">
-          Trained at MIT · Imperial College London · Aarhus University
+        <p className="pt-3 text-sm leading-relaxed text-white/70 sm:pt-4">
+          Trained at MIT, Imperial College London and Aarhus University.
         </p>
-      </div>
-
-      <div className="absolute bottom-8 right-6 z-10 hidden items-center gap-2 text-white/60 lg:right-10 md:flex">
-        <span className="font-mono text-xs uppercase tracking-widest">
-          Scroll
-        </span>
-        <ArrowDown size={16} className="animate-bounce" />
       </div>
     </section>
   );

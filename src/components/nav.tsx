@@ -23,6 +23,15 @@ export function Nav({ forceSolid = false }: { forceSolid?: boolean }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [forceSolid]);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
@@ -78,6 +87,7 @@ export function Nav({ forceSolid = false }: { forceSolid?: boolean }) {
           type="button"
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
+          aria-controls="mobile-menu"
           onClick={() => setOpen((v) => !v)}
           className={`flex h-11 w-11 items-center justify-center rounded-full md:hidden ${
             scrolled ? "text-primary" : "text-white"
@@ -88,7 +98,7 @@ export function Nav({ forceSolid = false }: { forceSolid?: boolean }) {
       </nav>
 
       {open && (
-        <div className="border-t border-border bg-background md:hidden">
+        <div id="mobile-menu" className="border-t border-border bg-background md:hidden">
           <ul className="flex flex-col px-6 py-4">
             {LINKS.map((link) => (
               <li key={link.href}>

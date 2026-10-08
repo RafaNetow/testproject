@@ -10,8 +10,6 @@ export function About() {
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <Reveal>
           <SectionHeader
-            index="04"
-            label="About Alchemica"
             title="Senior chemistry judgement, on tap when a project needs it."
           />
         </Reveal>
@@ -32,7 +30,7 @@ export function About() {
                 <p className="font-display text-xl text-primary">
                   Axel Rosenvinge
                 </p>
-                <p className="mt-1 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Founder, Alchemica
                 </p>
               </div>
@@ -47,7 +45,7 @@ export function About() {
               act on this week.
             </p>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border pt-6">
-              <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              <span className="text-sm text-muted-foreground">
                 Trained at
               </span>
               {INSTITUTIONS.map((name, i) => (

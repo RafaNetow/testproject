@@ -93,6 +93,16 @@ body {
   outline-offset: 2px;
 }
 
+:root {
+  caret-color: var(--color-accent);
+  accent-color: var(--color-accent);
+}
+
+/* Anchor jumps land below the fixed nav instead of under it. */
+section[id] {
+  scroll-margin-top: 5.5rem;
+}
+
 .text-balance {
   text-wrap: balance;
 }
