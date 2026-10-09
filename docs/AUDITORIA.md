@@ -35,7 +35,9 @@ Cada hallazgo indica cómo se comprobó:
 
 ## 🔴 Críticas
 
-### SEC-01 · Cualquier usuario puede hacerse administrador
+### SEC-01 · Cualquier usuario puede hacerse administrador ✅
+
+- **Confirmado (2026-10-09):** reproducido en una base local: el usuario cliente `owner@cliente.test` cambió su propio `platform_role` a `axel_admin` con un UPDATE bajo RLS.
 
 - **Dónde:** [supabase/migrations/0001_init.sql:336](../supabase/migrations/0001_init.sql)
   ```sql
@@ -200,7 +202,9 @@ Cada hallazgo indica cómo se comprobó:
 - `invoices.invoice_number` no tiene restricción `unique`.
 - En Dinamarca la numeración de facturas tiene que ser única y correlativa.
 
-### QA-05 · Los clientes ven las facturas en borrador, y además marcadas como "Overdue" 📄
+### QA-05 · Los clientes ven las facturas en borrador, y además marcadas como "Overdue" ✅
+
+- **Confirmado (2026-10-09):** con el seed local, `owner@cliente.test` ve la factura en borrador 2026-003 como "OVERDUE" en /portal/invoices.
 
 - **Pasos:** el admin guarda una factura como borrador con vencimiento pasado → el dueño del cliente entra en Portal → Invoices.
 - **Actual:** el cliente ve un borrador que no se le ha enviado, con la etiqueta "Overdue".
@@ -214,7 +218,9 @@ Cada hallazgo indica cómo se comprobó:
 
 ## 🟠 Medios
 
-### QA-07 · Una factura aparece como "Overdue" el mismo día de su vencimiento 📄
+### QA-07 · Una factura aparece como "Overdue" el mismo día de su vencimiento ✅
+
+- **Confirmado (2026-10-09):** la factura 2026-002, que vence hoy, aparece como "OVERDUE".
 
 - `deriveInvoiceStatus` compara `new Date("YYYY-MM-DD")`, que es medianoche UTC, con la hora actual.
 - Una factura que vence hoy ya sale como vencida desde la madrugada. Los tests no cubren este caso.
@@ -226,7 +232,9 @@ Cada hallazgo indica cómo se comprobó:
 - El cambio de "próxima" a "pasada" también ocurre a la hora equivocada.
 - Al crear una reunión, `new Date(datetime-local)` también se interpreta en la zona horaria del servidor.
 
-### QA-09 · Las fechas sin hora se desplazan un día en zonas horarias negativas 📄
+### QA-09 · Las fechas sin hora se desplazan un día en zonas horarias negativas ✅
+
+- **Confirmado (2026-10-09):** en un equipo en UTC-6, una factura con `due_date = 2026-10-09` se muestra como "Due 08/10/2026". Todas las fechas de facturas salen un día antes.
 
 - Horas trabajadas, decisiones, vencimientos y líneas de factura usan `new Date("YYYY-MM-DD")`.
 - Para un usuario en América aparecen un día antes.
