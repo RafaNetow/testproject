@@ -1,3 +1,8 @@
+/* Cascade order while Tailwind and MUI coexist: MUI's styles live in the
+   `mui` layer (see MuiProvider), above Tailwind's reset and below its
+   utilities. Unlayered rules in this file beat all of them. */
+@layer theme, base, mui, components, utilities;
+
 @import "tailwindcss";
 
 :root {
@@ -25,9 +30,14 @@
  * not the marketing site — the marketing pages are deliberately art-directed
  * per-section (see section-header.tsx's own `dark` prop) and swapping their
  * tokens wholesale on system preference would fight that, not complement it.
+ *
+ * Set on <body> (when it contains the app shell) rather than on the shell
+ * itself, so MUI dialogs, menus and popovers — which render in a portal
+ * directly under <body> — pick up the same tokens.
  */
 @media (prefers-color-scheme: dark) {
-  .app-shell {
+  body:has(.app-shell) {
+    color-scheme: dark;
     --background: #0a0e16;
     --foreground: #e5e9f0;
 

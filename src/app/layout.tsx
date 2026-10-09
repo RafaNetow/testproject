@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import { CookieNotice } from "@/components/cookie-notice";
 import { DevEnvironmentBadge } from "@/components/dev-environment-badge";
+import { MuiProvider } from "@/components/providers/mui-provider";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -57,9 +58,11 @@ export default function RootLayout({
       className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-body">
-        {children}
-        <CookieNotice />
-        <DevEnvironmentBadge />
+        <MuiProvider>
+          {children}
+          <CookieNotice />
+          <DevEnvironmentBadge />
+        </MuiProvider>
       </body>
     </html>
   );
