@@ -10,10 +10,15 @@ import MuiLink from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import CreateNewFolderOutlined from "@mui/icons-material/CreateNewFolderOutlined";
 import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
-import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
 import Download from "@mui/icons-material/Download";
 import Folder from "@mui/icons-material/Folder";
 import FolderOutlined from "@mui/icons-material/FolderOutlined";
@@ -25,6 +30,9 @@ import { UploadForm } from "./upload-form";
 import { FilePreviewDialog } from "./file-preview-dialog";
 import { RenameButton } from "./rename-button";
 import { createFolder, deleteFolder, deleteFile, moveFile, renameFolder, renameFile } from "@/lib/actions/files";
+
+/** Hidden from sight, still read by screen readers. */
+const visuallyHidden = { position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" } as const;
 
 type FolderRow = { id: string; name: string; parent_folder_id: string | null };
 type FileRow = {
@@ -51,6 +59,20 @@ function folderHref(basePath: string, extraQuery: string | undefined, folderId: 
   else params.delete("folder");
   const qs = params.toString();
   return qs ? `${basePath}?${qs}` : basePath;
+}
+
+/** A short type badge + hue per file kind, like a file manager's type icons. */
+function fileType(filename: string, mime: string | null) {
+  const ext = filename.includes(".") ? filename.split(".").pop()!.toLowerCase() : "";
+  if (ext === "pdf" || mime === "application/pdf") return { label: "PDF", color: "#ff5630" };
+  if (mime?.startsWith("image/") || ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext))
+    return { label: "IMG", color: "#22c55e" };
+  if (["xls", "xlsx", "csv"].includes(ext)) return { label: ext === "csv" ? "CSV" : "XLS", color: "#118d57" };
+  if (["doc", "docx", "txt", "md", "rtf"].includes(ext))
+    return { label: ext === "txt" || ext === "md" ? "TXT" : "DOC", color: "#0b76c5" };
+  if (["ppt", "pptx"].includes(ext)) return { label: "PPT", color: "#ff8c00" };
+  if (["zip", "rar", "7z", "gz"].includes(ext)) return { label: "ZIP", color: "#8e33ff" };
+  return { label: (ext.slice(0, 4) || "FILE").toUpperCase(), color: "#637381" };
 }
 
 const countSx = { ml: 1, flexShrink: 0, fontFamily: "var(--font-mono)", fontSize: 10, color: "text.muted" } as const;
@@ -212,8 +234,8 @@ export function FilesView({
     <Box
       sx={{
         display: "grid",
-        gap: { xs: 3, lg: 4 },
-        gridTemplateColumns: { xs: "1fr", lg: "220px 1fr" },
+        gap: 3,
+        gridTemplateColumns: { xs: "minmax(0, 1fr)", lg: "200px minmax(0, 1fr)" },
         alignItems: "start",
       }}
     >
@@ -245,182 +267,285 @@ export function FilesView({
         />
       </Paper>
 
-      <Stack spacing={3}>
-        <Breadcrumbs separator={<NavigateNext sx={{ fontSize: 16 }} />} aria-label="Folder path" sx={{ fontSize: 14 }}>
-          <MuiLink
-           
-            href={folderHref(basePath, extraQuery, null)}
-            color={currentFolderId ? "text.muted" : "text.primary"}
-            sx={{ fontWeight: currentFolderId ? 400 : 500 }}
-          >
-            Files
-          </MuiLink>
-          {breadcrumb.map((f, i) => (
+      <Stack spacing={4} sx={{ minWidth: 0 }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+          <Breadcrumbs separator={<NavigateNext sx={{ fontSize: 16 }} />} aria-label="Folder path" sx={{ fontSize: 14 }}>
             <MuiLink
-              key={f.id}
-             
-              href={folderHref(basePath, extraQuery, f.id)}
-              color={i === breadcrumb.length - 1 ? "text.primary" : "text.muted"}
-              sx={{ fontWeight: i === breadcrumb.length - 1 ? 500 : 400 }}
+              href={folderHref(basePath, extraQuery, null)}
+              color={currentFolderId ? "text.secondary" : "text.primary"}
+              sx={{ fontWeight: 600 }}
             >
-              {f.name}
+              All files
             </MuiLink>
-          ))}
-        </Breadcrumbs>
+            {breadcrumb.map((f, i) => (
+              <MuiLink
+                key={f.id}
+                href={folderHref(basePath, extraQuery, f.id)}
+                color={i === breadcrumb.length - 1 ? "text.primary" : "text.secondary"}
+                sx={{ fontWeight: 600 }}
+              >
+                {f.name}
+              </MuiLink>
+            ))}
+          </Breadcrumbs>
 
-        {canManage && (
-          <Box component="form" action={createInThisFolder} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <TextField name="name" required placeholder="New folder name" fullWidth={false} sx={{ width: 240 }} slotProps={{ htmlInput: { "aria-label": "New folder name" } }} />
-            <Button type="submit" variant="outlined" color="secondary" startIcon={<CreateNewFolderOutlined />}>
-              New folder
-            </Button>
-          </Box>
-        )}
+          {canManage && (
+            <Box component="form" action={createInThisFolder} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <TextField
+                name="name"
+                required
+                placeholder="New folder name"
+                fullWidth={false}
+                sx={{ width: { xs: 160, sm: 220 } }}
+                slotProps={{ htmlInput: { "aria-label": "New folder name" } }}
+              />
+              <Button type="submit" variant="contained" startIcon={<CreateNewFolderOutlined />}>
+                New folder
+              </Button>
+            </Box>
+          )}
+        </Box>
 
         {subfolders.length > 0 && (
-          <Box sx={{ display: "grid", gap: 1, gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" } }}>
-            {subfolders.map((f) => {
-              const deleteThis = deleteFolder.bind(null, f.id, revalidatePaths);
-              const renameThis = renameFolder.bind(null, f.id, revalidatePaths);
-              return (
-                <Paper
-                  key={f.id}
-                  variant="outlined"
-                  sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, px: 2, py: 1.25 }}
-                >
-                  <MuiLink
-                   
-                    href={folderHref(basePath, extraQuery, f.id)}
-                    underline="none"
-                    color="text.primary"
-                    sx={{ display: "flex", minWidth: 0, flex: 1, alignItems: "center", gap: 1.25, fontSize: 14, fontWeight: 500 }}
-                  >
-                    <Folder sx={{ fontSize: 19, color: "primary.main", flexShrink: 0 }} />
-                    <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {f.name}
-                    </Box>
-                  </MuiLink>
-                  {canManage && (
-                    <form action={renameThis}>
-                      <RenameButton
-                        fieldName="name"
-                        currentValue={f.name}
-                        promptText="Rename folder"
-                        ariaLabel={`Rename folder ${f.name}`}
-                      />
-                    </form>
-                  )}
-                  {canManage && (
-                    <form action={deleteThis}>
-                      <ConfirmButton
-                        confirmText={`Delete "${f.name}"? Any subfolders go with it, and files inside move to the top level.`}
-                        ariaLabel={`Delete folder ${f.name}`}
-                        icon={<DeleteOutlined sx={{ fontSize: 16 }} />}
-                      />
-                    </form>
-                  )}
-                </Paper>
-              );
-            })}
-          </Box>
+          <section>
+            <SectionTitle title="Folders" count={subfolders.length} />
+            <Box
+              sx={{
+                display: "grid",
+                gap: 2,
+                gridTemplateColumns: {
+                  xs: "repeat(2, minmax(0, 1fr))",
+                  md: "repeat(3, minmax(0, 1fr))",
+                },
+              }}
+            >
+              {subfolders
+                .slice()
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((f) => {
+                  const deleteThis = deleteFolder.bind(null, f.id, revalidatePaths);
+                  const renameThis = renameFolder.bind(null, f.id, revalidatePaths);
+                  const count = fileCountByFolder.get(f.id) ?? 0;
+                  return (
+                    <Paper
+                      key={f.id}
+                      variant="outlined"
+                      sx={{
+                        position: "relative",
+                        p: 2.5,
+                        transition: "box-shadow 200ms",
+                        "&:hover": { boxShadow: "var(--shadow-dropdown)" },
+                      }}
+                    >
+                      <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+                        <Folder sx={{ fontSize: 44, color: "#ffab00" }} />
+                        {canManage && (
+                          <Box sx={{ display: "flex", mr: -1, mt: -0.5, position: "relative", zIndex: 1 }}>
+                            <form action={renameThis}>
+                              <RenameButton
+                                fieldName="name"
+                                currentValue={f.name}
+                                promptText="Rename folder"
+                                ariaLabel={`Rename folder ${f.name}`}
+                              />
+                            </form>
+                            <form action={deleteThis}>
+                              <ConfirmButton
+                                confirmText={`Delete "${f.name}"? Any subfolders go with it, and files inside move to the top level.`}
+                                ariaLabel={`Delete folder ${f.name}`}
+                                icon={<DeleteOutlined sx={{ fontSize: 18 }} />}
+                              />
+                            </form>
+                          </Box>
+                        )}
+                      </Box>
+                      <MuiLink
+                        href={folderHref(basePath, extraQuery, f.id)}
+                        underline="none"
+                        color="text.primary"
+                        sx={{
+                          mt: 1.5,
+                          display: "block",
+                          fontSize: 15,
+                          fontWeight: 600,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          // Stretch the link over the whole card; the action buttons sit above it.
+                          "&::after": { content: '""', position: "absolute", inset: 0 },
+                        }}
+                      >
+                        {f.name}
+                      </MuiLink>
+                      <Typography sx={{ mt: 0.5, fontSize: 13, color: "text.muted" }}>
+                        {count} {count === 1 ? "file" : "files"}
+                      </Typography>
+                    </Paper>
+                  );
+                })}
+            </Box>
+          </section>
         )}
 
         <UploadForm projectId={projectId} folderId={currentFolderId} revalidatePaths={revalidatePaths} />
 
-        {!filesHere.length ? (
-          <Paper
-            variant="outlined"
-            sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, borderStyle: "dashed", px: 3, py: 5, textAlign: "center" }}
-          >
-            <NoteAddOutlined sx={{ fontSize: 22, color: "text.muted" }} />
-            <Typography sx={{ fontSize: 14, color: "text.muted" }}>
-              {subfolders.length ? "No files at this level." : "No files or folders yet."}
-            </Typography>
-          </Paper>
-        ) : (
-          <Box sx={{ borderTop: 1, borderColor: "divider" }}>
-            {filesHere.map((f) => {
-              const deleteThis = deleteFile.bind(null, f.id, f.storage_path, revalidatePaths);
-              const moveThis = moveFile.bind(null, f.id, revalidatePaths);
-              const renameThis = renameFile.bind(null, f.id, revalidatePaths);
-              return (
-                <Box
-                  key={f.id}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 1.5,
-                    py: 1.75,
-                    borderBottom: 1,
-                    borderColor: "divider",
-                  }}
-                >
-                  <Box sx={{ display: "flex", minWidth: 0, alignItems: "center", gap: 1.5 }}>
-                    <DescriptionOutlined sx={{ fontSize: 21, color: "text.muted", flexShrink: 0 }} />
-                    <Box sx={{ minWidth: 0 }}>
-                      <Typography noWrap sx={{ fontSize: 14, fontWeight: 500 }}>
-                        {f.filename}
-                      </Typography>
-                      <Typography sx={{ fontSize: 12, color: "text.muted" }}>
-                        {formatSize(f.size_bytes)} · {new Date(f.created_at).toLocaleDateString("en-GB")}
-                        {f.version_tag ? ` · ${f.version_tag}` : ""}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box sx={{ display: "flex", flexShrink: 0, alignItems: "center", gap: 0.5 }}>
-                    {canManage && (
-                      <form action={moveThis}>
-                        <AutoSubmitSelect
-                          name="folder_id"
-                          defaultValue={f.folder_id ?? "__root__"}
-                          options={moveOptions}
-                          ariaLabel={`Folder for ${f.filename}`}
-                        />
-                      </form>
-                    )}
-                    {f.url && (
-                      <>
-                        <FilePreviewDialog filename={f.filename} url={f.url} mimeType={f.mime_type} />
-                        <IconButton
-                          component="a"
-                          href={f.url}
-                          download={f.filename}
-                          size="small"
-                          title="Download"
-                          aria-label={`Download "${f.filename}"`}
-                          sx={iconButtonSx}
-                        >
-                          <Download sx={{ fontSize: 18 }} />
-                        </IconButton>
-                      </>
-                    )}
-                    {canManage && (
-                      <form action={renameThis}>
-                        <RenameButton
-                          fieldName="filename"
-                          currentValue={f.filename}
-                          promptText="Rename file"
-                          ariaLabel={`Rename file ${f.filename}`}
-                        />
-                      </form>
-                    )}
-                    {canManage && (
-                      <form action={deleteThis}>
-                        <ConfirmButton
-                          confirmText={`Delete "${f.filename}"? This can't be undone.`}
-                          ariaLabel={`Delete file "${f.filename}"`}
-                          icon={<DeleteOutlined sx={{ fontSize: 18 }} />}
-                        />
-                      </form>
-                    )}
-                  </Box>
-                </Box>
-              );
-            })}
-          </Box>
-        )}
+        <section>
+          <SectionTitle title="Files" count={filesHere.length} />
+          {!filesHere.length ? (
+            <Paper
+              variant="outlined"
+              sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, px: 3, py: 6, textAlign: "center" }}
+            >
+              <NoteAddOutlined sx={{ fontSize: 32, color: "text.muted" }} />
+              <Typography sx={{ fontSize: 15, fontWeight: 600 }}>
+                {subfolders.length ? "No files at this level" : "No files or folders yet"}
+              </Typography>
+              <Typography sx={{ fontSize: 13, color: "text.muted" }}>Upload one above to get started.</Typography>
+            </Paper>
+          ) : (
+            <TableContainer component={Paper} variant="outlined">
+              <Table size="small" sx={{ minWidth: 560 }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ pl: 2.5 }}>Name</TableCell>
+                    <TableCell>Modified</TableCell>
+                    {canManage && <TableCell>Folder</TableCell>}
+                    <TableCell align="right" sx={{ pr: 2 }}>
+                      <Box component="span" sx={visuallyHidden}>
+                        Actions
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filesHere.map((f) => {
+                    const deleteThis = deleteFile.bind(null, f.id, f.storage_path, revalidatePaths);
+                    const moveThis = moveFile.bind(null, f.id, revalidatePaths);
+                    const renameThis = renameFile.bind(null, f.id, revalidatePaths);
+                    const type = fileType(f.filename, f.mime_type);
+                    return (
+                      <TableRow key={f.id} hover sx={{ "&:last-child td": { borderBottom: 0 } }}>
+                        <TableCell sx={{ pl: 2.5, py: 1.5, maxWidth: 280 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
+                            <Box
+                              sx={{
+                                display: "grid",
+                                placeItems: "center",
+                                width: 36,
+                                height: 36,
+                                flexShrink: 0,
+                                borderRadius: 1,
+                                bgcolor: `color-mix(in srgb, ${type.color} 14%, transparent)`,
+                                color: type.color,
+                                fontSize: 10,
+                                fontWeight: 800,
+                                letterSpacing: "0.02em",
+                              }}
+                            >
+                              {type.label}
+                            </Box>
+                            <Box sx={{ minWidth: 0 }}>
+                              <Typography noWrap sx={{ fontSize: 14, fontWeight: 600 }}>
+                                {f.filename}
+                              </Typography>
+                              <Typography sx={{ fontSize: 12, color: "text.muted" }}>
+                                {formatSize(f.size_bytes)}
+                                {f.version_tag ? ` · ${f.version_tag}` : ""}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </TableCell>
+                        <TableCell sx={{ whiteSpace: "nowrap", color: "text.secondary" }}>
+                          {new Date(f.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                        </TableCell>
+                        {canManage && (
+                          <TableCell sx={{ width: 160, minWidth: 140 }}>
+                            <form action={moveThis}>
+                              <AutoSubmitSelect
+                                name="folder_id"
+                                defaultValue={f.folder_id ?? "__root__"}
+                                options={moveOptions}
+                                ariaLabel={`Folder for ${f.filename}`}
+                                sx={{ minWidth: 0, width: "100%" }}
+                              />
+                            </form>
+                          </TableCell>
+                        )}
+                        <TableCell align="right" sx={{ pr: 1.5, whiteSpace: "nowrap" }}>
+                          <Box sx={{ display: "inline-flex", alignItems: "center" }}>
+                            {f.url && (
+                              <>
+                                <FilePreviewDialog filename={f.filename} url={f.url} mimeType={f.mime_type} />
+                                <IconButton
+                                  component="a"
+                                  href={f.url}
+                                  download={f.filename}
+                                  size="small"
+                                  title="Download"
+                                  aria-label={`Download "${f.filename}"`}
+                                  sx={iconButtonSx}
+                                >
+                                  <Download sx={{ fontSize: 18 }} />
+                                </IconButton>
+                              </>
+                            )}
+                            {canManage && (
+                              <form action={renameThis}>
+                                <RenameButton
+                                  fieldName="filename"
+                                  currentValue={f.filename}
+                                  promptText="Rename file"
+                                  ariaLabel={`Rename file ${f.filename}`}
+                                />
+                              </form>
+                            )}
+                            {canManage && (
+                              <form action={deleteThis}>
+                                <ConfirmButton
+                                  confirmText={`Delete "${f.filename}"? This can't be undone.`}
+                                  ariaLabel={`Delete file "${f.filename}"`}
+                                  icon={<DeleteOutlined sx={{ fontSize: 18 }} />}
+                                />
+                              </form>
+                            )}
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </section>
       </Stack>
+    </Box>
+  );
+}
+
+function SectionTitle({ title, count }: { title: string; count: number }) {
+  return (
+    <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
+      <Typography variant="h2" sx={{ fontSize: 18 }}>
+        {title}
+      </Typography>
+      <Box
+        component="span"
+        sx={{
+          px: 0.75,
+          height: 22,
+          minWidth: 22,
+          display: "inline-grid",
+          placeItems: "center",
+          borderRadius: 0.75,
+          bgcolor: "rgb(145 158 171 / 0.16)",
+          color: "text.secondary",
+          fontSize: 12,
+          fontWeight: 700,
+        }}
+      >
+        {count}
+      </Box>
     </Box>
   );
 }
