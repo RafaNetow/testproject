@@ -1,14 +1,12 @@
 // Writes the local Supabase URL and keys into .env.local.
 // Run after `npm run db:start`. Keeps every other line already in .env.local.
-import { execFileSync } from "node:child_process";
+import { execSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
-const isWindows = process.platform === "win32";
 let status;
 try {
-  const raw = execFileSync(isWindows ? "npx.cmd" : "npx", ["supabase", "status", "-o", "json"], {
+  const raw = execSync("npx supabase status -o json", {
     encoding: "utf8",
-    shell: isWindows,
     stdio: ["ignore", "pipe", "pipe"],
   });
   status = JSON.parse(raw.slice(raw.indexOf("{")));
