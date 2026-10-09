@@ -1,5 +1,6 @@
 "use client";
 
+import NextLink from "next/link";
 import { createTheme } from "@mui/material/styles";
 
 declare module "@mui/material/styles" {
@@ -87,6 +88,12 @@ export const theme = createTheme({
     overline: { fontFamily: "var(--font-mono), ui-monospace, monospace", letterSpacing: "0.2em" },
   },
   components: {
+    // Route every MUI `href` through Next Link, so server components can render
+    // <Button href> / <Chip href> / <Link href> without passing a component prop
+    // (functions can't cross the server→client boundary).
+    MuiButtonBase: {
+      defaultProps: { LinkComponent: NextLink },
+    },
     MuiCssBaseline: {
       styleOverrides: {
         body: { backgroundColor: v("background"), color: v("foreground") },
@@ -147,7 +154,7 @@ export const theme = createTheme({
       },
     },
     MuiLink: {
-      defaultProps: { underline: "hover" },
+      defaultProps: { underline: "hover", component: NextLink },
     },
     MuiTooltip: {
       styleOverrides: { tooltip: { fontSize: 12 } },

@@ -1,9 +1,11 @@
-import Link from "next/link";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
 import { createClient } from "@/lib/supabase/server";
 import { deriveInvoiceStatus } from "@/lib/invoice-status";
 import { Pagination } from "@/components/shared/pagination";
 import { SectionHeader } from "@/components/shared/section-header";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { LinkTable } from "@/components/shared/link-table";
 
 const PAGE_SIZE = 25;
 
@@ -44,7 +46,7 @@ export default async function AdminInvoicesPage({
   const invoices = (data ?? []) as unknown as InvoiceRow[];
 
   return (
-    <div className="flex flex-col gap-8">
+    <Stack spacing={4}>
       <SectionHeader
         eyebrow="Invoices"
         title="All invoices across clients"
@@ -52,78 +54,25 @@ export default async function AdminInvoicesPage({
       />
 
       {!invoices.length ? (
-        <p className="text-sm text-muted-foreground">No invoices yet.</p>
+        <Typography sx={{ fontSize: 14, color: "text.muted" }}>No invoices yet.</Typography>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-border bg-card">
-          <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th className="px-5 py-3 font-medium">Client</th>
-                <th className="px-5 py-3 font-medium">Invoice</th>
-                <th className="px-5 py-3 font-medium">Amount</th>
-                <th className="px-5 py-3 font-medium">Due</th>
-                <th className="px-5 py-3 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoices.map((inv) => {
-                const displayStatus = deriveInvoiceStatus(inv.status, inv.due_date);
-                return (
-                <tr
-                  key={inv.id}
-                  className="border-b border-border transition-colors last:border-0 hover:bg-muted"
-                >
-                  <td className="p-0">
-                    <Link
-                      href={`/admin/clients/${inv.org_id}/projects/${inv.project_id}/invoices`}
-                      className="block px-5 py-3.5 font-medium text-primary"
-                    >
-                      {inv.organizations?.name ?? "—"}
-                    </Link>
-                  </td>
-                  <td className="p-0">
-                    <Link
-                      href={`/admin/clients/${inv.org_id}/projects/${inv.project_id}/invoices`}
-                      className="block px-5 py-3.5 text-secondary"
-                    >
-                      {inv.invoice_number}
-                    </Link>
-                  </td>
-                  <td className="p-0">
-                    <Link
-                      href={`/admin/clients/${inv.org_id}/projects/${inv.project_id}/invoices`}
-                      className="block px-5 py-3.5 text-secondary"
-                    >
-                      {formatAmount(inv.amount_cents, inv.currency)}
-                    </Link>
-                  </td>
-                  <td className="p-0">
-                    <Link
-                      href={`/admin/clients/${inv.org_id}/projects/${inv.project_id}/invoices`}
-                      className="block px-5 py-3.5 text-secondary"
-                    >
-                      {inv.due_date ? new Date(inv.due_date).toLocaleDateString("en-GB") : "—"}
-                    </Link>
-                  </td>
-                  <td className="p-0">
-                    <Link
-                      href={`/admin/clients/${inv.org_id}/projects/${inv.project_id}/invoices`}
-                      className="flex items-center px-5 py-3.5"
-                    >
-                      <StatusBadge status={displayStatus} />
-                    </Link>
-                  </td>
-                </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          </div>
-        </div>
+        <LinkTable
+          columns={["Client", "Invoice", "Amount", "Due", "Status"]}
+          rows={invoices.map((inv) => ({
+            key: inv.id,
+            href: `/admin/clients/${inv.org_id}/projects/${inv.project_id}/invoices`,
+            cells: [
+              inv.organizations?.name ?? "—",
+              inv.invoice_number,
+              formatAmount(inv.amount_cents, inv.currency),
+              inv.due_date ? new Date(inv.due_date).toLocaleDateString("en-GB") : "—",
+              <StatusBadge key="status" status={deriveInvoiceStatus(inv.status, inv.due_date)} />,
+            ],
+          }))}
+        />
       )}
 
       <Pagination page={page} pageSize={PAGE_SIZE} total={count ?? 0} basePath="/admin/invoices" />
-    </div>
+    </Stack>
   );
 }

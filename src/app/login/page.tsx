@@ -28,7 +28,7 @@ export default async function LoginPage() {
   return (
     <main className="grid min-h-dvh grid-cols-1 lg:grid-cols-2">
       <div className="relative hidden overflow-hidden bg-primary lg:block">
-        <MolecularAccent className="absolute inset-0 h-full w-full opacity-70" />
+        <MolecularAccent opacity={0.7} />
         <div className="relative z-10 flex h-full flex-col justify-between p-12">
           <Link href="/" className="font-display text-xl tracking-tight text-white">
             Alchemica

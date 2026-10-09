@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ProjectSubNav } from "@/components/admin/project-sub-nav";
 import { SectionHeader } from "@/components/shared/section-header";
 import { StatusBadge } from "@/components/shared/status-badge";
+import Stack from "@mui/material/Stack";
 
 export default async function ProjectLayout({
   params,
@@ -24,7 +25,7 @@ export default async function ProjectLayout({
   const orgName = (project.organizations as unknown as { name: string } | null)?.name ?? "Client";
 
   return (
-    <div className="flex flex-col gap-6">
+    <Stack spacing={3}>
       <SectionHeader
         backLink={{ href: `/admin/clients/${orgId}`, label: orgName }}
         title={project.name}
@@ -34,6 +35,6 @@ export default async function ProjectLayout({
       <ProjectSubNav orgId={orgId} projectId={projectId} />
 
       {children}
-    </div>
+    </Stack>
   );
 }

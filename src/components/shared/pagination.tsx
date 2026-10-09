@@ -1,7 +1,12 @@
-import Link from "next/link";
-import { CaretLeft, CaretRight } from "@phosphor-icons/react/dist/ssr";
+"use client";
 
-/** Simple offset pagination via a `?page=` query param — no client JS needed. */
+import Link from "next/link";
+import Box from "@mui/material/Box";
+import MuiPagination from "@mui/material/Pagination";
+import PaginationItem from "@mui/material/PaginationItem";
+import Typography from "@mui/material/Typography";
+
+/** Offset pagination via a `?page=` query param — every page is a real link. */
 export function Pagination({
   page,
   pageSize,
@@ -17,40 +22,19 @@ export function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-between gap-3">
-      <p className="text-sm text-muted-foreground">
+    <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 1.5 }}>
+      <Typography sx={{ fontSize: 14, color: "text.muted" }}>
         Page {page} of {totalPages} · {total} total
-      </p>
-      <div className="flex items-center gap-2">
-        {page > 1 ? (
-          <Link
-            href={`${basePath}?page=${page - 1}`}
-            className="flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted"
-          >
-            <CaretLeft size={12} />
-            Previous
-          </Link>
-        ) : (
-          <span className="flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground opacity-50">
-            <CaretLeft size={12} />
-            Previous
-          </span>
+      </Typography>
+      <MuiPagination
+        page={page}
+        count={totalPages}
+        size="small"
+        shape="rounded"
+        renderItem={(item) => (
+          <PaginationItem component={Link} href={`${basePath}?page=${item.page}`} {...item} />
         )}
-        {page < totalPages ? (
-          <Link
-            href={`${basePath}?page=${page + 1}`}
-            className="flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted"
-          >
-            Next
-            <CaretRight size={12} />
-          </Link>
-        ) : (
-          <span className="flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground opacity-50">
-            Next
-            <CaretRight size={12} />
-          </span>
-        )}
-      </div>
-    </div>
+      />
+    </Box>
   );
 }

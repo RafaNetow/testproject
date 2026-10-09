@@ -1,25 +1,44 @@
-import type { SelectHTMLAttributes } from "react";
-import { CaretDown } from "@phosphor-icons/react/dist/ssr";
+"use client";
 
-/** A native <select> with the browser's default chrome hidden and a custom chevron drawn in its place. */
+import type { ChangeEvent, ReactNode } from "react";
+import TextField from "@mui/material/TextField";
+import type { SxProps, Theme } from "@mui/material/styles";
+
+/**
+ * MUI select rendered as a *native* <select>, so it keeps working inside plain
+ * server-action forms (name/defaultValue are submitted with the form) and on
+ * mobile it opens the platform picker. Options are passed as <option> children.
+ */
 export function SelectField({
-  className,
+  label,
   children,
+  sx,
+  onChange,
   ...props
-}: SelectHTMLAttributes<HTMLSelectElement>) {
+}: {
+  label?: ReactNode;
+  children: ReactNode;
+  sx?: SxProps<Theme>;
+  id?: string;
+  name?: string;
+  defaultValue?: string;
+  value?: string;
+  disabled?: boolean;
+  required?: boolean;
+  "aria-label"?: string;
+  onChange?: (e: ChangeEvent<HTMLSelectElement>) => void;
+}) {
+  const { "aria-label": ariaLabel, ...rest } = props;
   return (
-    <div className="relative">
-      <select
-        {...props}
-        className={`w-full appearance-none rounded-lg border border-border bg-background px-3.5 py-2.5 pr-9 text-sm text-primary outline-none transition-colors focus:border-accent ${className ?? ""}`}
-      >
-        {children}
-      </select>
-      <CaretDown
-        size={12}
-        weight="bold"
-        className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-      />
-    </div>
+    <TextField
+      select
+      label={label}
+      sx={sx}
+      onChange={onChange as ((e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void) | undefined}
+      slotProps={{ select: { native: true }, htmlInput: ariaLabel ? { "aria-label": ariaLabel } : undefined }}
+      {...rest}
+    >
+      {children}
+    </TextField>
   );
 }

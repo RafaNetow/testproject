@@ -1,39 +1,23 @@
-import Link from "next/link";
-import {
-  ChatCircleDots,
-  FolderOpen,
-  NotePencil,
-  SquaresFour,
-  VideoCamera,
-} from "@phosphor-icons/react/dist/ssr";
+import Stack from "@mui/material/Stack";
 import { createClient } from "@/lib/supabase/server";
 import { getPortalProjectContext } from "@/lib/portal-context";
 import { DashboardHero } from "@/components/shared/dashboard-hero";
 import { SectionHeader } from "@/components/shared/section-header";
-
-type ActivityItem = {
-  type: "card" | "decision" | "update" | "meeting" | "file";
-  label: string;
-  at: string;
-  href: string;
-};
+import { EmptyState } from "@/components/shared/empty-state";
+import { StatTiles } from "@/components/shared/stat-tiles";
+import { ActivityFeed, type ActivityItem } from "@/components/shared/activity-feed";
 
 export default async function PortalHome() {
   const { org, projects } = await getPortalProjectContext();
 
   if (!org) {
     return (
-      <div className="flex flex-col gap-10">
+      <Stack spacing={5}>
         <SectionHeader eyebrow="Executive Summary" title="Welcome" />
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-10 text-center">
-          <p className="font-display text-lg font-medium text-primary">
-            Your workspace is being set up
-          </p>
-          <p className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">
-            Once you&apos;re added to a project, everything will show up here.
-          </p>
-        </div>
-      </div>
+        <EmptyState title="Your workspace is being set up">
+          Once you&apos;re added to a project, everything will show up here.
+        </EmptyState>
+      </Stack>
     );
   }
 
@@ -41,17 +25,12 @@ export default async function PortalHome() {
 
   if (!projectIds.length) {
     return (
-      <div className="flex flex-col gap-10">
+      <Stack spacing={5}>
         <SectionHeader eyebrow="Executive Summary" title={org.name} />
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-10 text-center">
-          <p className="font-display text-lg font-medium text-primary">
-            Your first project is being set up
-          </p>
-          <p className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">
-            Once it&apos;s ready, your board, files, and decisions will show up here.
-          </p>
-        </div>
-      </div>
+        <EmptyState title="Your first project is being set up">
+          Once it&apos;s ready, your board, files, and decisions will show up here.
+        </EmptyState>
+      </Stack>
     );
   }
 
@@ -159,14 +138,6 @@ export default async function PortalHome() {
     .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
     .slice(0, 8);
 
-  const ACTIVITY_ICONS = {
-    card: SquaresFour,
-    decision: ChatCircleDots,
-    update: NotePencil,
-    meeting: VideoCamera,
-    file: FolderOpen,
-  };
-
   const KPI_TILES = [
     { label: "Board items", value: cardCount ?? 0 },
     { label: "Decisions logged", value: decisionCount ?? 0 },
@@ -183,50 +154,12 @@ export default async function PortalHome() {
   ];
 
   return (
-    <div className="flex flex-col gap-10">
+    <Stack spacing={5}>
       <DashboardHero name={org.name} subtitle="Here's where your engagement stands today." />
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {KPI_TILES.map((tile) => (
-          <div key={tile.label} className="rounded-2xl border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-            <p className="text-sm font-medium text-secondary">{tile.label}</p>
-            <p className="mt-2 font-display text-3xl font-medium text-primary">{tile.value}</p>
-          </div>
-        ))}
-      </div>
+      <StatTiles tiles={KPI_TILES} />
 
-      <div>
-        <p className="text-sm font-medium text-secondary">Recent activity</p>
-        {!activity.length ? (
-          <div className="mt-3 rounded-2xl border border-dashed border-border bg-card px-6 py-10 text-center">
-            <p className="text-sm text-muted-foreground">Nothing yet — check back soon.</p>
-          </div>
-        ) : (
-          <div className="mt-3 divide-y divide-border rounded-2xl border border-border bg-card">
-            {activity.map((item, i) => {
-              const ItemIcon = ACTIVITY_ICONS[item.type];
-              return (
-                <Link
-                  key={i}
-                  href={item.href}
-                  className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-muted"
-                >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                    <ItemIcon size={15} />
-                  </div>
-                  <p className="flex-1 truncate text-sm text-primary">{item.label}</p>
-                  <p className="shrink-0 text-xs text-muted-foreground">
-                    {new Date(item.at).toLocaleDateString("en-GB", {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </p>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
+      <ActivityFeed title="Recent activity" items={activity} emptyText="Nothing yet — check back soon." />
+    </Stack>
   );
 }

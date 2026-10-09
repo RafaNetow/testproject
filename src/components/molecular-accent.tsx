@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Box from "@mui/material/Box";
 
 type Particle = { x: number; y: number; vx: number; vy: number };
 
@@ -18,12 +19,13 @@ const TONES = {
  * down to fill a single bounded panel rather than the whole viewport.
  */
 export function MolecularAccent({
-  className,
+  opacity = 0.7,
   tone = "accent",
   particleCount = 26,
   desktopOnly = true,
 }: {
-  className?: string;
+  /** The canvas always fills its (positioned) parent; this only sets how strong it reads. */
+  opacity?: number;
   tone?: keyof typeof TONES;
   particleCount?: number;
   /** Skip the rAF loop below 1024px — set false when the panel is actually visible on mobile too. */
@@ -119,5 +121,12 @@ export function MolecularAccent({
     };
   }, [tone, particleCount, desktopOnly]);
 
-  return <canvas ref={canvasRef} className={className} aria-hidden="true" />;
+  return (
+    <Box
+      component="canvas"
+      ref={canvasRef}
+      aria-hidden="true"
+      sx={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity }}
+    />
+  );
 }

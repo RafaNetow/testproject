@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
-import { GearSix, X } from "@phosphor-icons/react/dist/ssr";
+import { useState, type ReactNode } from "react";
+import Box from "@mui/material/Box";
+import Drawer from "@mui/material/Drawer";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import SettingsOutlined from "@mui/icons-material/SettingsOutlined";
+import Close from "@mui/icons-material/Close";
 
 /**
  * Slide-over panel for everything that isn't "look at the client's active
@@ -10,54 +15,49 @@ import { GearSix, X } from "@phosphor-icons/react/dist/ssr";
  * — the thing an admin actually opens this page to see.
  */
 export function ClientSettingsDrawer({ children }: { children: ReactNode }) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    function onCancel(e: Event) {
-      // Let Escape close it via the native <dialog> behavior — nothing to do,
-      // just avoid the default "cancel" firing twice with our own handlers.
-      e.stopPropagation();
-    }
-    dialog.addEventListener("cancel", onCancel);
-    return () => dialog.removeEventListener("cancel", onCancel);
-  }, []);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => dialogRef.current?.showModal()}
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+      <IconButton
+        onClick={() => setOpen(true)}
         title="Client settings"
         aria-label="Open client settings"
-      >
-        <GearSix size={17} />
-      </button>
-
-      <dialog
-        ref={dialogRef}
-        className="client-settings-drawer m-0 ml-auto h-dvh max-h-dvh w-full max-w-md bg-card p-0 backdrop:bg-black/50"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) dialogRef.current?.close();
+        sx={{
+          border: "1px solid rgba(255,255,255,0.15)",
+          color: "rgba(255,255,255,0.7)",
+          "&:hover": { bgcolor: "rgba(255,255,255,0.1)", color: "#fff" },
         }}
       >
-        <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between border-b border-border px-6 py-5">
-            <p className="font-display text-lg font-medium text-primary">Client settings</p>
-            <button
-              type="button"
-              onClick={() => dialogRef.current?.close()}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
-              aria-label="Close settings"
-            >
-              <X size={17} />
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto px-6 py-6">{children}</div>
-        </div>
-      </dialog>
+        <SettingsOutlined sx={{ fontSize: 18 }} />
+      </IconButton>
+
+      <Drawer
+        anchor="right"
+        open={open}
+        onClose={() => setOpen(false)}
+        slotProps={{ paper: { sx: { width: "100%", maxWidth: 448, borderRadius: 0 } } }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderBottom: 1,
+            borderColor: "divider",
+            px: 3,
+            py: 2.5,
+          }}
+        >
+          <Typography variant="h2" sx={{ fontSize: 18 }}>
+            Client settings
+          </Typography>
+          <IconButton size="small" aria-label="Close settings" onClick={() => setOpen(false)}>
+            <Close sx={{ fontSize: 18 }} />
+          </IconButton>
+        </Box>
+        <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 3 }}>{children}</Box>
+      </Drawer>
     </>
   );
 }

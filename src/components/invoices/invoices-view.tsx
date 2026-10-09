@@ -1,5 +1,17 @@
 import Link from "next/link";
-import { CopySimple, DownloadSimple, Paperclip, Trash } from "@phosphor-icons/react/dist/ssr";
+import Accordion from "@mui/material/Accordion";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import AttachFile from "@mui/icons-material/AttachFile";
+import ContentCopy from "@mui/icons-material/ContentCopy";
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
+import Download from "@mui/icons-material/Download";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -24,6 +36,15 @@ type Invoice = {
   pdf_storage_path: string | null;
   url: string | null;
 };
+
+const STATUS_OPTIONS = [
+  { value: "draft", label: "Draft" },
+  { value: "sent", label: "Sent" },
+  { value: "paid", label: "Paid" },
+  { value: "overdue", label: "Overdue" },
+];
+
+const iconSx = { color: "text.muted", "&:hover": { color: "primary.main" } } as const;
 
 function formatAmount(cents: number, currency: string) {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency }).format(cents / 100);
@@ -52,15 +73,8 @@ export function InvoicesView({
   basePath?: string;
   duplicateFrom?: (DuplicateFrom & { sourceId: string }) | null;
 }) {
-  const statusOptions = [
-    { value: "draft", label: "Draft" },
-    { value: "sent", label: "Sent" },
-    { value: "paid", label: "Paid" },
-    { value: "overdue", label: "Overdue" },
-  ];
-
   return (
-    <div className="flex flex-col gap-6">
+    <Stack spacing={3}>
       {canManage && (
         <InvoiceBuilder
           key={duplicateFrom?.sourceId ?? "new"}
@@ -75,92 +89,106 @@ export function InvoicesView({
       )}
 
       {!invoices.length ? (
-        <p className="text-sm text-muted-foreground">No invoices yet.</p>
+        <Typography sx={{ fontSize: 14, color: "text.muted" }}>No invoices yet.</Typography>
       ) : (
-        <div className="flex flex-col gap-3">
+        <Stack spacing={1.5}>
           {invoices.map((inv) => {
             const updateThis = updateInvoiceStatus.bind(null, inv.id, revalidatePaths);
-            const deleteThis = deleteInvoice.bind(
-              null,
-              inv.id,
-              inv.pdf_storage_path,
-              revalidatePaths
-            );
+            const deleteThis = deleteInvoice.bind(null, inv.id, inv.pdf_storage_path, revalidatePaths);
             const displayStatus = deriveInvoiceStatus(inv.status, inv.due_date);
             return (
-              <div key={inv.id} className="rounded-2xl border border-border bg-card">
-                <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+              <Paper key={inv.id} variant="outlined" sx={{ overflow: "hidden" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 1.5,
+                    px: 2.5,
+                    py: 2,
+                  }}
+                >
                   <div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-primary">{inv.invoice_number}</p>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Typography sx={{ fontSize: 14, fontWeight: 500 }}>{inv.invoice_number}</Typography>
                       <StatusBadge status={displayStatus} />
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    </Box>
+                    <Typography sx={{ mt: 0.5, fontSize: 14, color: "text.muted" }}>
                       {formatAmount(inv.amount_cents, inv.currency)}
-                      {inv.due_date
-                        ? ` · Due ${new Date(inv.due_date).toLocaleDateString("en-GB")}`
-                        : ""}
-                    </p>
+                      {inv.due_date ? ` · Due ${new Date(inv.due_date).toLocaleDateString("en-GB")}` : ""}
+                    </Typography>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <a
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <IconButton
+                      component="a"
                       href={`/invoices/${inv.id}/print`}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                      size="small"
                       title="Download PDF"
                       aria-label={`Download invoice ${inv.invoice_number} as PDF`}
+                      sx={iconSx}
                     >
-                      <DownloadSimple size={16} />
-                    </a>
+                      <Download sx={{ fontSize: 18 }} />
+                    </IconButton>
                     {inv.url && (
-                      <a
+                      <IconButton
+                        component="a"
                         href={inv.url}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                        size="small"
                         title="Download attached PDF"
                         aria-label={`Download invoice ${inv.invoice_number} attached PDF`}
+                        sx={iconSx}
                       >
-                        <Paperclip size={16} />
-                      </a>
+                        <AttachFile sx={{ fontSize: 18 }} />
+                      </IconButton>
                     )}
                     {canManage && basePath && (
-                      <Link
+                      <IconButton
+                       
                         href={`${basePath}?duplicate=${inv.id}`}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+                        size="small"
                         title="Duplicate"
                         aria-label={`Duplicate invoice ${inv.invoice_number}`}
+                        sx={iconSx}
                       >
-                        <CopySimple size={16} />
-                      </Link>
+                        <ContentCopy sx={{ fontSize: 17 }} />
+                      </IconButton>
                     )}
                     {canManage && (
                       <>
-                        <form action={updateThis}>
+                        <Box component="form" action={updateThis} sx={{ ml: 0.5 }}>
                           <AutoSubmitSelect
                             name="status"
                             defaultValue={inv.status}
-                            options={statusOptions}
-                            className="rounded-md border border-border bg-background px-2 py-1.5 text-xs text-primary outline-none transition-colors focus:border-accent"
+                            options={STATUS_OPTIONS}
+                            ariaLabel={`Status of invoice ${inv.invoice_number}`}
                           />
-                        </form>
+                        </Box>
                         <form action={deleteThis}>
                           <ConfirmButton
                             confirmText={`Delete invoice ${inv.invoice_number}? This can't be undone.`}
                             ariaLabel={`Delete invoice ${inv.invoice_number}`}
-                            className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                          >
-                            <Trash size={15} />
-                          </ConfirmButton>
+                            icon={<DeleteOutlined sx={{ fontSize: 18 }} />}
+                          />
                         </form>
                       </>
                     )}
-                  </div>
-                </div>
-                <details className="group border-t border-border">
-                  <summary className="cursor-pointer list-none px-5 py-2.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary">
-                    View invoice
-                  </summary>
-                  <div className="border-t border-border p-4">
+                  </Box>
+                </Box>
+                <Accordion
+                  disableGutters
+                  elevation={0}
+                  sx={{ borderTop: 1, borderColor: "divider", bgcolor: "transparent", "&::before": { display: "none" } }}
+                >
+                  <AccordionSummary
+                    expandIcon={<ExpandMore sx={{ fontSize: 18 }} />}
+                    sx={{ px: 2.5, minHeight: 40, "& .MuiAccordionSummary-content": { my: 1 } }}
+                  >
+                    <Typography sx={{ fontSize: 12, fontWeight: 500, color: "text.muted" }}>View invoice</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails sx={{ borderTop: 1, borderColor: "divider", p: 2 }}>
                     <InvoicePreview
                       orgName={orgName}
                       orgCvrNumber={orgCvrNumber}
@@ -175,13 +203,13 @@ export function InvoicesView({
                       discountCents={inv.discount_cents ?? 0}
                       status={displayStatus}
                     />
-                  </div>
-                </details>
-              </div>
+                  </AccordionDetails>
+                </Accordion>
+              </Paper>
             );
           })}
-        </div>
+        </Stack>
       )}
-    </div>
+    </Stack>
   );
 }

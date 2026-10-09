@@ -1,4 +1,12 @@
-import { ArrowRight, Plus, Trash } from "@phosphor-icons/react/dist/ssr";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import Add from "@mui/icons-material/Add";
+import ArrowForward from "@mui/icons-material/ArrowForward";
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import { createClient } from "@/lib/supabase/server";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
@@ -35,139 +43,108 @@ export default async function ProspectsPage() {
   const byStage = (stage: string) => (prospects ?? []).filter((p) => p.stage === stage);
 
   return (
-    <div className="flex flex-col gap-8">
+    <Stack spacing={4}>
       <SectionHeader eyebrow="Prospects" title="Sales pipeline" />
 
-      <form
+      <Paper
+        variant="outlined"
+        component="form"
         action={createProspect}
-        className="flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-5"
+        sx={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", gap: 1.5, p: 2.5 }}
       >
-        <div className="flex min-w-[180px] flex-1 flex-col gap-1.5">
-          <label htmlFor="company-name" className="text-sm font-medium text-secondary">
-            Company
-          </label>
-          <input
-            id="company-name"
-            name="company_name"
-            required
-            placeholder="Acme Materials"
-            className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-          />
-        </div>
-        <div className="flex min-w-[160px] flex-1 flex-col gap-1.5">
-          <label htmlFor="contact-name" className="text-sm font-medium text-secondary">
-            Contact name
-          </label>
-          <input
-            id="contact-name"
-            name="contact_name"
-            placeholder="Jane Doe"
-            className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-          />
-        </div>
-        <div className="flex min-w-[180px] flex-1 flex-col gap-1.5">
-          <label htmlFor="contact-email" className="text-sm font-medium text-secondary">
-            Contact email
-          </label>
-          <input
-            id="contact-email"
-            name="contact_email"
-            type="email"
-            placeholder="jane@acme.com"
-            className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-          />
-        </div>
-        <div className="flex w-32 flex-col gap-1.5">
-          <label htmlFor="estimated-value" className="text-sm font-medium text-secondary">
-            Est. value
-          </label>
-          <input
-            id="estimated-value"
-            name="estimated_value"
-            type="number"
-            min={0}
-            placeholder="50000"
-            className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-          />
-        </div>
-        <button
-          type="submit"
-          className="btn-primary inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium"
-        >
-          <Plus size={16} weight="bold" />
+        <TextField id="company-name" name="company_name" label="Company" required placeholder="Acme Materials" sx={{ flex: 1, minWidth: 180 }} />
+        <TextField id="contact-name" name="contact_name" label="Contact name" placeholder="Jane Doe" sx={{ flex: 1, minWidth: 160 }} />
+        <TextField
+          id="contact-email"
+          name="contact_email"
+          label="Contact email"
+          type="email"
+          placeholder="jane@acme.com"
+          sx={{ flex: 1, minWidth: 180 }}
+        />
+        <TextField
+          id="estimated-value"
+          name="estimated_value"
+          label="Est. value"
+          type="number"
+          placeholder="50000"
+          slotProps={{ htmlInput: { min: 0 } }}
+          sx={{ width: 128 }}
+        />
+        <Button type="submit" variant="contained" startIcon={<Add />}>
           Add prospect
-        </button>
-      </form>
+        </Button>
+      </Paper>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(5, 1fr)" } }}>
         {STAGES.map((stage) => (
-          <div
-            key={stage.value}
-            className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4"
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="font-display text-sm font-medium text-primary">{stage.label}</h3>
-              <span className="font-mono text-xs text-muted-foreground">
+          <Paper key={stage.value} variant="outlined" sx={{ display: "flex", flexDirection: "column", gap: 1.5, p: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <Typography variant="h3" sx={{ fontSize: 14 }}>
+                {stage.label}
+              </Typography>
+              <Typography component="span" sx={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "text.muted" }}>
                 {byStage(stage.value).length}
-              </span>
-            </div>
-            <div className="flex flex-col gap-2">
+              </Typography>
+            </Box>
+            <Stack spacing={1}>
               {byStage(stage.value).map((p) => {
                 const updateThis = updateProspectStage.bind(null, p.id);
                 const deleteThis = deleteProspect.bind(null, p.id);
                 const convertThis = convertProspectToClient.bind(null, p.id);
                 const value = formatValue(p.estimated_value_cents);
                 return (
-                  <div key={p.id} className="rounded-xl border border-border bg-card p-3">
-                    <p className="text-sm font-medium text-primary">{p.company_name}</p>
+                  <Paper key={p.id} variant="outlined" sx={{ borderRadius: 3, p: 1.5 }}>
+                    <Typography sx={{ fontSize: 14, fontWeight: 500 }}>{p.company_name}</Typography>
                     {(p.contact_name || p.contact_email) && (
-                      <p className="mt-0.5 text-xs text-muted-foreground">
+                      <Typography sx={{ mt: 0.25, fontSize: 12, color: "text.muted", overflowWrap: "anywhere" }}>
                         {p.contact_name}
                         {p.contact_name && p.contact_email ? " · " : ""}
                         {p.contact_email}
-                      </p>
+                      </Typography>
                     )}
-                    {value && (
-                      <p className="mt-0.5 text-xs text-muted-foreground">{value}</p>
-                    )}
+                    {value && <Typography sx={{ mt: 0.25, fontSize: 12, color: "text.muted" }}>{value}</Typography>}
                     {stage.value === "won" && (
-                      <form action={convertThis} className="mt-2">
+                      <Box component="form" action={convertThis} sx={{ mt: 1 }}>
                         <ConfirmButton
                           confirmText={`Create a client workspace for "${p.company_name}"?`}
+                          title="Convert to client?"
+                          confirmLabel="Convert"
                           ariaLabel={`Convert ${p.company_name} to a client`}
-                          className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-xs font-medium text-accent-foreground transition-opacity hover:opacity-90"
+                          variant="contained"
+                          color="primary"
+                          sx={{ width: "100%", "& .MuiButton-startIcon": { display: "none" } }}
                         >
                           Convert to client
-                          <ArrowRight size={12} weight="bold" />
+                          <ArrowForward sx={{ ml: 0.75, fontSize: 14 }} />
                         </ConfirmButton>
-                      </form>
+                      </Box>
                     )}
-                    <div className="mt-2 flex items-center gap-2">
-                      <form action={updateThis} className="flex-1">
+                    <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box component="form" action={updateThis} sx={{ flex: 1, minWidth: 0 }}>
                         <AutoSubmitSelect
                           name="stage"
                           defaultValue={p.stage}
+                          ariaLabel={`Stage for ${p.company_name}`}
                           options={STAGES.map((s) => ({ value: s.value, label: s.label }))}
-                          className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs text-primary outline-none transition-colors focus:border-accent"
+                          sx={{ minWidth: 0, width: "100%" }}
                         />
-                      </form>
+                      </Box>
                       <form action={deleteThis}>
                         <ConfirmButton
                           confirmText={`Delete "${p.company_name}" from the pipeline?`}
                           ariaLabel={`Delete prospect ${p.company_name}`}
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                        >
-                          <Trash size={13} />
-                        </ConfirmButton>
+                          icon={<DeleteOutlined sx={{ fontSize: 17 }} />}
+                        />
                       </form>
-                    </div>
-                  </div>
+                    </Box>
+                  </Paper>
                 );
               })}
-            </div>
-          </div>
+            </Stack>
+          </Paper>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Stack>
   );
 }

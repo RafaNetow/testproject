@@ -1,12 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { PencilSimple, Trash, X } from "@phosphor-icons/react/dist/ssr";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import Chip from "@mui/material/Chip";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import IconButton from "@mui/material/IconButton";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import Close from "@mui/icons-material/Close";
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
+import EditOutlined from "@mui/icons-material/EditOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
 import { SelectField } from "@/components/shared/select-field";
 import { StatusBadge } from "@/components/shared/status-badge";
 
-const CATEGORIES = ["Analysis", "Formulation work", "Meeting", "Report writing", "Other"];
+export const HOUR_CATEGORIES = ["Analysis", "Formulation work", "Meeting", "Report writing", "Other"];
 
 type HoursEntry = {
   id: string;
@@ -18,8 +28,7 @@ type HoursEntry = {
   invoice_id: string | null;
 };
 
-const inputClass =
-  "rounded-lg border border-border bg-background px-3 py-2 text-sm text-primary outline-none transition-colors focus:border-accent";
+const rowSx = { borderBottom: 1, borderColor: "divider", py: 1.75 } as const;
 
 export function EditableHoursRow({
   entry,
@@ -35,114 +44,92 @@ export function EditableHoursRow({
 
   if (editing && updateAction) {
     return (
-      <form
-        action={(formData) => {
+      <Box
+        component="form"
+        action={(formData: FormData) => {
           updateAction(formData);
           setEditing(false);
         }}
-        className="flex flex-wrap items-end gap-3 py-3.5"
+        sx={{ ...rowSx, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5 }}
       >
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-secondary">Date</label>
-          <input
-            name="entry_date"
-            type="date"
-            required
-            defaultValue={entry.entry_date}
-            className={inputClass}
-          />
-        </div>
-        <div className="flex w-20 flex-col gap-1.5">
-          <label className="text-xs font-medium text-secondary">Hours</label>
-          <input
-            name="hours"
-            type="number"
-            min={0}
-            step="0.25"
-            required
-            defaultValue={entry.hours}
-            className={inputClass}
-          />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-secondary">Category</label>
-          <SelectField name="category" defaultValue={entry.category ?? CATEGORIES[0]}>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </SelectField>
-        </div>
-        <div className="flex min-w-[180px] flex-1 flex-col gap-1.5">
-          <label className="text-xs font-medium text-secondary">Description</label>
-          <input name="description" defaultValue={entry.description ?? ""} className={inputClass} />
-        </div>
-        <label className="flex items-center gap-2 pb-2 text-sm text-secondary">
-          <input
-            type="checkbox"
-            name="billable"
-            defaultChecked={entry.billable}
-            className="h-4 w-4 rounded border-border accent-accent"
-          />
-          Billable
-        </label>
-        <button type="submit" className="btn-primary rounded-full px-4 py-2 text-xs font-medium">
+        <TextField
+          name="entry_date"
+          label="Date"
+          type="date"
+          required
+          defaultValue={entry.entry_date}
+          slotProps={{ inputLabel: { shrink: true } }}
+          fullWidth={false}
+          sx={{ width: 170 }}
+        />
+        <TextField
+          name="hours"
+          label="Hours"
+          type="number"
+          required
+          defaultValue={entry.hours}
+          slotProps={{ htmlInput: { min: 0, step: 0.25 } }}
+          fullWidth={false}
+          sx={{ width: 100 }}
+        />
+        <SelectField name="category" label="Category" defaultValue={entry.category ?? HOUR_CATEGORIES[0]} sx={{ width: 180 }}>
+          {HOUR_CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </SelectField>
+        <TextField name="description" label="Description" defaultValue={entry.description ?? ""} sx={{ flex: 1, minWidth: 180 }} />
+        <FormControlLabel control={<Checkbox name="billable" defaultChecked={entry.billable} />} label="Billable" />
+        <Button type="submit" variant="contained" size="small">
           Save
-        </button>
-        <button
-          type="button"
-          onClick={() => setEditing(false)}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
-          aria-label="Cancel editing"
-        >
-          <X size={15} />
-        </button>
-      </form>
+        </Button>
+        <IconButton size="small" aria-label="Cancel editing" onClick={() => setEditing(false)}>
+          <Close sx={{ fontSize: 18 }} />
+        </IconButton>
+      </Box>
     );
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 py-3.5">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="font-mono text-xs text-muted-foreground">
+    <Box sx={{ ...rowSx, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1.5 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5 }}>
+        <Typography component="span" sx={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "text.muted" }}>
           {new Date(entry.entry_date).toLocaleDateString("en-GB", { month: "short", day: "numeric" })}
-        </span>
-        <span className="text-sm font-medium text-primary">{Number(entry.hours).toFixed(2)}h</span>
-        {entry.category && (
-          <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
-            {entry.category}
-          </span>
-        )}
+        </Typography>
+        <Typography component="span" sx={{ fontSize: 14, fontWeight: 500 }}>
+          {Number(entry.hours).toFixed(2)}h
+        </Typography>
+        {entry.category && <Chip size="small" label={entry.category} sx={{ height: 22, fontSize: 12 }} />}
         {!entry.billable && (
-          <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-xs text-accent">
-            Non-billable
-          </span>
+          <Chip size="small" color="primary" variant="outlined" label="Non-billable" sx={{ height: 22, fontSize: 12 }} />
         )}
         {entry.invoice_id && <StatusBadge status="paid" label="Invoiced" />}
-        {entry.description && <span className="text-sm text-secondary">{entry.description}</span>}
-      </div>
+        {entry.description && (
+          <Typography component="span" sx={{ fontSize: 14, color: "text.secondary" }}>
+            {entry.description}
+          </Typography>
+        )}
+      </Box>
       {canManage && (
-        <div className="flex shrink-0 items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+        <Box sx={{ display: "flex", flexShrink: 0, alignItems: "center", gap: 0.5 }}>
+          <IconButton
+            size="small"
             aria-label={`Edit ${entry.hours} hour entry`}
+            onClick={() => setEditing(true)}
+            sx={{ color: "text.muted", "&:hover": { color: "primary.main" } }}
           >
-            <PencilSimple size={15} />
-          </button>
+            <EditOutlined sx={{ fontSize: 18 }} />
+          </IconButton>
           <form action={deleteAction}>
             <ConfirmButton
               confirmText={`Delete this ${entry.hours}h entry?`}
               ariaLabel={`Delete ${entry.hours} hour entry`}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-            >
-              <Trash size={15} />
-            </ConfirmButton>
+              icon={<DeleteOutlined sx={{ fontSize: 18 }} />}
+            />
           </form>
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }

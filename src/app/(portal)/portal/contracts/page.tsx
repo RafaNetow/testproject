@@ -3,6 +3,8 @@ import { getPortalProjectContext } from "@/lib/portal-context";
 import { ContractsView } from "@/components/contracts/contracts-view";
 import { ProjectSwitcher } from "@/components/board/project-switcher";
 import { SectionHeader } from "@/components/shared/section-header";
+import Stack from "@mui/material/Stack";
+import { EmptyState } from "@/components/shared/empty-state";
 
 const BUCKET = "org-documents";
 
@@ -16,30 +18,23 @@ export default async function PortalContractsPage({
 
   if (!org || !project) {
     return (
-      <div className="flex flex-col gap-8">
+      <Stack spacing={4}>
         <SectionHeader eyebrow="Contracts" title="Contracts" />
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
-          <p className="font-display text-lg font-medium text-primary">No project yet</p>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Once your engagement is set up, contracts will show up here.
-          </p>
-        </div>
-      </div>
+        <EmptyState title="No project yet">
+          Once your engagement is set up, contracts will show up here.
+        </EmptyState>
+      </Stack>
     );
   }
 
   if (role !== "owner") {
     return (
-      <div className="flex flex-col gap-8">
+      <Stack spacing={4}>
         <SectionHeader eyebrow="Contracts" title={org.name} />
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
-          <p className="font-display text-lg font-medium text-primary">Owner-only</p>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Contracts are only visible to your workspace&apos;s owner. Ask
-            them if you need a copy.
-          </p>
-        </div>
-      </div>
+        <EmptyState title="Owner-only">
+          Contracts are only visible to your workspace&apos;s owner. Ask them if you need a copy.
+        </EmptyState>
+      </Stack>
     );
   }
 
@@ -63,7 +58,7 @@ export default async function PortalContractsPage({
   );
 
   return (
-    <div className="flex flex-col gap-8">
+    <Stack spacing={4}>
       <SectionHeader
         eyebrow="Contracts"
         title={project.name}
@@ -81,6 +76,6 @@ export default async function PortalContractsPage({
         revalidatePaths={["/portal/contracts"]}
         canManage={false}
       />
-    </div>
+    </Stack>
   );
 }

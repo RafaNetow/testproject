@@ -1,22 +1,38 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
-import {
-  X,
-  Trash,
-  Plus,
-  CalendarBlank,
-  ChatCircleDots,
-  Paperclip,
-  LinkSimple,
-  UploadSimple,
-  UserPlus,
-  FileText,
-  FolderOpen,
-  DownloadSimple,
-  Tag,
-} from "@phosphor-icons/react/dist/ssr";
+import { useState, type ReactNode } from "react";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import IconButton from "@mui/material/IconButton";
+import InputBase from "@mui/material/InputBase";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import MuiLink from "@mui/material/Link";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import Add from "@mui/icons-material/Add";
+import AttachFile from "@mui/icons-material/AttachFile";
+import CalendarMonthOutlined from "@mui/icons-material/CalendarMonthOutlined";
+import ChatBubbleOutlined from "@mui/icons-material/ChatBubbleOutlined";
+import Check from "@mui/icons-material/Check";
+import Close from "@mui/icons-material/Close";
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
+import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
+import Download from "@mui/icons-material/Download";
+import FolderOpenOutlined from "@mui/icons-material/FolderOpenOutlined";
+import LabelOutlined from "@mui/icons-material/LabelOutlined";
+import LinkIcon from "@mui/icons-material/Link";
+import PersonAddAltOutlined from "@mui/icons-material/PersonAddAltOutlined";
+import UploadFileOutlined from "@mui/icons-material/UploadFileOutlined";
+import type { SvgIconComponent } from "@mui/icons-material";
 import { ConfirmButton } from "@/components/confirm-button";
+import { FileInput } from "@/components/shared/file-input";
 import { Popover } from "@/components/shared/popover";
 import { SelectField } from "@/components/shared/select-field";
 import { timeAgo } from "@/lib/time-ago";
@@ -36,7 +52,6 @@ import {
   detachCardFile,
   uploadAndAttachCardFile,
   deleteCard,
-  type UploadAttachResult,
 } from "@/lib/actions/board";
 
 type Member = { id: string; full_name: string | null };
@@ -72,23 +87,58 @@ function fileHref(filesBaseUrl: string, folderId: string | null) {
   return `${filesBaseUrl}${sep}folder=${folderId}`;
 }
 
-function SidebarBlock({
-  icon: Icon,
-  label,
-  children,
-}: {
-  icon: React.ComponentType<{ size?: number }>;
-  label: string;
-  children: ReactNode;
-}) {
+const sectionLabelSx = {
+  display: "flex",
+  alignItems: "center",
+  gap: 0.75,
+  fontFamily: "var(--font-mono)",
+  fontSize: 10,
+  fontWeight: 500,
+  letterSpacing: "0.12em",
+  textTransform: "uppercase",
+  color: "text.muted",
+} as const;
+
+const smallIconSx = { width: 28, height: 28, color: "text.muted", "&:hover": { color: "primary.main" } } as const;
+const removeIconSx = { width: 28, height: 28, color: "text.muted", "&:hover": { color: "error.main" } } as const;
+const attachmentRowSx = {
+  display: "flex",
+  alignItems: "center",
+  gap: 1,
+  borderRadius: 2,
+  border: 1,
+  borderColor: "divider",
+  bgcolor: "background.default",
+  px: 1.5,
+  py: 0.75,
+} as const;
+
+function SectionLabel({ icon: Icon, children }: { icon?: SvgIconComponent; children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-2">
-      <p className="flex items-center gap-1.5 font-mono text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-        <Icon size={12} />
-        {label}
-      </p>
+    <Typography component="h3" sx={sectionLabelSx}>
+      {Icon && <Icon sx={{ fontSize: 13 }} />}
       {children}
-    </div>
+    </Typography>
+  );
+}
+
+function MemberAvatar({ member, size = 28 }: { member: Member | undefined; size?: number }) {
+  const color = member ? colorFor(member.id) : null;
+  return (
+    <Avatar
+      title={member?.full_name ?? "Unnamed"}
+      sx={{
+        width: size,
+        height: size,
+        fontFamily: "var(--font-mono)",
+        fontSize: size <= 20 ? 9 : 10,
+        fontWeight: 500,
+        bgcolor: color?.bg ?? "var(--color-muted)",
+        color: color?.text ?? "text.muted",
+      }}
+    >
+      {initials(member?.full_name ?? null)}
+    </Avatar>
   );
 }
 
@@ -125,31 +175,19 @@ export function CardDetailModal({
   paths: string[];
   onClose: () => void;
 }) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (card) {
-      if (!dialog.open) dialog.showModal();
-    } else if (dialog.open) {
-      dialog.close();
-    }
-  }, [card]);
-
   const memberById = new Map(members.map((m) => [m.id, m]));
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="card-detail-modal m-auto max-h-[85vh] w-[min(760px,94vw)] overflow-hidden rounded-2xl border border-border bg-card p-0 backdrop:bg-black/50"
+    <Dialog
+      open={Boolean(card)}
       onClose={onClose}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) dialogRef.current?.close();
-      }}
+      maxWidth={false}
+      aria-label={card ? `Card: ${card.title}` : "Card"}
+      slotProps={{ paper: { sx: { width: "min(760px, 94vw)", maxHeight: "85vh", m: 2 } } }}
     >
       {card && (
         <CardDetailBody
+          key={card.id}
           card={card}
           projectId={projectId}
           filesBaseUrl={filesBaseUrl}
@@ -165,10 +203,10 @@ export function CardDetailModal({
           currentUserId={currentUserId}
           canDelete={canDelete}
           paths={paths}
-          onRequestClose={() => dialogRef.current?.close()}
+          onRequestClose={onClose}
         />
       )}
-    </dialog>
+    </Dialog>
   );
 }
 
@@ -231,211 +269,179 @@ function CardDetailBody({
     const author = comment.author_id ? memberById.get(comment.author_id) : undefined;
     const isMine = comment.author_id === currentUserId;
     const removeThis = deleteCardComment.bind(null, comment.id, paths);
-    const color = comment.author_id ? colorFor(comment.author_id) : null;
 
     return (
-      <div className="flex items-start gap-2.5">
-        <span
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-medium ${
-            color ? `${color.bg} ${color.text}` : "bg-muted text-muted-foreground"
-          }`}
-        >
-          {initials(author?.full_name ?? null)}
-        </span>
-        <div className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-xs font-medium text-primary">
+      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.25 }}>
+        <MemberAvatar member={author} />
+        <Box sx={{ minWidth: 0, flex: 1, borderRadius: 2, border: 1, borderColor: "divider", bgcolor: "background.default", px: 1.5, py: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 500 }}>
               {isMine ? "You" : (author?.full_name ?? "Unknown")}
-              <span className="ml-2 font-normal text-muted-foreground">{timeAgo(comment.created_at)}</span>
-            </p>
+              <Box component="span" sx={{ ml: 1, fontWeight: 400, color: "text.muted" }}>
+                {timeAgo(comment.created_at)}
+              </Box>
+            </Typography>
             {isMine && (
               <form action={removeThis}>
-                <button
-                  type="submit"
-                  aria-label="Delete comment"
-                  className="text-muted-foreground transition-colors hover:text-destructive"
-                >
-                  <X size={12} />
-                </button>
+                <IconButton type="submit" size="small" aria-label="Delete comment" sx={{ ...removeIconSx, width: 22, height: 22 }}>
+                  <Close sx={{ fontSize: 13 }} />
+                </IconButton>
               </form>
             )}
-          </div>
-          <p className="mt-0.5 whitespace-pre-wrap text-sm text-secondary">{comment.body}</p>
-        </div>
-      </div>
+          </Box>
+          <Typography sx={{ mt: 0.25, whiteSpace: "pre-wrap", fontSize: 14, color: "text.secondary" }}>{comment.body}</Typography>
+        </Box>
+      </Box>
     );
   }
 
   return (
-    <div className="flex max-h-[85vh] flex-col">
-      <div className="flex items-start justify-between gap-3 border-b border-border px-6 py-4">
-        <div className="min-w-0 flex-1">
-          <p className="font-mono text-[11px] uppercase tracking-widest text-accent">
-            In {columnName}
-          </p>
-          <form action={renameThisCard} className="mt-1">
-            <input
+    <Box sx={{ display: "flex", maxHeight: "85vh", flexDirection: "column" }}>
+      <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1.5, borderBottom: 1, borderColor: "divider", px: 3, py: 2 }}>
+        <Box sx={{ minWidth: 0, flex: 1 }}>
+          <Typography sx={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: "primary.main" }}>
+            {columnName}
+          </Typography>
+          <form action={renameThisCard}>
+            <InputBase
               name="title"
               defaultValue={card.title}
-              onBlur={(e) => e.currentTarget.form?.requestSubmit()}
+              fullWidth
+              inputProps={{ "aria-label": "Card title" }}
+              onBlur={(e) => (e.currentTarget as HTMLInputElement).form?.requestSubmit()}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  e.currentTarget.blur();
+                  (e.currentTarget as HTMLElement).blur();
                 }
               }}
-              className="-mx-1 w-full rounded-md border border-transparent bg-transparent px-1 font-display text-lg font-medium text-primary outline-none transition-colors focus:border-accent focus:bg-background"
+              sx={{
+                mt: 0.5,
+                mx: -0.5,
+                px: 0.5,
+                borderRadius: 1,
+                border: 1,
+                borderColor: "transparent",
+                fontFamily: "var(--font-display)",
+                fontSize: 18,
+                fontWeight: 500,
+                color: "text.primary",
+                "&.Mui-focused": { borderColor: "primary.main", bgcolor: "background.default" },
+              }}
             />
           </form>
-        </div>
-        <button
-          type="button"
-          onClick={onRequestClose}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
-          aria-label="Close card"
-        >
-          <X size={17} />
-        </button>
-      </div>
+        </Box>
+        <IconButton size="small" aria-label="Close card" onClick={onRequestClose}>
+          <Close sx={{ fontSize: 19 }} />
+        </IconButton>
+      </Box>
 
-      <div className="grid flex-1 grid-cols-1 gap-x-8 gap-y-6 overflow-y-auto px-6 py-5 md:grid-cols-[1fr_200px]">
-        <div className="flex min-w-0 flex-col gap-6">
-          <div className="flex flex-col gap-1.5">
-            <p className="font-mono text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-              Description
-            </p>
-            <form action={saveThisDescription} className="flex flex-col gap-2">
-              <textarea
+      <Box
+        sx={{
+          display: "grid",
+          flex: 1,
+          gridTemplateColumns: { xs: "1fr", md: "1fr 200px" },
+          columnGap: 4,
+          rowGap: 3,
+          overflowY: "auto",
+          px: 3,
+          py: 2.5,
+        }}
+      >
+        <Stack spacing={3} sx={{ minWidth: 0 }}>
+          <Stack spacing={1}>
+            <SectionLabel>Description</SectionLabel>
+            <Stack component="form" action={saveThisDescription} spacing={1}>
+              <TextField
                 name="description"
                 defaultValue={card.description ?? ""}
                 placeholder="Add a more detailed description…"
-                rows={3}
-                className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2.5 text-sm leading-relaxed text-primary outline-none transition-colors focus:border-accent"
+                multiline
+                minRows={3}
+                slotProps={{ htmlInput: { "aria-label": "Description" } }}
               />
-              <button
-                type="submit"
-                className="self-start rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted"
-              >
-                Save
-              </button>
-            </form>
-          </div>
+              <Box>
+                <Button type="submit" variant="outlined" color="secondary" size="small">
+                  Save
+                </Button>
+              </Box>
+            </Stack>
+          </Stack>
 
-          <div className="flex flex-col gap-2.5">
-            <p className="flex items-center gap-1.5 font-mono text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-              <Paperclip size={12} />
-              Attachments
-            </p>
+          <Stack spacing={1.25}>
+            <SectionLabel icon={AttachFile}>Attachments</SectionLabel>
 
             {(attached.length > 0 || links.length > 0) && (
-              <div className="flex flex-col gap-1.5">
+              <Stack spacing={0.75}>
                 {attached.map((f) => {
                   const detach = detachCardFile.bind(null, card.id, f.id, paths);
                   return (
-                    <div
-                      key={f.id}
-                      className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2"
-                    >
-                      <FileText size={16} className="shrink-0 text-muted-foreground" />
-                      <span className="min-w-0 flex-1 truncate text-sm text-primary">{f.filename}</span>
-                      <a
-                        href={fileHref(filesBaseUrl, f.folder_id)}
-                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
-                        title="View in Files"
-                        aria-label={`View ${f.filename} in Files`}
-                      >
-                        <FolderOpen size={14} />
-                      </a>
+                    <Box key={f.id} sx={attachmentRowSx}>
+                      <DescriptionOutlined sx={{ fontSize: 17, color: "text.muted", flexShrink: 0 }} />
+                      <Typography noWrap sx={{ minWidth: 0, flex: 1, fontSize: 14 }}>
+                        {f.filename}
+                      </Typography>
+                      <IconButton component="a" href={fileHref(filesBaseUrl, f.folder_id)} size="small" title="View in Files" aria-label={`View ${f.filename} in Files`} sx={smallIconSx}>
+                        <FolderOpenOutlined sx={{ fontSize: 15 }} />
+                      </IconButton>
                       {f.url && (
-                        <a
-                          href={f.url}
-                          download={f.filename}
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
-                          title="Download"
-                          aria-label={`Download ${f.filename}`}
-                        >
-                          <DownloadSimple size={14} />
-                        </a>
+                        <IconButton component="a" href={f.url} download={f.filename} size="small" title="Download" aria-label={`Download ${f.filename}`} sx={smallIconSx}>
+                          <Download sx={{ fontSize: 15 }} />
+                        </IconButton>
                       )}
                       <form action={detach}>
-                        <button
-                          type="submit"
-                          aria-label={`Remove attachment ${f.filename}`}
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                        >
-                          <X size={14} />
-                        </button>
+                        <IconButton type="submit" size="small" aria-label={`Remove attachment ${f.filename}`} sx={removeIconSx}>
+                          <Close sx={{ fontSize: 15 }} />
+                        </IconButton>
                       </form>
-                    </div>
+                    </Box>
                   );
                 })}
 
                 {links.map((l) => {
                   const removeThis = deleteCardLink.bind(null, l.id, paths);
                   return (
-                    <div
-                      key={l.id}
-                      className="flex items-center gap-2.5 rounded-lg border border-border bg-background px-3 py-2"
-                    >
-                      <LinkSimple size={16} className="shrink-0 text-muted-foreground" />
-                      <a
-                        href={l.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="min-w-0 flex-1 truncate text-sm text-accent hover:underline"
-                      >
+                    <Box key={l.id} sx={attachmentRowSx}>
+                      <LinkIcon sx={{ fontSize: 17, color: "text.muted", flexShrink: 0 }} />
+                      <MuiLink href={l.url} target="_blank" rel="noreferrer" sx={{ minWidth: 0, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 14 }}>
                         {l.label || l.url}
-                      </a>
+                      </MuiLink>
                       <form action={removeThis}>
-                        <button
-                          type="submit"
-                          aria-label="Remove link"
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                        >
-                          <X size={14} />
-                        </button>
+                        <IconButton type="submit" size="small" aria-label="Remove link" sx={removeIconSx}>
+                          <Close sx={{ fontSize: 15 }} />
+                        </IconButton>
                       </form>
-                    </div>
+                    </Box>
                   );
                 })}
-              </div>
+              </Stack>
             )}
 
-            <div className="flex flex-wrap gap-2">
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
               {attachable.length > 0 && (
                 <Popover
                   trigger={({ toggle }) => (
-                    <button
-                      type="button"
-                      onClick={toggle}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted"
-                    >
-                      <FileText size={13} />
+                    <Button onClick={toggle} variant="outlined" color="secondary" size="small" startIcon={<DescriptionOutlined />}>
                       Existing file
-                    </button>
+                    </Button>
                   )}
                 >
                   {(close) => (
-                    <div className="flex max-h-56 w-64 flex-col gap-0.5 overflow-y-auto rounded-xl border border-border bg-card p-1.5 shadow-lg">
+                    <List dense sx={{ width: 256, maxHeight: 224, overflowY: "auto", p: 0.75 }}>
                       {attachable.map((f) => {
                         const attach = attachCardFile.bind(null, card.id, f.id, paths);
                         return (
-                          <form
-                            action={attach}
-                            key={f.id}
-                            onSubmit={close}
-                          >
-                            <button
-                              type="submit"
-                              className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-secondary transition-colors hover:bg-muted hover:text-primary"
-                            >
-                              <FileText size={14} className="shrink-0 text-muted-foreground" />
-                              <span className="min-w-0 flex-1 truncate">{f.filename}</span>
-                            </button>
+                          <form action={attach} key={f.id} onSubmit={close}>
+                            <ListItemButton component="button" type="submit" sx={{ width: "100%", borderRadius: 2 }}>
+                              <ListItemIcon sx={{ minWidth: 26 }}>
+                                <DescriptionOutlined sx={{ fontSize: 15 }} />
+                              </ListItemIcon>
+                              <ListItemText primary={f.filename} slotProps={{ primary: { noWrap: true, sx: { fontSize: 14 } } }} />
+                            </ListItemButton>
                           </form>
                         );
                       })}
-                    </div>
+                    </List>
                   )}
                 </Popover>
               )}
@@ -444,269 +450,217 @@ function CardDetailBody({
 
               <Popover
                 trigger={({ toggle }) => (
-                  <button
-                    type="button"
-                    onClick={toggle}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted"
-                  >
-                    <LinkSimple size={13} />
+                  <Button onClick={toggle} variant="outlined" color="secondary" size="small" startIcon={<LinkIcon />}>
                     Link
-                  </button>
+                  </Button>
                 )}
               >
                 {(close) => (
-                  <form
-                    action={addThisLink}
-                    onSubmit={close}
-                    className="flex w-64 flex-col gap-2 rounded-xl border border-border bg-card p-3 shadow-lg"
-                  >
-                    <input
-                      name="url"
-                      required
-                      placeholder="https://…"
-                      className="rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-primary outline-none focus:border-accent"
-                    />
-                    <input
-                      name="label"
-                      placeholder="Label (optional)"
-                      className="rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-primary outline-none focus:border-accent"
-                    />
-                    <button type="submit" className="btn-primary rounded-md py-1.5 text-xs font-medium">
+                  <Stack component="form" action={addThisLink} onSubmit={close} spacing={1.25} sx={{ width: 256, p: 1.5 }}>
+                    <TextField name="url" label="URL" required placeholder="https://…" />
+                    <TextField name="label" label="Label (optional)" />
+                    <Button type="submit" variant="contained" size="small">
                       Attach
-                    </button>
-                  </form>
+                    </Button>
+                  </Stack>
                 )}
               </Popover>
-            </div>
-          </div>
+            </Box>
+          </Stack>
 
-          <div className="flex flex-col gap-2.5">
-            <p className="flex items-center gap-1.5 font-mono text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-              <ChatCircleDots size={12} />
-              Comments
-            </p>
+          <Stack spacing={1.25}>
+            <SectionLabel icon={ChatBubbleOutlined}>Comments</SectionLabel>
 
-            <div className="flex flex-col gap-4">
+            <Stack spacing={2}>
               {topLevelComments.map((c) => {
                 const replies = repliesByParent.get(c.id) ?? [];
                 const addThisReply = addCardComment.bind(null, card.id, c.id, paths);
                 return (
-                  <div key={c.id} className="flex flex-col gap-2">
+                  <Stack key={c.id} spacing={1}>
                     <CommentBubble comment={c} />
-                    <div className="ml-9 flex flex-col gap-2">
+                    <Stack spacing={1} sx={{ ml: 4.5 }}>
                       {replies.map((r) => (
                         <CommentBubble key={r.id} comment={r} />
                       ))}
                       {replyingTo === c.id ? (
-                        <form
-                          action={async (formData) => {
+                        <Stack
+                          component="form"
+                          action={async (formData: FormData) => {
                             await addThisReply(formData);
                             setReplyingTo(null);
                           }}
-                          className="flex flex-col gap-1.5"
+                          spacing={0.75}
                         >
-                          <textarea
-                            name="body"
-                            required
-                            autoFocus
-                            rows={2}
-                            placeholder="Write a reply…"
-                            className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-primary outline-none transition-colors focus:border-accent"
-                          />
-                          <div className="flex items-center gap-3">
-                            <button
-                              type="submit"
-                              className="btn-primary rounded-full px-3.5 py-1 text-xs font-medium"
-                            >
+                          <TextField name="body" required autoFocus multiline minRows={2} placeholder="Write a reply…" slotProps={{ htmlInput: { "aria-label": "Reply" } }} />
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <Button type="submit" variant="contained" size="small">
                               Reply
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setReplyingTo(null)}
-                              className="text-xs font-medium text-muted-foreground hover:text-primary"
-                            >
+                            </Button>
+                            <Button size="small" color="secondary" onClick={() => setReplyingTo(null)}>
                               Cancel
-                            </button>
-                          </div>
-                        </form>
+                            </Button>
+                          </Box>
+                        </Stack>
                       ) : (
-                        <button
-                          type="button"
-                          onClick={() => setReplyingTo(c.id)}
-                          className="self-start text-xs font-medium text-muted-foreground transition-colors hover:text-accent"
-                        >
-                          Reply
-                        </button>
+                        <Box>
+                          <Button size="small" onClick={() => setReplyingTo(c.id)} sx={{ px: 0.5, minWidth: 0, color: "text.muted", "&:hover": { color: "primary.main", bgcolor: "transparent" } }}>
+                            Reply
+                          </Button>
+                        </Box>
                       )}
-                    </div>
-                  </div>
+                    </Stack>
+                  </Stack>
                 );
               })}
-            </div>
+            </Stack>
 
-            <form action={addCardComment.bind(null, card.id, null, paths)} className="flex flex-col gap-2">
-              <textarea
-                name="body"
-                required
-                placeholder="Write a comment…"
-                rows={2}
-                className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-              />
-              <button
-                type="submit"
-                className="btn-primary self-start rounded-full px-4 py-1.5 text-xs font-medium"
-              >
-                Comment
-              </button>
-            </form>
-          </div>
+            <Stack component="form" action={addCardComment.bind(null, card.id, null, paths)} spacing={1}>
+              <TextField name="body" required multiline minRows={2} placeholder="Write a comment…" slotProps={{ htmlInput: { "aria-label": "Comment" } }} />
+              <Box>
+                <Button type="submit" variant="contained" size="small">
+                  Comment
+                </Button>
+              </Box>
+            </Stack>
+          </Stack>
 
           {canDelete && (
-            <div className="border-t border-border pt-4">
+            <Box sx={{ borderTop: 1, borderColor: "divider", pt: 2 }}>
               <form action={deleteThisCard}>
                 <ConfirmButton
                   confirmText={`Delete "${card.title}"? This can't be undone.`}
                   ariaLabel={`Delete card "${card.title}"`}
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-destructive/70 transition-colors hover:text-destructive"
+                  icon={<DeleteOutlined />}
+                  color="error"
                 >
-                  <Trash size={14} />
                   Delete this card
                 </ConfirmButton>
               </form>
-            </div>
+            </Box>
           )}
-        </div>
+        </Stack>
 
-        <div className="flex flex-col gap-5 md:border-l md:border-border md:pl-6">
-          <SidebarBlock icon={UserPlus} label="Assignees">
-            <div className="flex flex-wrap items-center gap-1.5">
-              {assignees.map((m) => {
-                const color = colorFor(m.id);
-                return (
-                  <span
-                    key={m.id}
-                    title={m.full_name ?? "Unnamed"}
-                    className={`flex h-7 w-7 items-center justify-center rounded-full font-mono text-[10px] font-medium ${color.bg} ${color.text}`}
-                  >
-                    {initials(m.full_name)}
-                  </span>
-                );
-              })}
+        <Stack spacing={2.5} sx={{ borderLeft: { md: 1 }, borderColor: { md: "divider" }, pl: { md: 3 } }}>
+          <Stack spacing={1}>
+            <SectionLabel icon={PersonAddAltOutlined}>Assignees</SectionLabel>
+            <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 0.75 }}>
+              {assignees.map((m) => (
+                <MemberAvatar key={m.id} member={m} />
+              ))}
               <Popover
                 trigger={({ toggle }) => (
-                  <button
-                    type="button"
+                  <IconButton
                     onClick={toggle}
                     aria-label="Add assignee"
-                    className="flex h-7 w-7 items-center justify-center rounded-full border border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-accent"
+                    sx={{ width: 28, height: 28, border: "1px dashed", borderColor: "divider", color: "text.muted", "&:hover": { borderColor: "primary.main", color: "primary.main" } }}
                   >
-                    <Plus size={13} weight="bold" />
-                  </button>
+                    <Add sx={{ fontSize: 15 }} />
+                  </IconButton>
                 )}
               >
                 {(close) => (
-                  <div className="flex w-52 flex-col gap-0.5 rounded-xl border border-border bg-card p-1.5 shadow-lg">
+                  <List dense sx={{ width: 208, p: 0.75 }}>
                     {members.length === 0 && (
-                      <p className="px-2 py-1.5 text-xs text-muted-foreground">No members yet.</p>
+                      <Typography sx={{ px: 1, py: 0.75, fontSize: 12, color: "text.muted" }}>No members yet.</Typography>
                     )}
                     {members.map((m) => {
                       const isAssigned = assigneeIds.includes(m.id);
                       const toggle = toggleCardAssignee.bind(null, card.id, m.id, isAssigned, paths);
                       return (
                         <form action={toggle} key={m.id} onSubmit={close}>
-                          <button
-                            type="submit"
-                            className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted ${
-                              isAssigned ? "text-primary" : "text-secondary"
-                            }`}
-                          >
-                            <span
-                              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-mono text-[9px] font-medium ${colorFor(m.id).bg} ${colorFor(m.id).text}`}
-                            >
-                              {initials(m.full_name)}
-                            </span>
-                            <span className="min-w-0 flex-1 truncate">{m.full_name ?? "Unnamed"}</span>
-                            {isAssigned && <span className="shrink-0 text-accent">✓</span>}
-                          </button>
+                          <ListItemButton component="button" type="submit" selected={isAssigned} sx={{ width: "100%", borderRadius: 2, gap: 1 }}>
+                            <MemberAvatar member={m} size={20} />
+                            <ListItemText primary={m.full_name ?? "Unnamed"} slotProps={{ primary: { noWrap: true, sx: { fontSize: 14 } } }} />
+                            {isAssigned && <Check sx={{ fontSize: 16, color: "primary.main" }} />}
+                          </ListItemButton>
                         </form>
                       );
                     })}
-                  </div>
+                  </List>
                 )}
               </Popover>
-            </div>
-          </SidebarBlock>
+            </Box>
+          </Stack>
 
-          <SidebarBlock icon={Tag} label="Labels">
-            <div className="flex flex-wrap items-center gap-1.5">
+          <Stack spacing={1}>
+            <SectionLabel icon={LabelOutlined}>Labels</SectionLabel>
+            <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 0.75 }}>
               {card.tags.map((tag) => {
                 const color = colorFor(tag);
                 const removeThis = removeCardTag.bind(null, card.id, tag, paths);
                 return (
-                  <span
+                  <Box
                     key={tag}
-                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-wide ${color.bg} ${color.text}`}
+                    component="span"
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      borderRadius: 999,
+                      px: 1.25,
+                      py: 0.5,
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 10,
+                      fontWeight: 500,
+                      letterSpacing: "0.04em",
+                      textTransform: "uppercase",
+                      bgcolor: color.bg,
+                      color: color.text,
+                    }}
                   >
                     {tag}
-                    <form action={removeThis}>
-                      <button
+                    <form action={removeThis} style={{ display: "inline-flex" }}>
+                      <Box
+                        component="button"
                         type="submit"
                         aria-label={`Remove label ${tag}`}
-                        className="opacity-60 hover:opacity-100"
+                        sx={{ display: "inline-flex", p: 0, border: 0, bgcolor: "transparent", color: "inherit", cursor: "pointer", opacity: 0.6, "&:hover": { opacity: 1 } }}
                       >
-                        <X size={10} weight="bold" />
-                      </button>
+                        <Close sx={{ fontSize: 11 }} />
+                      </Box>
                     </form>
-                  </span>
+                  </Box>
                 );
               })}
               <Popover
                 trigger={({ toggle }) => (
-                  <button
-                    type="button"
+                  <Button
                     onClick={toggle}
-                    className="flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-[10px] font-medium text-muted-foreground transition-colors hover:border-accent hover:text-accent"
+                    size="small"
+                    startIcon={<Add sx={{ fontSize: 12 }} />}
+                    sx={{ minHeight: 0, py: 0.25, px: 1.25, fontSize: 10, border: "1px dashed", borderColor: "divider", color: "text.muted", "&:hover": { borderColor: "primary.main", color: "primary.main" } }}
                   >
-                    <Plus size={11} weight="bold" />
                     Add
-                  </button>
+                  </Button>
                 )}
               >
                 {(close) => (
-                  <form
-                    action={addThisTag}
-                    onSubmit={close}
-                    className="flex w-48 gap-1.5 rounded-xl border border-border bg-card p-2 shadow-lg"
-                  >
-                    <input
-                      name="tag"
-                      required
-                      placeholder="e.g. urgent"
-                      className="w-full min-w-0 rounded-md border border-border bg-background px-2 py-1 text-xs text-primary outline-none focus:border-accent"
-                    />
-                    <button type="submit" className="btn-primary shrink-0 rounded-md px-2 py-1 text-xs font-medium">
+                  <Box component="form" action={addThisTag} onSubmit={close} sx={{ display: "flex", width: 208, gap: 0.75, p: 1 }}>
+                    <TextField name="tag" required placeholder="e.g. urgent" slotProps={{ htmlInput: { "aria-label": "Label" } }} />
+                    <Button type="submit" variant="contained" size="small">
                       Add
-                    </button>
-                  </form>
+                    </Button>
+                  </Box>
                 )}
               </Popover>
-            </div>
-          </SidebarBlock>
+            </Box>
+          </Stack>
 
-          <SidebarBlock icon={CalendarBlank} label="Due date">
+          <Stack spacing={1}>
+            <SectionLabel icon={CalendarMonthOutlined}>Due date</SectionLabel>
             <form action={setThisDueDate}>
-              <input
+              <TextField
                 name="due_date"
                 type="date"
                 defaultValue={card.due_date ?? ""}
-                onChange={(e) => e.currentTarget.form?.requestSubmit()}
-                className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+                onChange={(e) => (e.target as HTMLInputElement).form?.requestSubmit()}
+                slotProps={{ htmlInput: { "aria-label": "Due date" } }}
               />
             </form>
-          </SidebarBlock>
-        </div>
-      </div>
-    </div>
+          </Stack>
+        </Stack>
+      </Box>
+    </Box>
   );
 }
 
@@ -721,65 +675,48 @@ function UploadAttachmentForm({
   folders: Folder[];
   paths: string[];
 }) {
-  const [state, formAction, isPending] = useActionState<UploadAttachResult | null, FormData>(
-    async (_prev, formData) => uploadAndAttachCardFile(projectId, cardId, paths, formData),
-    null
-  );
-  const closeRef = useRef<(() => void) | null>(null);
-
-  useEffect(() => {
-    if (state?.success) closeRef.current?.();
-  }, [state]);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <Popover
       trigger={({ toggle }) => (
-        <button
-          type="button"
-          onClick={toggle}
-          className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted"
-        >
-          <UploadSimple size={13} />
+        <Button onClick={toggle} variant="outlined" color="secondary" size="small" startIcon={<UploadFileOutlined />}>
           Upload a file
-        </button>
+        </Button>
       )}
     >
-      {(close) => {
-        closeRef.current = close;
-        return (
-          <form
-            action={formAction}
-            className="flex w-64 flex-col gap-2 rounded-xl border border-border bg-card p-3 shadow-lg"
-          >
-            <input
-              name="file"
-              type="file"
-              required
-              className="w-full rounded-md border border-border bg-background text-xs text-primary outline-none file:mr-2 file:rounded-full file:border-0 file:bg-muted file:px-2.5 file:py-1 file:text-[11px] file:font-medium file:text-secondary focus:border-accent"
-            />
-            {folders.length > 0 && (
-              <SelectField name="folder_id" defaultValue="">
-                <option value="">Top level</option>
-                {folders.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.name}
-                  </option>
-                ))}
-              </SelectField>
-            )}
-            <button
-              type="submit"
-              disabled={isPending}
-              className="btn-primary rounded-md py-1.5 text-xs font-medium disabled:opacity-60"
-            >
-              {isPending ? "Uploading…" : "Upload & attach"}
-            </button>
-            {state && !state.success && (
-              <p className="text-[11px] text-destructive">{state.message}</p>
-            )}
-          </form>
-        );
-      }}
+      {(close) => (
+        <Paper
+          component="form"
+          elevation={0}
+          action={async (formData: FormData) => {
+            setPending(true);
+            setError(null);
+            const result = await uploadAndAttachCardFile(projectId, cardId, paths, formData);
+            setPending(false);
+            if (result.success) close();
+            else setError(result.message ?? "Upload failed.");
+          }}
+          sx={{ display: "flex", width: 256, flexDirection: "column", gap: 1.25, p: 1.5 }}
+        >
+          <FileInput name="file" label="File" required size="small" />
+          {folders.length > 0 && (
+            <SelectField name="folder_id" label="Folder" defaultValue="">
+              <option value="">Top level</option>
+              {folders.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
+              ))}
+            </SelectField>
+          )}
+          <Button type="submit" variant="contained" size="small" disabled={pending}>
+            {pending ? "Uploading…" : "Upload & attach"}
+          </Button>
+          {error && <Typography sx={{ fontSize: 11, color: "error.main" }}>{error}</Typography>}
+        </Paper>
+      )}
     </Popover>
   );
 }

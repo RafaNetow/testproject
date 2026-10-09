@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Button from "@mui/material/Button";
 import { createClient } from "@/lib/supabase/client";
 
-export function SignOutButton({ className }: { className?: string }) {
+export function SignOutButton({ tone = "light" }: { tone?: "light" | "dark" }) {
   const router = useRouter();
 
   async function onClick() {
@@ -14,15 +15,17 @@ export function SignOutButton({ className }: { className?: string }) {
   }
 
   return (
-    <button
-      type="button"
+    <Button
       onClick={onClick}
-      className={
-        className ??
-        "rounded-full border border-border px-5 py-2.5 text-sm font-medium text-secondary transition-colors hover:border-primary hover:text-primary"
+      variant={tone === "dark" ? "text" : "outlined"}
+      color="secondary"
+      sx={
+        tone === "dark"
+          ? { mt: 0.5, px: 0, minWidth: 0, color: "rgba(255,255,255,0.4)", "&:hover": { color: "#fff", bgcolor: "transparent" } }
+          : undefined
       }
     >
       Sign out
-    </button>
+    </Button>
   );
 }

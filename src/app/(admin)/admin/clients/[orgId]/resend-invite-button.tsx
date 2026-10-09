@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { PaperPlaneTilt } from "@phosphor-icons/react/dist/ssr";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import SendOutlined from "@mui/icons-material/SendOutlined";
 import { resendInvite } from "./actions";
 
 export function ResendInviteButton({ orgId, email }: { orgId: string; email: string }) {
@@ -11,34 +15,33 @@ export function ResendInviteButton({ orgId, email }: { orgId: string; email: str
   function handleClick() {
     setResult(null);
     startTransition(async () => {
-      const res = await resendInvite(orgId, email);
-      setResult(res);
+      setResult(await resendInvite(orgId, email));
     });
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
       {result && (
-        <p
-          className={`text-xs ${
-            result.emailSent
-              ? "text-emerald-700 dark:text-emerald-400"
-              : "text-amber-700 dark:text-amber-400"
-          }`}
+        <Typography
+          role="status"
+          sx={{ fontSize: 12, color: result.emailSent ? "success.main" : "warning.main" }}
         >
           {result.emailSent ? "Sent" : result.message}
-        </p>
+        </Typography>
       )}
-      <button
-        type="button"
-        onClick={handleClick}
-        disabled={isPending}
-        title="Resend invite"
-        aria-label={`Resend invite to ${email}`}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent disabled:opacity-60"
-      >
-        <PaperPlaneTilt size={15} />
-      </button>
-    </div>
+      <Tooltip title="Resend invite">
+        <span>
+          <IconButton
+            size="small"
+            onClick={handleClick}
+            disabled={isPending}
+            aria-label={`Resend invite to ${email}`}
+            sx={{ color: "text.muted", "&:hover": { color: "primary.main" } }}
+          >
+            <SendOutlined sx={{ fontSize: 16 }} />
+          </IconButton>
+        </span>
+      </Tooltip>
+    </Box>
   );
 }

@@ -1,7 +1,14 @@
 "use client";
 
 import { useActionState } from "react";
-import { CheckCircle, CircleNotch, PencilSimpleLine } from "@phosphor-icons/react/dist/ssr";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import CheckCircleOutlined from "@mui/icons-material/CheckCircleOutlined";
+import EditNoteOutlined from "@mui/icons-material/EditNoteOutlined";
 import { reviewDeliverable, type ReviewState } from "@/lib/actions/deliverables";
 
 /**
@@ -16,55 +23,54 @@ export function ReviewControls({ deliverableId, title }: { deliverableId: string
   );
 
   return (
-    <form action={formAction} className="mt-5 flex flex-col gap-3 border-t border-border pt-5">
-      <label htmlFor={`note-${deliverableId}`} className="text-sm font-medium text-secondary">
-        Your note <span className="font-normal text-muted-foreground">(required to request changes)</span>
-      </label>
-      <textarea
-        id={`note-${deliverableId}`}
+    <Stack component="form" action={formAction} spacing={1.5} sx={{ mt: 2.5, borderTop: 1, borderColor: "divider", pt: 2.5 }}>
+      <TextField
         name="note"
-        rows={3}
-        maxLength={2000}
+        label="Your note"
+        helperText="Required to request changes"
+        multiline
+        minRows={3}
         defaultValue={state && !state.ok ? (state.note ?? "") : ""}
         placeholder="What should we change or clarify?"
-        className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+        slotProps={{ htmlInput: { maxLength: 2000 } }}
       />
 
       {state && !state.ok && (
-        <p role="alert" className="text-sm text-destructive">
+        <Alert role="alert" severity="error" variant="outlined">
           {state.message}
-        </p>
+        </Alert>
       )}
       {state?.ok && (
-        <p role="status" className="text-sm text-secondary">
+        <Alert role="status" severity="success" variant="outlined">
           {state.message}
-        </p>
+        </Alert>
       )}
 
-      <div className="flex flex-wrap gap-2">
-        <button
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+        <Button
           type="submit"
           name="decision"
           value="approved"
           disabled={pending}
           aria-label={`Approve "${title}"`}
-          className="btn-primary inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium disabled:opacity-60"
+          variant="contained"
+          startIcon={pending ? <CircularProgress size={16} color="inherit" /> : <CheckCircleOutlined />}
         >
-          {pending ? <CircleNotch size={16} className="animate-spin" /> : <CheckCircle size={16} weight="bold" />}
           Approve
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
           name="decision"
           value="changes_requested"
           disabled={pending}
           aria-label={`Request changes to "${title}"`}
-          className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-muted disabled:opacity-60"
+          variant="outlined"
+          color="secondary"
+          startIcon={<EditNoteOutlined />}
         >
-          <PencilSimpleLine size={16} />
           Request changes
-        </button>
-      </div>
-    </form>
+        </Button>
+      </Box>
+    </Stack>
   );
 }

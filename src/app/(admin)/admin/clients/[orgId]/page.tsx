@@ -1,22 +1,33 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  ChatCircleDots,
-  Clock,
-  FileText,
-  FolderOpen,
-  NotePencil,
-  Receipt,
-  SquaresFour,
-  Trash,
-  VideoCamera,
-  X,
-} from "@phosphor-icons/react/dist/ssr";
+import Accordion from "@mui/material/Accordion";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import AccessTimeOutlined from "@mui/icons-material/AccessTimeOutlined";
+import Close from "@mui/icons-material/Close";
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
+import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
+import EditNoteOutlined from "@mui/icons-material/EditNoteOutlined";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import FolderOpenOutlined from "@mui/icons-material/FolderOpenOutlined";
+import ForumOutlined from "@mui/icons-material/ForumOutlined";
+import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
+import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
+import VideocamOutlined from "@mui/icons-material/VideocamOutlined";
+import ViewKanbanOutlined from "@mui/icons-material/ViewKanbanOutlined";
 import { createClient } from "@/lib/supabase/server";
 import { ConfirmButton } from "@/components/confirm-button";
 import { SectionHeader } from "@/components/shared/section-header";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { SelectField } from "@/components/shared/select-field";
+import { LinkChip } from "@/components/shared/link-chip";
+import { EmptyState } from "@/components/shared/empty-state";
 import { ClientSettingsDrawer } from "@/components/admin/client-settings-drawer";
 import { NewProjectPopover } from "@/components/admin/new-project-popover";
 import { InviteForm } from "./invite-form";
@@ -33,14 +44,19 @@ import {
 const STATUS_OPTIONS = ["onboarding", "active", "at_risk", "offboarded"] as const;
 const PROJECT_STATUS_OPTIONS = ["active", "paused", "completed"] as const;
 
-const fieldInputClass =
-  "rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent";
+const PROJECT_SECTIONS = [
+  { href: "board", label: "Board", icon: ViewKanbanOutlined },
+  { href: "deliverables", label: "Deliverables", icon: Inventory2Outlined },
+  { href: "decisions", label: "Decisions", icon: ForumOutlined },
+  { href: "files", label: "Files", icon: FolderOpenOutlined },
+  { href: "meetings", label: "Meetings", icon: VideocamOutlined },
+  { href: "updates", label: "Updates", icon: EditNoteOutlined },
+  { href: "hours", label: "Hours", icon: AccessTimeOutlined },
+  { href: "invoices", label: "Invoices", icon: ReceiptLongOutlined },
+  { href: "contracts", label: "Contracts", icon: DescriptionOutlined },
+];
 
-export default async function ClientDetailPage({
-  params,
-}: {
-  params: Promise<{ orgId: string }>;
-}) {
+export default async function ClientDetailPage({ params }: { params: Promise<{ orgId: string }> }) {
   const { orgId } = await params;
   const supabase = await createClient();
 
@@ -69,295 +85,220 @@ export default async function ClientDetailPage({
   const createThisProject = createProject.bind(null, orgId);
 
   return (
-    <div className="flex flex-col gap-8">
+    <Stack spacing={4}>
       <SectionHeader
         backLink={{ href: "/admin/clients", label: "All clients" }}
         title={org.name}
         titleExtra={<StatusBadge status={org.status} tone="dark" />}
         actions={
           <ClientSettingsDrawer>
-            <div className="flex flex-col gap-8">
-              <section className="flex flex-col gap-4">
-                <p className="font-mono text-xs uppercase tracking-widest text-accent">
+            <Stack spacing={4}>
+              <Stack component="section" spacing={2}>
+                <Typography variant="h3" sx={{ fontSize: 16 }}>
                   Client details
-                </p>
-                <form action={updateThisOrg} className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label htmlFor="name" className="text-sm font-medium text-secondary">
-                      Name
-                    </label>
-                    <input
-                      id="name"
-                      name="name"
-                      required
-                      defaultValue={org.name}
-                      className={fieldInputClass}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label htmlFor="status" className="text-sm font-medium text-secondary">
-                      Status
-                    </label>
-                    <SelectField id="status" name="status" defaultValue={org.status}>
-                      {STATUS_OPTIONS.map((status) => (
-                        <option key={status} value={status}>
-                          {status.replace("_", " ")}
-                        </option>
-                      ))}
-                    </SelectField>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label htmlFor="cvr_number" className="text-sm font-medium text-secondary">
-                      CVR number
-                    </label>
-                    <input
-                      id="cvr_number"
-                      name="cvr_number"
-                      defaultValue={org.cvr_number ?? ""}
-                      placeholder="12345678"
-                      className={fieldInputClass}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label
-                      htmlFor="billing_address"
-                      className="text-sm font-medium text-secondary"
-                    >
-                      Billing address
-                    </label>
-                    <input
-                      id="billing_address"
-                      name="billing_address"
-                      defaultValue={org.billing_address ?? ""}
-                      placeholder="Street, postal code, city"
-                      className={fieldInputClass}
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="btn-primary self-start rounded-full px-5 py-2.5 text-sm font-medium"
-                  >
-                    Save changes
-                  </button>
-                </form>
-              </section>
+                </Typography>
+                <Stack component="form" action={updateThisOrg} spacing={2}>
+                  <TextField name="name" label="Name" required defaultValue={org.name} />
+                  <SelectField name="status" label="Status" defaultValue={org.status}>
+                    {STATUS_OPTIONS.map((status) => (
+                      <option key={status} value={status}>
+                        {status.replace("_", " ")}
+                      </option>
+                    ))}
+                  </SelectField>
+                  <TextField name="cvr_number" label="CVR number" defaultValue={org.cvr_number ?? ""} placeholder="12345678" />
+                  <TextField
+                    name="billing_address"
+                    label="Billing address"
+                    defaultValue={org.billing_address ?? ""}
+                    placeholder="Street, postal code, city"
+                  />
+                  <Box>
+                    <Button type="submit" variant="contained">
+                      Save changes
+                    </Button>
+                  </Box>
+                </Stack>
+              </Stack>
 
-              <div className="h-px bg-border" />
+              <Divider />
 
-              <section className="flex flex-col gap-4">
+              <Stack component="section" spacing={2}>
                 <div>
-                  <p className="font-mono text-xs uppercase tracking-widest text-accent">Team</p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    Invited members sign in at the client login with this email — no account
-                    setup needed on their end.
-                  </p>
+                  <Typography variant="h3" sx={{ fontSize: 16 }}>
+                    Team
+                  </Typography>
+                  <Typography sx={{ mt: 1, fontSize: 14, lineHeight: 1.6, color: "text.muted" }}>
+                    Invited members sign in at the client login with this email — no account setup needed on their end.
+                  </Typography>
                 </div>
 
                 <InviteForm orgId={orgId} />
 
                 {!members?.length ? (
-                  <p className="text-sm text-muted-foreground">No one invited yet.</p>
+                  <Typography sx={{ fontSize: 14, color: "text.muted" }}>No one invited yet.</Typography>
                 ) : (
-                  <div className="flex flex-col divide-y divide-border border-t border-border">
+                  <Box sx={{ borderTop: 1, borderColor: "divider" }}>
                     {members.map((m) => {
                       const removeThisMember = removeMember.bind(null, orgId, m.id);
                       return (
-                        <div key={m.id} className="flex flex-col gap-2 py-3">
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="min-w-0 truncate text-sm font-medium text-primary">
+                        <Stack key={m.id} spacing={1} sx={{ py: 1.5, borderBottom: 1, borderColor: "divider" }}>
+                          <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1 }}>
+                            <Typography noWrap sx={{ minWidth: 0, fontSize: 14, fontWeight: 500 }}>
                               {m.invited_email}
-                            </p>
-                            <StatusBadge
-                              status={m.accepted_at ? "active" : "onboarding"}
-                              label={m.accepted_at ? "Active" : "Pending"}
-                            />
-                          </div>
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="text-xs text-muted-foreground">
+                            </Typography>
+                            <StatusBadge status={m.accepted_at ? "active" : "onboarding"} label={m.accepted_at ? "Active" : "Pending"} />
+                          </Box>
+                          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+                            <Typography sx={{ fontSize: 12, color: "text.muted" }}>
                               {m.role === "owner" ? "Owner" : "Collaborator"}
-                            </p>
-                            <div className="flex items-center gap-1">
-                              {!m.accepted_at && (
-                                <ResendInviteButton orgId={orgId} email={m.invited_email} />
-                              )}
+                            </Typography>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                              {!m.accepted_at && <ResendInviteButton orgId={orgId} email={m.invited_email} />}
                               <form action={removeThisMember}>
                                 <ConfirmButton
                                   confirmText={`Remove ${m.invited_email} from ${org.name}? They'll lose access immediately.`}
                                   ariaLabel={`Remove ${m.invited_email} from ${org.name}`}
-                                  className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                                >
-                                  <X size={15} />
-                                </ConfirmButton>
+                                  confirmLabel="Remove"
+                                  icon={<Close sx={{ fontSize: 17 }} />}
+                                />
                               </form>
-                            </div>
-                          </div>
-                        </div>
+                            </Box>
+                          </Box>
+                        </Stack>
                       );
                     })}
-                  </div>
+                  </Box>
                 )}
-              </section>
+              </Stack>
 
-              <div className="h-px bg-border" />
+              <Divider />
 
               <section>
                 <form action={deleteThisOrg}>
                   <ConfirmButton
                     confirmText={`Permanently delete ${org.name} and everything under it — team access, board, files, decisions, invoices? This can't be undone.`}
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-destructive/70 transition-colors hover:text-destructive"
+                    ariaLabel={`Delete client ${org.name}`}
+                    icon={<DeleteOutlined />}
+                    color="error"
                   >
-                    <Trash size={14} />
                     Delete this client
                   </ConfirmButton>
                 </form>
               </section>
-            </div>
+            </Stack>
           </ClientSettingsDrawer>
         }
       />
 
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="font-display text-xl font-medium text-primary">Projects</h2>
+      <Stack spacing={2}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+          <Typography variant="h2" sx={{ fontSize: 20 }}>
+            Projects
+          </Typography>
           <NewProjectPopover createAction={createThisProject} />
-        </div>
+        </Box>
 
         {!projects?.length ? (
-          <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
-            <p className="font-display text-lg font-medium text-primary">No projects yet</p>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              Start {org.name}&apos;s first engagement above.
-            </p>
-          </div>
+          <EmptyState title="No projects yet">Start {org.name}&apos;s first engagement above.</EmptyState>
         ) : (
-          <div className="flex flex-col gap-4">
+          <Stack spacing={2}>
             {projects.map((project) => {
               const updateThisProject = updateProject.bind(null, orgId, project.id);
               const deleteThisProject = deleteProject.bind(null, orgId, project.id);
               return (
-                <div
-                  key={project.id}
-                  className="rounded-2xl border border-border bg-card transition-shadow hover:shadow-sm"
-                >
-                  <div className="flex flex-wrap items-center gap-3 px-5 py-4">
-                    <span className="font-display text-base font-medium text-primary">
+                <Paper key={project.id} variant="outlined" sx={{ overflow: "hidden", transition: "box-shadow 150ms", "&:hover": { boxShadow: 1 } }}>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5, px: 2.5, py: 2 }}>
+                    <Typography variant="h3" sx={{ fontSize: 16 }}>
                       {project.name}
-                    </span>
+                    </Typography>
                     <StatusBadge status={project.status} />
-                    <span className="font-mono text-xs text-muted-foreground">
+                    <Typography component="span" sx={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "text.muted" }}>
                       {project.progress_pct}%
-                    </span>
-                  </div>
+                    </Typography>
+                  </Box>
 
-                  <div className="flex flex-wrap gap-1.5 border-t border-border px-5 py-3">
-                    {[
-                      { href: "board", label: "Board", icon: SquaresFour },
-                      { href: "decisions", label: "Decisions", icon: ChatCircleDots },
-                      { href: "files", label: "Files", icon: FolderOpen },
-                      { href: "meetings", label: "Meetings", icon: VideoCamera },
-                      { href: "updates", label: "Updates", icon: NotePencil },
-                      { href: "hours", label: "Hours", icon: Clock },
-                      { href: "invoices", label: "Invoices", icon: Receipt },
-                      { href: "contracts", label: "Contracts", icon: FileText },
-                    ].map(({ href, label, icon: ItemIcon }) => (
-                      <Link
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75, borderTop: 1, borderColor: "divider", px: 2.5, py: 1.5 }}>
+                    {PROJECT_SECTIONS.map(({ href, label, icon: ItemIcon }) => (
+                      <LinkChip
                         key={href}
+                       
                         href={`/admin/clients/${orgId}/projects/${project.id}/${href}`}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:border-accent/40 hover:bg-accent/5 hover:text-accent"
-                      >
-                        <ItemIcon size={13} />
-                        {label}
-                      </Link>
+                        variant="outlined"
+                        icon={<ItemIcon sx={{ fontSize: 15 }} />}
+                        label={label}
+                        sx={{ fontSize: 12, "&:hover": { borderColor: "primary.main", color: "primary.main", "& .MuiChip-icon": { color: "primary.main" } } }}
+                      />
                     ))}
-                  </div>
+                  </Box>
 
-                  <details className="group border-t border-border">
-                    <summary className="cursor-pointer list-none px-5 py-2.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary">
-                      Edit project
-                    </summary>
-                    <div className="flex flex-col gap-5 border-t border-border p-5">
-                      <form action={updateThisProject} className="flex flex-col gap-4">
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium text-secondary">Name</label>
-                            <input
-                              name="name"
-                              required
-                              defaultValue={project.name}
-                              className={fieldInputClass}
-                            />
-                          </div>
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium text-secondary">Status</label>
-                            <SelectField name="status" defaultValue={project.status}>
+                  <Accordion disableGutters elevation={0} sx={{ borderTop: 1, borderColor: "divider", bgcolor: "transparent", "&::before": { display: "none" } }}>
+                    <AccordionSummary
+                      expandIcon={<ExpandMore sx={{ fontSize: 18 }} />}
+                      sx={{ px: 2.5, minHeight: 40, "& .MuiAccordionSummary-content": { my: 1 } }}
+                    >
+                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "text.muted" }}>Edit project</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ borderTop: 1, borderColor: "divider", p: 2.5 }}>
+                      <Stack spacing={2.5}>
+                        <Stack component="form" action={updateThisProject} spacing={2}>
+                          <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" } }}>
+                            <TextField name="name" label="Name" required defaultValue={project.name} />
+                            <SelectField name="status" label="Status" defaultValue={project.status}>
                               {PROJECT_STATUS_OPTIONS.map((s) => (
                                 <option key={s} value={s}>
                                   {s}
                                 </option>
                               ))}
                             </SelectField>
-                          </div>
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium text-secondary">
-                              Progress %
-                            </label>
-                            <input
+                            <TextField
                               name="progress_pct"
+                              label="Progress %"
                               type="number"
-                              min={0}
-                              max={100}
                               defaultValue={project.progress_pct}
-                              className={fieldInputClass}
+                              slotProps={{ htmlInput: { min: 0, max: 100 } }}
                             />
-                          </div>
-                          <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium text-secondary">
-                              Start date
-                            </label>
-                            <input
+                            <TextField
                               name="start_date"
+                              label="Start date"
                               type="date"
                               defaultValue={project.start_date ?? ""}
-                              className={fieldInputClass}
+                              slotProps={{ inputLabel: { shrink: true } }}
                             />
-                          </div>
-                          <div className="flex flex-col gap-1.5 sm:col-span-2">
-                            <label className="text-sm font-medium text-secondary">
-                              Engagement note
-                            </label>
-                            <input
+                            <TextField
                               name="engagement_note"
+                              label="Engagement note"
                               defaultValue={project.engagement_note ?? ""}
                               placeholder="Internal note about scope"
-                              className={fieldInputClass}
+                              sx={{ gridColumn: { sm: "span 2" } }}
                             />
-                          </div>
-                        </div>
-                        <button
-                          type="submit"
-                          className="btn-primary self-start rounded-full px-5 py-2.5 text-sm font-medium"
-                        >
-                          Save
-                        </button>
-                      </form>
+                          </Box>
+                          <Box>
+                            <Button type="submit" variant="contained">
+                              Save
+                            </Button>
+                          </Box>
+                        </Stack>
 
-                      <form action={deleteThisProject}>
-                        <ConfirmButton
-                          confirmText={`Permanently delete "${project.name}" and its board, files, and decisions? This can't be undone.`}
-                          className="inline-flex items-center gap-1.5 text-sm font-medium text-destructive/70 transition-colors hover:text-destructive"
-                        >
-                          <Trash size={14} />
-                          Delete project
-                        </ConfirmButton>
-                      </form>
-                    </div>
-                  </details>
-                </div>
+                        <form action={deleteThisProject}>
+                          <ConfirmButton
+                            confirmText={`Permanently delete "${project.name}" and its board, files, and decisions? This can't be undone.`}
+                            ariaLabel={`Delete project ${project.name}`}
+                            icon={<DeleteOutlined />}
+                            color="error"
+                          >
+                            Delete project
+                          </ConfirmButton>
+                        </form>
+                      </Stack>
+                    </AccordionDetails>
+                  </Accordion>
+                </Paper>
               );
             })}
-          </div>
+          </Stack>
         )}
-      </div>
-    </div>
+      </Stack>
+    </Stack>
   );
 }

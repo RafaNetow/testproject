@@ -1,5 +1,21 @@
-import { FileText, Paperclip, Trash, X } from "@phosphor-icons/react/dist/ssr";
+import Accordion from "@mui/material/Accordion";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import MuiLink from "@mui/material/Link";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import AttachFile from "@mui/icons-material/AttachFile";
+import Close from "@mui/icons-material/Close";
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
+import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import { ConfirmButton } from "@/components/confirm-button";
+import { EmptyState } from "@/components/shared/empty-state";
 import { SelectField } from "@/components/shared/select-field";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { ReviewControls } from "@/components/deliverables/review-controls";
@@ -40,9 +56,6 @@ export type DeliverableRow = {
 
 export type ProjectFileOption = { id: string; filename: string };
 
-const inputClass =
-  "rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent";
-
 function formatSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
@@ -58,41 +71,44 @@ function FileList({
 }) {
   if (!files.length) return null;
   return (
-    <ul className="mt-4 flex flex-col gap-1.5">
+    <Stack component="ul" spacing={0.75} sx={{ mt: 2, p: 0, listStyle: "none" }}>
       {files.map((f) => {
         const detach = onDetach?.(f.id);
         return (
-          <li key={f.id} className="flex items-center gap-2 text-sm">
-            <FileText size={16} className="shrink-0 text-muted-foreground" />
+          <Box component="li" key={f.id} sx={{ display: "flex", alignItems: "center", gap: 1, fontSize: 14 }}>
+            <DescriptionOutlined sx={{ fontSize: 17, color: "text.muted", flexShrink: 0 }} />
             {f.url ? (
-              <a
+              <MuiLink
                 href={f.url}
                 download={f.filename}
-                className="min-w-0 truncate font-medium text-accent underline-offset-2 hover:underline"
+                sx={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500 }}
               >
                 {f.filename}
-              </a>
+              </MuiLink>
             ) : (
-              <span className="min-w-0 truncate text-muted-foreground">{f.filename} (unavailable)</span>
+              <Box component="span" sx={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "text.muted" }}>
+                {f.filename} (unavailable)
+              </Box>
             )}
-            <span className="shrink-0 font-mono text-xs text-muted-foreground">
+            <Box component="span" sx={{ flexShrink: 0, fontFamily: "var(--font-mono)", fontSize: 12, color: "text.muted" }}>
               {formatSize(f.size_bytes)}
-            </span>
+            </Box>
             {detach && (
               <form action={detach}>
-                <button
+                <IconButton
                   type="submit"
+                  size="small"
                   aria-label={`Remove ${f.filename} from this deliverable`}
-                  className="flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  sx={{ width: 24, height: 24, color: "text.muted", "&:hover": { color: "error.main" } }}
                 >
-                  <X size={12} />
-                </button>
+                  <Close sx={{ fontSize: 14 }} />
+                </IconButton>
               </form>
             )}
-          </li>
+          </Box>
         );
       })}
-    </ul>
+    </Stack>
   );
 }
 
@@ -100,33 +116,57 @@ function DueDate({ d, today }: { d: DeliverableRow; today?: string }) {
   if (!d.due_date) return null;
   const overdue = isOverdue(d.due_date, d.status, today);
   return (
-    <span className={`font-mono text-xs ${overdue ? "font-medium text-destructive" : "text-muted-foreground"}`}>
+    <Typography
+      component="span"
+      sx={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: overdue ? 500 : 400, color: overdue ? "error.main" : "text.muted" }}
+    >
       {overdue ? "Overdue · " : "Due "}
       {formatDateOnly(d.due_date)}
-    </span>
+    </Typography>
   );
 }
 
 function ReviewOutcome({ d, audience }: { d: DeliverableRow; audience: "admin" | "client" }) {
   if (d.status === "approved" && d.reviewed_at) {
-    return (
-      <p className="mt-4 text-sm text-secondary">
-        Approved on {formatDateOnly(d.reviewed_at)}.
-      </p>
-    );
+    return <Typography sx={{ mt: 2, fontSize: 14, color: "text.secondary" }}>Approved on {formatDateOnly(d.reviewed_at)}.</Typography>;
   }
   if (d.status === "changes_requested" && d.review_note) {
     return (
-      <div className="mt-4 rounded-lg bg-muted px-4 py-3">
-        <p className="text-sm font-medium text-primary">
+      <Box sx={{ mt: 2, borderRadius: 2, bgcolor: "var(--color-muted)", px: 2, py: 1.5 }}>
+        <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
           {audience === "client" ? "Changes you requested" : "Changes the client requested"}
-        </p>
-        <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-secondary">{d.review_note}</p>
-      </div>
+        </Typography>
+        <Typography sx={{ mt: 0.5, whiteSpace: "pre-line", fontSize: 14, lineHeight: 1.6, color: "text.secondary" }}>
+          {d.review_note}
+        </Typography>
+      </Box>
     );
   }
   return null;
 }
+
+function CardHeader({ d, label, today }: { d: DeliverableRow; label: string; today?: string }) {
+  return (
+    <>
+      <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", columnGap: 1.5, rowGap: 0.75 }}>
+        <Typography variant="h3" sx={{ fontSize: 16 }}>
+          {d.title}
+        </Typography>
+        <StatusBadge status={d.status} label={label} />
+        <DueDate d={d} today={today} />
+      </Box>
+      {d.description && (
+        <Typography sx={{ mt: 1, whiteSpace: "pre-line", fontSize: 14, lineHeight: 1.6, color: "text.muted" }}>{d.description}</Typography>
+      )}
+    </>
+  );
+}
+
+const statusOptions = DELIVERABLE_STATUSES.map((s) => (
+  <option key={s} value={s}>
+    {ADMIN_STATUS_LABEL[s]}
+  </option>
+));
 
 export function DeliverablesView({
   mode,
@@ -144,12 +184,7 @@ export function DeliverablesView({
   today?: string;
 }) {
   return mode === "admin" ? (
-    <AdminDeliverables
-      projectId={projectId}
-      deliverables={deliverables}
-      projectFiles={projectFiles}
-      today={today}
-    />
+    <AdminDeliverables projectId={projectId} deliverables={deliverables} projectFiles={projectFiles} today={today} />
   ) : (
     <ClientDeliverables deliverables={deliverables} canReview={canReview} today={today} />
   );
@@ -168,12 +203,9 @@ function ClientDeliverables({
 }) {
   if (!deliverables.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
-        <p className="font-display text-lg font-medium text-primary">No deliverables yet</p>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          Reports and recommendations will appear here as soon as they&apos;re ready for you.
-        </p>
-      </div>
+      <EmptyState title="No deliverables yet">
+        Reports and recommendations will appear here as soon as they&apos;re ready for you.
+      </EmptyState>
     );
   }
 
@@ -186,44 +218,35 @@ function ClientDeliverables({
   ];
 
   return (
-    <div className="flex flex-col gap-10">
+    <Stack spacing={5}>
       {sections
         .filter((s) => s.items.length)
         .map((s) => (
-          <section key={s.key} aria-labelledby={`deliverables-${s.key}`} className="flex flex-col gap-4">
-            <h2 id={`deliverables-${s.key}`} className="font-display text-lg font-medium text-primary">
+          <Stack component="section" key={s.key} aria-labelledby={`deliverables-${s.key}`} spacing={2}>
+            <Typography variant="h2" id={`deliverables-${s.key}`} sx={{ fontSize: 18 }}>
               {s.title}
-              <span className="ml-2 font-mono text-sm font-normal text-muted-foreground">
+              <Box component="span" sx={{ ml: 1, fontFamily: "var(--font-mono)", fontSize: 14, fontWeight: 400, color: "text.muted" }}>
                 {s.items.length}
-              </span>
-            </h2>
+              </Box>
+            </Typography>
             {s.items.map((d) => (
-              <article key={d.id} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                  <h3 className="font-display text-base font-medium text-primary">{d.title}</h3>
-                  <StatusBadge status={d.status} label={CLIENT_STATUS_LABEL[d.status]} />
-                  <DueDate d={d} today={today} />
-                </div>
-                {d.description && (
-                  <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-                    {d.description}
-                  </p>
-                )}
+              <Paper component="article" key={d.id} variant="outlined" sx={{ p: { xs: 2.5, sm: 3 } }}>
+                <CardHeader d={d} label={CLIENT_STATUS_LABEL[d.status]} today={today} />
                 <FileList files={d.files} />
                 <ReviewOutcome d={d} audience="client" />
                 {d.status === "in_review" &&
                   (canReview ? (
                     <ReviewControls deliverableId={d.id} title={d.title} />
                   ) : (
-                    <p className="mt-4 text-sm text-muted-foreground">
+                    <Typography sx={{ mt: 2, fontSize: 14, color: "text.muted" }}>
                       Only your workspace owner can approve this or request changes.
-                    </p>
+                    </Typography>
                   ))}
-              </article>
+              </Paper>
             ))}
-          </section>
+          </Stack>
         ))}
-    </div>
+    </Stack>
   );
 }
 
@@ -243,67 +266,52 @@ function AdminDeliverables({
   const create = createDeliverable.bind(null, projectId);
 
   return (
-    <div className="flex flex-col gap-8">
-      <form action={create} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="deliverable-title" className="text-sm font-medium text-secondary">
-            Title
-          </label>
-          <input
-            id="deliverable-title"
+    <Stack spacing={4}>
+      <Paper component="form" action={create} variant="outlined" sx={{ p: 2.5 }}>
+        <Stack spacing={2}>
+          <TextField
             name="title"
+            label="Title"
             required
-            maxLength={200}
             placeholder="e.g. Root-cause report: bond failures"
-            className={inputClass}
+            slotProps={{ htmlInput: { maxLength: 200 } }}
           />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="deliverable-description" className="text-sm font-medium text-secondary">
-            Description (optional)
-          </label>
-          <textarea
-            id="deliverable-description"
+          <TextField
             name="description"
-            rows={2}
-            maxLength={5000}
+            label="Description (optional)"
+            multiline
+            minRows={2}
             placeholder="What the client is getting and what you need from them"
-            className={inputClass}
+            slotProps={{ htmlInput: { maxLength: 5000 } }}
           />
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <div className="flex min-w-[160px] flex-1 flex-col gap-1.5">
-            <label htmlFor="deliverable-due" className="text-sm font-medium text-secondary">
-              Due date (optional)
-            </label>
-            <input id="deliverable-due" name="due_date" type="date" className={inputClass} />
-          </div>
-          <div className="flex min-w-[200px] flex-1 flex-col gap-1.5">
-            <label htmlFor="deliverable-status" className="text-sm font-medium text-secondary">
-              Status
-            </label>
-            <SelectField id="deliverable-status" name="status" defaultValue="draft">
-              {DELIVERABLE_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {ADMIN_STATUS_LABEL[s]}
-                </option>
-              ))}
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+            <TextField
+              name="due_date"
+              label="Due date (optional)"
+              type="date"
+              slotProps={{ inputLabel: { shrink: true } }}
+              sx={{ flex: 1, minWidth: 160 }}
+            />
+            <SelectField name="status" label="Status" defaultValue="draft" sx={{ flex: 1, minWidth: 200 }}>
+              {statusOptions}
             </SelectField>
-          </div>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Drafts are hidden from the client. Setting a deliverable to &ldquo;Awaiting client&rdquo; shows
-          it to them and notifies their team.
-        </p>
-        <button type="submit" className="btn-primary self-start rounded-full px-5 py-2.5 text-sm font-medium">
-          Add deliverable
-        </button>
-      </form>
+          </Box>
+          <Typography sx={{ fontSize: 12, color: "text.muted" }}>
+            Drafts are hidden from the client. Setting a deliverable to &ldquo;Awaiting client&rdquo; shows it to them
+            and notifies their team.
+          </Typography>
+          <Box>
+            <Button type="submit" variant="contained">
+              Add deliverable
+            </Button>
+          </Box>
+        </Stack>
+      </Paper>
 
       {!deliverables.length ? (
-        <p className="text-sm text-muted-foreground">No deliverables yet.</p>
+        <Typography sx={{ fontSize: 14, color: "text.muted" }}>No deliverables yet.</Typography>
       ) : (
-        <div className="flex flex-col gap-4">
+        <Stack spacing={2}>
           {deliverables.map((d) => {
             const update = updateDeliverable.bind(null, d.id);
             const attach = attachDeliverableFile.bind(null, d.id);
@@ -312,129 +320,94 @@ function AdminDeliverables({
             const attachable = projectFiles.filter((f) => !attachedIds.has(f.id));
 
             return (
-              <article key={d.id} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                  <h3 className="font-display text-base font-medium text-primary">{d.title}</h3>
-                  <StatusBadge status={d.status} label={ADMIN_STATUS_LABEL[d.status]} />
-                  <DueDate d={d} today={today} />
-                </div>
-                {d.description && (
-                  <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-                    {d.description}
-                  </p>
-                )}
+              <Paper component="article" key={d.id} variant="outlined" sx={{ p: { xs: 2.5, sm: 3 } }}>
+                <CardHeader d={d} label={ADMIN_STATUS_LABEL[d.status]} today={today} />
                 <FileList files={d.files} onDetach={(fileId) => detachDeliverableFile.bind(null, d.id, fileId)} />
                 <ReviewOutcome d={d} audience="admin" />
 
-                <details className="group mt-4 border-t border-border pt-4">
-                  <summary className="cursor-pointer text-sm font-medium text-accent">
-                    Edit &ldquo;{d.title}&rdquo;
-                  </summary>
-                  <div className="mt-4 flex flex-col gap-6">
-                    <form action={update} className="flex flex-col gap-3">
-                      <div className="flex flex-col gap-1.5">
-                        <label htmlFor={`title-${d.id}`} className="text-sm font-medium text-secondary">
-                          Title
-                        </label>
-                        <input
-                          id={`title-${d.id}`}
-                          name="title"
-                          required
-                          maxLength={200}
-                          defaultValue={d.title}
-                          className={inputClass}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label htmlFor={`desc-${d.id}`} className="text-sm font-medium text-secondary">
-                          Description
-                        </label>
-                        <textarea
-                          id={`desc-${d.id}`}
+                <Accordion
+                  disableGutters
+                  elevation={0}
+                  sx={{ mt: 2, bgcolor: "transparent", borderTop: 1, borderColor: "divider", "&::before": { display: "none" } }}
+                >
+                  <AccordionSummary
+                    expandIcon={<ExpandMore sx={{ fontSize: 18 }} />}
+                    sx={{ px: 0, minHeight: 40, "& .MuiAccordionSummary-content": { my: 1 } }}
+                  >
+                    <Typography sx={{ fontSize: 14, fontWeight: 500, color: "primary.main" }}>
+                      Edit &ldquo;{d.title}&rdquo;
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails sx={{ px: 0 }}>
+                    <Stack spacing={3}>
+                      <Stack component="form" action={update} spacing={2}>
+                        <TextField name="title" label="Title" required defaultValue={d.title} slotProps={{ htmlInput: { maxLength: 200 } }} />
+                        <TextField
                           name="description"
-                          rows={3}
-                          maxLength={5000}
+                          label="Description"
+                          multiline
+                          minRows={3}
                           defaultValue={d.description ?? ""}
-                          className={inputClass}
+                          slotProps={{ htmlInput: { maxLength: 5000 } }}
                         />
-                      </div>
-                      <div className="flex flex-wrap gap-3">
-                        <div className="flex min-w-[160px] flex-1 flex-col gap-1.5">
-                          <label htmlFor={`due-${d.id}`} className="text-sm font-medium text-secondary">
-                            Due date
-                          </label>
-                          <input
-                            id={`due-${d.id}`}
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+                          <TextField
                             name="due_date"
+                            label="Due date"
                             type="date"
                             defaultValue={d.due_date ?? ""}
-                            className={inputClass}
+                            slotProps={{ inputLabel: { shrink: true } }}
+                            sx={{ flex: 1, minWidth: 160 }}
                           />
-                        </div>
-                        <div className="flex min-w-[200px] flex-1 flex-col gap-1.5">
-                          <label htmlFor={`status-${d.id}`} className="text-sm font-medium text-secondary">
-                            Status
-                          </label>
-                          <SelectField id={`status-${d.id}`} name="status" defaultValue={d.status}>
-                            {DELIVERABLE_STATUSES.map((s) => (
-                              <option key={s} value={s}>
-                                {ADMIN_STATUS_LABEL[s]}
-                              </option>
-                            ))}
+                          <SelectField name="status" label="Status" defaultValue={d.status} sx={{ flex: 1, minWidth: 200 }}>
+                            {statusOptions}
                           </SelectField>
-                        </div>
-                      </div>
-                      <button
-                        type="submit"
-                        className="btn-primary self-start rounded-full px-5 py-2.5 text-sm font-medium"
-                      >
-                        Save changes
-                      </button>
-                    </form>
+                        </Box>
+                        <Box>
+                          <Button type="submit" variant="contained">
+                            Save changes
+                          </Button>
+                        </Box>
+                      </Stack>
 
-                    <form action={attach} className="flex flex-wrap items-end gap-3">
-                      <div className="flex min-w-[220px] flex-1 flex-col gap-1.5">
-                        <label htmlFor={`attach-${d.id}`} className="text-sm font-medium text-secondary">
-                          Attach a project file
-                        </label>
-                        <SelectField id={`attach-${d.id}`} name="file_id" defaultValue="" disabled={!attachable.length}>
-                          <option value="">
-                            {attachable.length ? "Choose a file…" : "No more files in this project"}
-                          </option>
+                      <Box component="form" action={attach} sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5 }}>
+                        <SelectField
+                          name="file_id"
+                          label="Attach a project file"
+                          defaultValue=""
+                          disabled={!attachable.length}
+                          sx={{ flex: 1, minWidth: 220 }}
+                        >
+                          <option value="">{attachable.length ? "Choose a file…" : "No more files in this project"}</option>
                           {attachable.map((f) => (
                             <option key={f.id} value={f.id}>
                               {f.filename}
                             </option>
                           ))}
                         </SelectField>
-                      </div>
-                      <button
-                        type="submit"
-                        disabled={!attachable.length}
-                        className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-muted disabled:opacity-50"
-                      >
-                        <Paperclip size={15} />
-                        Attach
-                      </button>
-                    </form>
+                        <Button type="submit" variant="outlined" color="secondary" startIcon={<AttachFile />} disabled={!attachable.length}>
+                          Attach
+                        </Button>
+                      </Box>
 
-                    <form action={remove}>
-                      <ConfirmButton
-                        confirmText={`Delete the deliverable "${d.title}"? This can't be undone.`}
-                        ariaLabel={`Delete deliverable "${d.title}"`}
-                        className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-destructive"
-                      >
-                        <Trash size={15} />
-                        Delete this deliverable
-                      </ConfirmButton>
-                    </form>
-                  </div>
-                </details>
-              </article>
+                      <form action={remove}>
+                        <ConfirmButton
+                          confirmText={`Delete the deliverable "${d.title}"? This can't be undone.`}
+                          ariaLabel={`Delete deliverable "${d.title}"`}
+                          icon={<DeleteOutlined />}
+                          color="error"
+                        >
+                          Delete this deliverable
+                        </ConfirmButton>
+                      </form>
+                    </Stack>
+                  </AccordionDetails>
+                </Accordion>
+              </Paper>
             );
           })}
-        </div>
+        </Stack>
       )}
-    </div>
+    </Stack>
   );
 }

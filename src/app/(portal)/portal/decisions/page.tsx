@@ -4,6 +4,8 @@ import { DecisionsView } from "@/components/decisions/decisions-view";
 import { ProjectSwitcher } from "@/components/board/project-switcher";
 import { SectionHeader } from "@/components/shared/section-header";
 import { isAxelAdmin } from "@/lib/dal";
+import Stack from "@mui/material/Stack";
+import { EmptyState } from "@/components/shared/empty-state";
 
 export default async function DecisionsPage({
   searchParams,
@@ -15,15 +17,12 @@ export default async function DecisionsPage({
 
   if (!project) {
     return (
-      <div className="flex flex-col gap-8">
+      <Stack spacing={4}>
         <SectionHeader eyebrow="Decisions" title="Decisions" />
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
-          <p className="font-display text-lg font-medium text-primary">No project yet</p>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Once your engagement is set up, decisions will be logged here.
-          </p>
-        </div>
-      </div>
+        <EmptyState title="No project yet">
+          Once your engagement is set up, decisions will be logged here.
+        </EmptyState>
+      </Stack>
     );
   }
 
@@ -37,7 +36,7 @@ export default async function DecisionsPage({
   const admin = await isAxelAdmin();
 
   return (
-    <div className="flex flex-col gap-8">
+    <Stack spacing={4}>
       <SectionHeader
         eyebrow="Decisions"
         title={project.name}
@@ -55,6 +54,6 @@ export default async function DecisionsPage({
         canLog={role === "owner" || admin}
         canDelete={admin}
       />
-    </div>
+    </Stack>
   );
 }

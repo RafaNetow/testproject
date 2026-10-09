@@ -1,33 +1,23 @@
-import Link from "next/link";
-import {
-  Buildings,
-  CalendarBlank,
-  ChatCircleDots,
-  FolderOpen,
-  NotePencil,
-  Receipt,
-  SquaresFour,
-  Target,
-  VideoCamera,
-} from "@phosphor-icons/react/dist/ssr";
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import BusinessOutlined from "@mui/icons-material/BusinessOutlined";
+import CalendarMonthOutlined from "@mui/icons-material/CalendarMonthOutlined";
+import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
+import TrackChangesOutlined from "@mui/icons-material/TrackChangesOutlined";
 import { getSessionUser } from "@/lib/dal";
+import { LinkBox } from "@/components/shared/link-box";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardHero } from "@/components/shared/dashboard-hero";
+import { StatTiles } from "@/components/shared/stat-tiles";
+import { ActivityFeed, type ActivityItem } from "@/components/shared/activity-feed";
 
 const QUICK_LINKS = [
-  { label: "Clients", href: "/admin/clients", icon: Buildings },
-  { label: "Calendar", href: "/admin/calendar", icon: CalendarBlank },
-  { label: "Invoices", href: "/admin/invoices", icon: Receipt },
-  { label: "Prospects", href: "/admin/prospects", icon: Target },
+  { label: "Clients", href: "/admin/clients", icon: BusinessOutlined },
+  { label: "Calendar", href: "/admin/calendar", icon: CalendarMonthOutlined },
+  { label: "Invoices", href: "/admin/invoices", icon: ReceiptLongOutlined },
+  { label: "Prospects", href: "/admin/prospects", icon: TrackChangesOutlined },
 ];
-
-type ActivityItem = {
-  type: "card" | "decision" | "update" | "meeting" | "file";
-  label: string;
-  at: string;
-  orgName: string;
-  href: string;
-};
 
 type WithProject = {
   project_id: string;
@@ -102,7 +92,7 @@ export default async function AdminDashboard() {
       type: "card" as const,
       label: `New board card: ${c.title}`,
       at: c.created_at,
-      orgName: orgNameOf(c),
+      sublabel: orgNameOf(c),
       href: sectionHref(c, "board"),
     })),
     ...(((recentDecisions ?? []) as unknown) as (WithProject & {
@@ -113,7 +103,7 @@ export default async function AdminDashboard() {
       type: "decision" as const,
       label: `Decision logged: ${d.title}`,
       at: d.created_at,
-      orgName: orgNameOf(d),
+      sublabel: orgNameOf(d),
       href: sectionHref(d, "decisions"),
     })),
     ...(((recentUpdates ?? []) as unknown) as (WithProject & {
@@ -124,7 +114,7 @@ export default async function AdminDashboard() {
       type: "update" as const,
       label: `Update published: ${u.title}`,
       at: u.published_at,
-      orgName: orgNameOf(u),
+      sublabel: orgNameOf(u),
       href: sectionHref(u, "updates"),
     })),
     ...(((recentMeetings ?? []) as unknown) as (WithProject & {
@@ -135,7 +125,7 @@ export default async function AdminDashboard() {
       type: "meeting" as const,
       label: `Meeting scheduled: ${m.title}`,
       at: m.created_at,
-      orgName: orgNameOf(m),
+      sublabel: orgNameOf(m),
       href: sectionHref(m, "meetings"),
     })),
     ...(((recentFiles ?? []) as unknown) as (WithProject & {
@@ -146,98 +136,62 @@ export default async function AdminDashboard() {
       type: "file" as const,
       label: `File uploaded: ${f.filename}`,
       at: f.created_at,
-      orgName: orgNameOf(f),
+      sublabel: orgNameOf(f),
       href: sectionHref(f, "files"),
     })),
   ]
     .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
     .slice(0, 10);
 
-  const ACTIVITY_ICONS = {
-    card: SquaresFour,
-    decision: ChatCircleDots,
-    update: NotePencil,
-    meeting: VideoCamera,
-    file: FolderOpen,
-  };
-
   return (
-    <div className="flex flex-col gap-10">
+    <Stack spacing={5}>
       <DashboardHero
         name={user?.email ? user.email.split("@")[0] : undefined}
         subtitle="Here's what needs your attention across every client."
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-          <p className="text-sm font-medium text-secondary">Active clients</p>
-          <p className="mt-2 font-display text-4xl font-medium text-primary">{orgCount ?? "—"}</p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-          <p className="text-sm font-medium text-secondary">Projects</p>
-          <p className="mt-2 font-display text-4xl font-medium text-primary">
-            {projectCount ?? "—"}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-          <p className="text-sm font-medium text-secondary">Upcoming meetings</p>
-          <p className="mt-2 font-display text-4xl font-medium text-primary">
-            {upcomingMeetingsCount ?? "—"}
-          </p>
-        </div>
-      </div>
+      <StatTiles
+        columns={3}
+        tiles={[
+          { label: "Active clients", value: orgCount ?? "—" },
+          { label: "Projects", value: projectCount ?? "—" },
+          { label: "Upcoming meetings", value: upcomingMeetingsCount ?? "—" },
+        ]}
+      />
 
       <div>
-        <p className="text-sm font-medium text-secondary">Quick links</p>
-        <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <Typography component="h2" sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}>
+          Quick links
+        </Typography>
+        <Box sx={{ mt: 1.5, display: "grid", gap: 2, gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(4, 1fr)" } }}>
           {QUICK_LINKS.map(({ label, href, icon: LinkIcon }) => (
-            <Link
+            <LinkBox
               key={href}
               href={href}
-              className="flex flex-col items-start gap-3 rounded-2xl border border-border bg-card p-5 transition-colors hover:bg-muted"
+              sx={{
+                border: 1,
+                borderColor: "divider",
+                borderRadius: 4,
+                bgcolor: "background.paper",
+                color: "text.primary",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: 1.5,
+                p: 2.5,
+                textDecoration: "none",
+                transition: "background-color 150ms",
+                "&:hover": { bgcolor: "action.hover" },
+              }}
             >
-              <LinkIcon size={22} className="text-accent" />
-              <span className="text-sm font-medium text-primary">{label}</span>
-            </Link>
+              <LinkIcon sx={{ fontSize: 22, color: "primary.main" }} />
+              <Typography sx={{ fontSize: 14, fontWeight: 500 }}>{label}</Typography>
+            </LinkBox>
           ))}
-        </div>
+        </Box>
       </div>
 
-      <div>
-        <p className="text-sm font-medium text-secondary">Recent activity across all clients</p>
-        {!activity.length ? (
-          <div className="mt-3 rounded-2xl border border-dashed border-border bg-card px-6 py-10 text-center">
-            <p className="text-sm text-muted-foreground">Nothing yet.</p>
-          </div>
-        ) : (
-          <div className="mt-3 divide-y divide-border rounded-2xl border border-border bg-card">
-            {activity.map((item, i) => {
-              const ItemIcon = ACTIVITY_ICONS[item.type];
-              return (
-                <Link
-                  key={i}
-                  href={item.href}
-                  className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-muted"
-                >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                    <ItemIcon size={15} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm text-primary">{item.label}</p>
-                    <p className="text-xs text-muted-foreground">{item.orgName}</p>
-                  </div>
-                  <p className="shrink-0 text-xs text-muted-foreground">
-                    {new Date(item.at).toLocaleDateString("en-GB", {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </p>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
+      <ActivityFeed title="Recent activity across all clients" items={activity} emptyText="Nothing yet." />
+    </Stack>
   );
 }

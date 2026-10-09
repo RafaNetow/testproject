@@ -3,6 +3,8 @@ import { getPortalProjectContext } from "@/lib/portal-context";
 import { HoursView } from "@/components/hours/hours-view";
 import { ProjectSwitcher } from "@/components/board/project-switcher";
 import { SectionHeader } from "@/components/shared/section-header";
+import Stack from "@mui/material/Stack";
+import { EmptyState } from "@/components/shared/empty-state";
 
 export default async function PortalHoursPage({
   searchParams,
@@ -14,15 +16,12 @@ export default async function PortalHoursPage({
 
   if (!project) {
     return (
-      <div className="flex flex-col gap-8">
+      <Stack spacing={4}>
         <SectionHeader eyebrow="Hours" title="Hours" />
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
-          <p className="font-display text-lg font-medium text-primary">No project yet</p>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Once your engagement is set up, logged time will show up here.
-          </p>
-        </div>
-      </div>
+        <EmptyState title="No project yet">
+          Once your engagement is set up, logged time will show up here.
+        </EmptyState>
+      </Stack>
     );
   }
 
@@ -34,7 +33,7 @@ export default async function PortalHoursPage({
     .order("entry_date", { ascending: false });
 
   return (
-    <div className="flex flex-col gap-8">
+    <Stack spacing={4}>
       <SectionHeader
         eyebrow="Hours"
         title={project.name}
@@ -51,6 +50,6 @@ export default async function PortalHoursPage({
         revalidatePaths={["/portal/hours"]}
         canLog={false}
       />
-    </div>
+    </Stack>
   );
 }

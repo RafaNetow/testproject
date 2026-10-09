@@ -1,23 +1,32 @@
-import { UsersThree } from "@phosphor-icons/react/dist/ssr";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import ListItemText from "@mui/material/ListItemText";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import GroupsOutlined from "@mui/icons-material/GroupsOutlined";
 import { createClient } from "@/lib/supabase/server";
 import { getPortalProjectContext } from "@/lib/portal-context";
 import { updateOrgDetails } from "@/lib/actions/organization-details";
 import { SectionHeader } from "@/components/shared/section-header";
+import { EmptyState } from "@/components/shared/empty-state";
 
 export default async function TeamPage() {
   const { org, role } = await getPortalProjectContext();
 
   if (!org) {
     return (
-      <div className="flex flex-col gap-8">
+      <Stack spacing={4}>
         <SectionHeader eyebrow="Team" title="Team" />
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
-          <p className="font-display text-lg font-medium text-primary">No workspace yet</p>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Once you&apos;re added to a project, your team will show up here.
-          </p>
-        </div>
-      </div>
+        <EmptyState title="No workspace yet">
+          Once you&apos;re added to a project, your team will show up here.
+        </EmptyState>
+      </Stack>
     );
   }
 
@@ -32,84 +41,81 @@ export default async function TeamPage() {
   const updateThisOrg = updateOrgDetails.bind(null, org.id);
 
   return (
-    <div className="flex flex-col gap-8">
+    <Stack spacing={4}>
       <SectionHeader eyebrow="Team" title={org.name} />
 
-      <div className="rounded-2xl border border-border bg-card p-6">
-        <p className="font-mono text-xs uppercase tracking-widest text-accent">Company details</p>
-        <h2 className="mt-2 font-display text-lg font-medium text-primary">
-          For your invoices
-        </h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+      <Paper variant="outlined" sx={{ p: 3 }}>
+        <Typography variant="h2" sx={{ fontSize: 18 }}>
+          Company details for your invoices
+        </Typography>
+        <Typography sx={{ mt: 0.5, fontSize: 14, lineHeight: 1.6, color: "text.muted" }}>
           Your CVR number and billing address appear on invoices we send you.
-        </p>
+        </Typography>
 
         {role === "owner" ? (
-          <form action={updateThisOrg} className="mt-5 flex flex-wrap items-end gap-3">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="cvr_number" className="text-sm font-medium text-secondary">
-                CVR number
-              </label>
-              <input
-                id="cvr_number"
-                name="cvr_number"
-                defaultValue={org.cvrNumber ?? ""}
-                placeholder="12345678"
-                className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-              />
-            </div>
-            <div className="flex min-w-[220px] flex-1 flex-col gap-1.5">
-              <label htmlFor="billing_address" className="text-sm font-medium text-secondary">
-                Billing address
-              </label>
-              <input
-                id="billing_address"
-                name="billing_address"
-                defaultValue={org.billingAddress ?? ""}
-                placeholder="Street, postal code, city"
-                className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-              />
-            </div>
-            <button
-              type="submit"
-              className="rounded-full border border-primary px-5 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-            >
+          <Box
+            component="form"
+            action={updateThisOrg}
+            sx={{ mt: 2.5, display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: 1.5 }}
+          >
+            <TextField
+              name="cvr_number"
+              label="CVR number"
+              defaultValue={org.cvrNumber ?? ""}
+              placeholder="12345678"
+              fullWidth={false}
+              sx={{ width: { xs: "100%", sm: 200 } }}
+            />
+            <TextField
+              name="billing_address"
+              label="Billing address"
+              defaultValue={org.billingAddress ?? ""}
+              placeholder="Street, postal code, city"
+              sx={{ flex: 1, minWidth: 220 }}
+            />
+            <Button type="submit" variant="outlined" color="navy" sx={{ height: 40 }}>
               Save
-            </button>
-          </form>
+            </Button>
+          </Box>
         ) : (
-          <div className="mt-5 flex flex-wrap gap-8 text-sm">
+          <Box sx={{ mt: 2.5, display: "flex", flexWrap: "wrap", gap: 4 }}>
             <div>
-              <p className="text-xs text-muted-foreground">CVR number</p>
-              <p className="mt-0.5 text-primary">{org.cvrNumber || "Not set"}</p>
+              <Typography sx={{ fontSize: 12, color: "text.muted" }}>CVR number</Typography>
+              <Typography sx={{ mt: 0.25, fontSize: 14 }}>{org.cvrNumber || "Not set"}</Typography>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Billing address</p>
-              <p className="mt-0.5 text-primary">{org.billingAddress || "Not set"}</p>
+              <Typography sx={{ fontSize: 12, color: "text.muted" }}>Billing address</Typography>
+              <Typography sx={{ mt: 0.25, fontSize: 14 }}>{org.billingAddress || "Not set"}</Typography>
             </div>
-          </div>
+          </Box>
         )}
-      </div>
+      </Paper>
 
       {!members?.length ? (
-        <p className="text-sm text-muted-foreground">No team members yet.</p>
+        <Typography sx={{ fontSize: 14, color: "text.muted" }}>No team members yet.</Typography>
       ) : (
-        <div className="divide-y divide-border rounded-2xl border border-border bg-card">
-          {members.map((m) => (
-            <div key={m.id} className="flex items-center gap-3 px-5 py-4">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                <UsersThree size={16} />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-primary">{m.invited_email}</p>
-                <p className="text-xs text-muted-foreground">
-                  {m.role === "owner" ? "Owner" : "Collaborator"}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <Paper variant="outlined">
+          <List disablePadding>
+            {members.map((m, i) => (
+              <ListItem key={m.id} divider={i < members.length - 1} sx={{ px: 2.5, py: 1.5 }}>
+                <ListItemAvatar sx={{ minWidth: 48 }}>
+                  <Avatar sx={{ width: 36, height: 36, bgcolor: "var(--color-muted)", color: "text.muted" }}>
+                    <GroupsOutlined sx={{ fontSize: 18 }} />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={m.invited_email}
+                  secondary={m.role === "owner" ? "Owner" : "Collaborator"}
+                  slotProps={{
+                    primary: { sx: { fontSize: 14, fontWeight: 500 } },
+                    secondary: { sx: { fontSize: 12, color: "text.muted" } },
+                  }}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </Paper>
       )}
-    </div>
+    </Stack>
   );
 }

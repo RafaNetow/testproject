@@ -1,8 +1,18 @@
 import Link from "next/link";
-import { VideoCamera } from "@phosphor-icons/react/dist/ssr";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import VideocamOutlined from "@mui/icons-material/VideocamOutlined";
 import { createClient } from "@/lib/supabase/server";
 import { SectionHeader } from "@/components/shared/section-header";
 import { StatusBadge } from "@/components/shared/status-badge";
+import Stack from "@mui/material/Stack";
+
+/** Request time; kept out of the component body so render stays pure. */
+function currentTime() {
+  return Date.now();
+}
 
 type MeetingRow = {
   id: string;
@@ -26,7 +36,7 @@ export default async function CalendarPage() {
     .order("scheduled_at", { ascending: true });
 
   const meetings = (data ?? []) as unknown as MeetingRow[];
-  const now = Date.now();
+  const now = currentTime();
   const upcoming = meetings.filter(
     (m) => m.status !== "cancelled" && new Date(m.scheduled_at).getTime() >= now
   );
@@ -38,19 +48,22 @@ export default async function CalendarPage() {
     const when = new Date(m.scheduled_at);
     const orgName = m.projects?.organizations?.name ?? "—";
     return (
-      <div
+      <Paper
         key={m.id}
-        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-5"
+        variant="outlined"
+        sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 1.5, p: 2.5 }}
       >
         <div>
-          <div className="flex items-center gap-2">
-            <p className="font-display text-base font-medium text-primary">{m.title}</p>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography variant="h3" sx={{ fontSize: 16 }}>
+              {m.title}
+            </Typography>
             <StatusBadge status={m.status} />
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">
+          </Box>
+          <Typography sx={{ mt: 0.5, fontSize: 14, color: "text.muted" }}>
             {orgName} · {m.projects?.name ?? "—"}
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
+          </Typography>
+          <Typography sx={{ mt: 0.5, fontSize: 14, color: "text.muted" }}>
             {when.toLocaleDateString("en-GB", {
               weekday: "short",
               month: "short",
@@ -59,52 +72,50 @@ export default async function CalendarPage() {
             at{" "}
             {when.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
             {m.duration_minutes ? ` · ${m.duration_minutes} min` : ""}
-          </p>
+          </Typography>
         </div>
-        <div className="flex items-center gap-3">
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
           {m.zoom_url && (
-            <a
+            <Button
               href={m.zoom_url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-muted"
+              variant="outlined"
+              color="secondary"
+              startIcon={<VideocamOutlined />}
             >
-              <VideoCamera size={16} />
               Join
-            </a>
+            </Button>
           )}
-          <Link
-            href={`/admin/clients/${m.projects?.org_id}/projects/${m.project_id}/meetings`}
-            className="text-sm font-medium text-accent hover:underline"
-          >
+          <Button href={`/admin/clients/${m.projects?.org_id}/projects/${m.project_id}/meetings`}>
             Manage
-          </Link>
-        </div>
-      </div>
+          </Button>
+        </Box>
+      </Paper>
     );
   }
 
   return (
-    <div className="flex flex-col gap-10">
+    <Stack spacing={5}>
       <SectionHeader eyebrow="Calendar" title="Meetings across all clients" />
 
-      <div className="flex flex-col gap-4">
-        <p className="text-sm font-medium text-secondary">Upcoming</p>
+      <Stack spacing={2}>
+        <Typography sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}>Upcoming</Typography>
         {!upcoming.length ? (
-          <p className="text-sm text-muted-foreground">Nothing scheduled.</p>
+          <Typography sx={{ fontSize: 14, color: "text.muted" }}>Nothing scheduled.</Typography>
         ) : (
-          <div className="flex flex-col gap-3">{upcoming.map(renderMeeting)}</div>
+          <Stack spacing={1.5}>{upcoming.map(renderMeeting)}</Stack>
         )}
-      </div>
+      </Stack>
 
-      <div className="flex flex-col gap-4">
-        <p className="text-sm font-medium text-secondary">Past &amp; cancelled</p>
+      <Stack spacing={2}>
+        <Typography sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}>Past &amp; cancelled</Typography>
         {!past.length ? (
-          <p className="text-sm text-muted-foreground">Nothing yet.</p>
+          <Typography sx={{ fontSize: 14, color: "text.muted" }}>Nothing yet.</Typography>
         ) : (
-          <div className="flex flex-col gap-3">{past.map(renderMeeting)}</div>
+          <Stack spacing={1.5}>{past.map(renderMeeting)}</Stack>
         )}
-      </div>
-    </div>
+      </Stack>
+    </Stack>
   );
 }

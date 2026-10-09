@@ -2,8 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Bell } from "@phosphor-icons/react/dist/ssr";
-import { Popover } from "@/components/shared/popover";
+import Badge from "@mui/material/Badge";
+import IconButton from "@mui/material/IconButton";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import Popover from "@mui/material/Popover";
+import Typography from "@mui/material/Typography";
+import NotificationsNoneOutlined from "@mui/icons-material/NotificationsNoneOutlined";
 import { timeAgo } from "@/lib/time-ago";
 import { markNotificationsRead } from "@/lib/actions/notifications";
 
@@ -22,6 +28,7 @@ export function NotificationBell({
   notifications: NotificationItem[];
   dark?: boolean;
 }) {
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [readIds, setReadIds] = useState<Set<string>>(
     () => new Set(notifications.filter((n) => n.read).map((n) => n.id))
   );
@@ -35,50 +42,65 @@ export function NotificationBell({
   }
 
   return (
-    <Popover
-      align="right"
-      trigger={({ toggle }) => (
-        <button
-          type="button"
-          onClick={() => {
-            toggle();
-            markAllRead();
-          }}
-          aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
-          className={`relative flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
-            dark
-              ? "text-white/70 hover:bg-white/10 hover:text-white"
-              : "text-secondary hover:bg-muted hover:text-primary"
-          }`}
-        >
-          <Bell size={18} />
-          {unreadCount > 0 && (
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
-          )}
-        </button>
-      )}
-    >
-      {(close) => (
-        <div className="max-h-96 w-80 overflow-y-auto rounded-xl border border-border bg-card shadow-lg">
-          {notifications.length === 0 ? (
-            <p className="px-4 py-6 text-center text-sm text-muted-foreground">No notifications yet.</p>
-          ) : (
-            notifications.map((n) => (
-              <Link
+    <>
+      <IconButton
+        onClick={(e) => {
+          setAnchor(e.currentTarget);
+          markAllRead();
+        }}
+        aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
+        sx={
+          dark
+            ? { color: "rgba(255,255,255,0.7)", "&:hover": { color: "#fff", bgcolor: "rgba(255,255,255,0.1)" } }
+            : { color: "text.secondary" }
+        }
+      >
+        <Badge color="error" variant="dot" invisible={unreadCount === 0} overlap="circular">
+          <NotificationsNoneOutlined sx={{ fontSize: 20 }} />
+        </Badge>
+      </IconButton>
+
+      <Popover
+        open={Boolean(anchor)}
+        anchorEl={anchor}
+        onClose={() => setAnchor(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        slotProps={{
+          paper: {
+            variant: "outlined",
+            sx: { mt: 1, width: 320, maxHeight: 384, borderRadius: 3, boxShadow: 6 },
+          },
+        }}
+      >
+        {notifications.length === 0 ? (
+          <Typography sx={{ px: 2, py: 3, textAlign: "center", fontSize: 14, color: "text.muted" }}>
+            No notifications yet.
+          </Typography>
+        ) : (
+          <List disablePadding>
+            {notifications.map((n) => (
+              <ListItemButton
                 key={n.id}
+                component={Link}
                 href={n.href}
-                onClick={close}
-                className={`block border-b border-border px-4 py-3 text-sm last:border-0 transition-colors hover:bg-muted ${
-                  !readIds.has(n.id) ? "bg-accent/5" : ""
-                }`}
+                onClick={() => setAnchor(null)}
+                divider
+                sx={{ alignItems: "flex-start", bgcolor: n.read ? undefined : "action.selected" }}
               >
-                <p className="text-primary">{n.message}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{timeAgo(n.created_at)}</p>
-              </Link>
-            ))
-          )}
-        </div>
-      )}
-    </Popover>
+                <ListItemText
+                  primary={n.message}
+                  secondary={timeAgo(n.created_at)}
+                  slotProps={{
+                    primary: { sx: { fontSize: 14, color: "text.primary" } },
+                    secondary: { sx: { fontSize: 12, color: "text.muted" } },
+                  }}
+                />
+              </ListItemButton>
+            ))}
+          </List>
+        )}
+      </Popover>
+    </>
   );
 }

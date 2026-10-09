@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
+import Box from "@mui/material/Box";
+import MuiLink from "@mui/material/Link";
+import Typography from "@mui/material/Typography";
+import ArrowBack from "@mui/icons-material/ArrowBack";
 import { MolecularAccent } from "@/components/molecular-accent";
 
 /**
@@ -27,37 +30,74 @@ export function SectionHeader({
   backLink?: { href: string; label: string };
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-[#0a0e16] px-6 py-6 sm:px-8">
-      <MolecularAccent
-        tone="bright"
-        particleCount={20}
-        desktopOnly={false}
-        className="absolute inset-0 h-full w-full opacity-40"
-      />
-      <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
+    <Box
+      sx={{
+        position: "relative",
+        overflow: "hidden",
+        borderRadius: 4,
+        bgcolor: "#0a0e16",
+        px: { xs: 3, sm: 4 },
+        py: 3,
+      }}
+    >
+      <MolecularAccent tone="bright" particleCount={20} desktopOnly={false} opacity={0.4} />
+      <Box
+        sx={{
+          position: "relative",
+          zIndex: 1,
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          gap: 2,
+        }}
+      >
         <div>
           {backLink && (
-            <Link
+            <MuiLink
+             
               href={backLink.href}
-              className="mb-2 inline-flex items-center gap-2 text-sm font-medium text-white/50 transition-colors hover:text-white"
+              underline="none"
+              sx={{
+                mb: 1,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1,
+                fontSize: 14,
+                fontWeight: 500,
+                color: "rgba(255,255,255,0.5)",
+                "&:hover": { color: "#fff" },
+              }}
             >
-              <ArrowLeft size={16} />
+              <ArrowBack sx={{ fontSize: 16 }} />
               {backLink.label}
-            </Link>
+            </MuiLink>
           )}
           {eyebrow && (
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#7dd3fc]">
+            <Typography
+              sx={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 12,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: "#7dd3fc",
+              }}
+            >
               {eyebrow}
-            </p>
+            </Typography>
           )}
-          <div className={`flex flex-wrap items-center gap-3 ${eyebrow ? "mt-2" : ""}`}>
-            <h1 className="font-display text-2xl font-medium text-white">{title}</h1>
+          <Box sx={{ mt: eyebrow ? 1 : 0, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5 }}>
+            <Typography variant="h1" sx={{ fontSize: 24, color: "#fff" }}>
+              {title}
+            </Typography>
             {titleExtra}
-          </div>
-          {subtitle && <p className="mt-1.5 text-sm text-white/60">{subtitle}</p>}
+          </Box>
+          {subtitle && (
+            <Typography sx={{ mt: 0.75, fontSize: 14, color: "rgba(255,255,255,0.6)" }}>{subtitle}</Typography>
+          )}
         </div>
-        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
-      </div>
-    </div>
+        {actions && <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1 }}>{actions}</Box>}
+      </Box>
+    </Box>
   );
 }

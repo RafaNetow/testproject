@@ -1,3 +1,12 @@
+import Box from "@mui/material/Box";
+import Divider from "@mui/material/Divider";
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Typography from "@mui/material/Typography";
 import { BUSINESS_INFO } from "@/lib/business-info";
 import { computeInvoiceTotals, type PreviewLineItem, type VatTreatment } from "@/lib/invoice-totals";
 
@@ -9,29 +18,27 @@ function formatMoney(cents: number, currency: string) {
 
 function formatDate(value: string | null) {
   if (!value) return "—";
-  return new Date(value).toLocaleDateString("en-GB", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  return new Date(value).toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" });
 }
 
 const VAT_NOTES: Record<VatTreatment, string | null> = {
   domestic: null,
-  eu_reverse_charge:
-    "Reverse charge — Article 196, VAT Directive 2006/112/EC / Omvendt betalingspligt",
+  eu_reverse_charge: "Reverse charge — Article 196, VAT Directive 2006/112/EC / Omvendt betalingspligt",
   outside_eu: "Outside the scope of VAT / Ydelse uden for EU",
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  paid: "Paid",
-  overdue: "Overdue",
-};
+const STATUS_LABELS: Record<string, string> = { paid: "Paid", overdue: "Overdue" };
+const STATUS_COLORS: Record<string, string> = { paid: "success.main", overdue: "error.main" };
 
-const STATUS_COLORS: Record<string, string> = {
-  paid: "text-emerald-600 border-emerald-600/40 dark:text-emerald-400 dark:border-emerald-400/40",
-  overdue: "text-destructive border-destructive/40",
-};
+const metaLabel = {
+  fontFamily: "var(--font-mono)",
+  fontSize: 10,
+  letterSpacing: "0.2em",
+  textTransform: "uppercase",
+  color: "text.muted",
+} as const;
+
+const numCell = { textAlign: "right", fontVariantNumeric: "tabular-nums" } as const;
 
 export function InvoicePreview({
   orgName,
@@ -60,158 +67,164 @@ export function InvoicePreview({
   buyerVatNumber?: string | null;
   status?: string;
 }) {
-  const { subtotal, taxCents, total } = computeInvoiceTotals(
-    lineItems,
-    vatTreatment,
-    taxRatePct,
-    discountCents
-  );
+  const { subtotal, taxCents, total } = computeInvoiceTotals(lineItems, vatTreatment, taxRatePct, discountCents);
   const note = VAT_NOTES[vatTreatment];
   const statusLabel = status ? STATUS_LABELS[status] : undefined;
 
-  return (
-    <div className="invoice-document relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-      <div className="h-1.5 bg-accent" />
+  const totalRow = (label: string, value: string) => (
+    <Box sx={{ display: "flex", justifyContent: "space-between", py: 0.5, color: "text.secondary" }}>
+      <span>{label}</span>
+      <Box component="span" sx={{ fontVariantNumeric: "tabular-nums" }}>
+        {value}
+      </Box>
+    </Box>
+  );
 
-      <div className="p-8 sm:p-10">
+  return (
+    <Paper variant="outlined" className="invoice-document" sx={{ position: "relative", overflow: "hidden", boxShadow: 1 }}>
+      <Box sx={{ height: 6, bgcolor: "primary.main" }} />
+
+      <Box sx={{ p: { xs: 4, sm: 5 } }}>
         {statusLabel && (
-          <span
-            className={`absolute right-8 top-8 rotate-3 rounded-md border-2 px-3 py-1 font-mono text-xs font-bold uppercase tracking-[0.2em] ${
-              STATUS_COLORS[status!] ?? "text-muted-foreground border-border"
-            }`}
+          <Box
+            sx={{
+              position: "absolute",
+              right: 32,
+              top: 32,
+              transform: "rotate(3deg)",
+              borderRadius: 1,
+              border: 2,
+              borderColor: STATUS_COLORS[status!] ?? "divider",
+              color: STATUS_COLORS[status!] ?? "text.muted",
+              px: 1.5,
+              py: 0.5,
+              fontFamily: "var(--font-mono)",
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+            }}
           >
             {statusLabel}
-          </span>
+          </Box>
         )}
 
         {/* Letterhead */}
-        <div className="flex flex-wrap items-start justify-between gap-6">
+        <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 3 }}>
           <div>
-            <p className="font-display text-2xl italic text-primary">{BUSINESS_INFO.name}</p>
-            <p className="mt-1.5 text-sm text-muted-foreground">{BUSINESS_INFO.email}</p>
-            {BUSINESS_INFO.address && (
-              <p className="text-sm text-muted-foreground">{BUSINESS_INFO.address}</p>
-            )}
+            <Typography sx={{ fontFamily: "var(--font-display)", fontSize: 24, fontStyle: "italic" }}>
+              {BUSINESS_INFO.name}
+            </Typography>
+            <Typography sx={{ mt: 0.75, fontSize: 14, color: "text.muted" }}>{BUSINESS_INFO.email}</Typography>
+            {BUSINESS_INFO.address && <Typography sx={{ fontSize: 14, color: "text.muted" }}>{BUSINESS_INFO.address}</Typography>}
             {BUSINESS_INFO.cvrNumber && (
-              <p className="mt-1 font-mono text-xs text-muted-foreground">
+              <Typography sx={{ mt: 0.5, fontFamily: "var(--font-mono)", fontSize: 12, color: "text.muted" }}>
                 VAT {BUSINESS_INFO.cvrNumber}
-              </p>
+              </Typography>
             )}
           </div>
-          <div className="text-right">
-            <h2 className="font-display text-4xl font-medium leading-none text-primary">
+          <Box sx={{ textAlign: "right" }}>
+            <Typography variant="h2" sx={{ fontSize: 36, lineHeight: 1 }}>
               Invoice
-            </h2>
-            <p className="mt-2 font-mono text-xs uppercase tracking-[0.2em] text-accent">
+            </Typography>
+            <Typography sx={{ mt: 1, fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.2em", color: "primary.main" }}>
               #{invoiceNumber || "—"}
-            </p>
-          </div>
-        </div>
+            </Typography>
+          </Box>
+        </Box>
 
-        <div className="mt-8 h-px bg-border" />
+        <Divider sx={{ mt: 4 }} />
 
         {/* Billed to + dates */}
-        <div className="mt-8 flex flex-wrap items-start justify-between gap-6">
+        <Box sx={{ mt: 4, display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 3 }}>
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              Billed to
-            </p>
-            <p className="mt-1.5 text-base font-medium text-primary">{orgName}</p>
+            <Typography sx={metaLabel}>Billed to</Typography>
+            <Typography sx={{ mt: 0.75, fontSize: 16, fontWeight: 500 }}>{orgName}</Typography>
             {vatTreatment === "domestic" && orgCvrNumber && (
-              <p className="font-mono text-xs text-muted-foreground">CVR {orgCvrNumber}</p>
+              <Typography sx={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "text.muted" }}>CVR {orgCvrNumber}</Typography>
             )}
             {vatTreatment === "eu_reverse_charge" && buyerVatNumber && (
-              <p className="font-mono text-xs text-muted-foreground">VAT {buyerVatNumber}</p>
+              <Typography sx={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "text.muted" }}>VAT {buyerVatNumber}</Typography>
             )}
           </div>
-          <div className="flex gap-8 text-right">
+          <Box sx={{ display: "flex", gap: 4, textAlign: "right" }}>
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                Issued
-              </p>
-              <p className="mt-1.5 text-sm text-primary">{formatDate(issuedAt)}</p>
+              <Typography sx={metaLabel}>Issued</Typography>
+              <Typography sx={{ mt: 0.75, fontSize: 14 }}>{formatDate(issuedAt)}</Typography>
             </div>
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                Due
-              </p>
-              <p className="mt-1.5 text-sm text-primary">{formatDate(dueDate)}</p>
+              <Typography sx={metaLabel}>Due</Typography>
+              <Typography sx={{ mt: 0.75, fontSize: 14 }}>{formatDate(dueDate)}</Typography>
             </div>
-          </div>
-        </div>
+          </Box>
+        </Box>
 
         {/* Line items */}
-        <div className="mt-10">
-          <div className="grid grid-cols-[1fr_3.5rem_5.5rem_5.5rem] gap-3 border-b border-border pb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            <span>Description</span>
-            <span className="text-right">Qty</span>
-            <span className="text-right">Rate</span>
-            <span className="text-right">Amount</span>
-          </div>
-          {!lineItems.length ? (
-            <p className="py-6 text-sm text-muted-foreground">No line items yet.</p>
-          ) : (
-            lineItems.map((li, i) => (
-              <div
-                key={i}
-                className="grid grid-cols-[1fr_3.5rem_5.5rem_5.5rem] gap-3 border-b border-border py-3.5 text-sm"
-              >
-                <span className="text-primary">{li.description || "—"}</span>
-                <span className="text-right tabular-nums text-secondary">{li.quantity}</span>
-                <span className="text-right tabular-nums text-secondary">
-                  {formatMoney(li.unitPriceCents, currency)}
-                </span>
-                <span className="text-right tabular-nums font-medium text-primary">
-                  {formatMoney(li.quantity * li.unitPriceCents, currency)}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
+        <Table size="small" sx={{ mt: 5, "& td, & th": { px: 1, fontSize: 14 } }}>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={metaLabel}>Description</TableCell>
+              <TableCell sx={{ ...metaLabel, ...numCell, width: 56 }}>Qty</TableCell>
+              <TableCell sx={{ ...metaLabel, ...numCell, width: 110 }}>Rate</TableCell>
+              <TableCell sx={{ ...metaLabel, ...numCell, width: 110 }}>Amount</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {!lineItems.length ? (
+              <TableRow>
+                <TableCell colSpan={4} sx={{ py: 3, color: "text.muted" }}>
+                  No line items yet.
+                </TableCell>
+              </TableRow>
+            ) : (
+              lineItems.map((li, i) => (
+                <TableRow key={i}>
+                  <TableCell sx={{ py: 1.75 }}>{li.description || "—"}</TableCell>
+                  <TableCell sx={{ ...numCell, color: "text.secondary" }}>{li.quantity}</TableCell>
+                  <TableCell sx={{ ...numCell, color: "text.secondary" }}>{formatMoney(li.unitPriceCents, currency)}</TableCell>
+                  <TableCell sx={{ ...numCell, fontWeight: 500 }}>{formatMoney(li.quantity * li.unitPriceCents, currency)}</TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
 
         {/* Totals */}
-        <div className="mt-6 flex justify-end">
-          <div className="w-full max-w-[260px] flex-col gap-2 text-sm">
-            <div className="flex justify-between py-1 text-secondary">
-              <span>Subtotal</span>
-              <span className="tabular-nums">{formatMoney(subtotal, currency)}</span>
-            </div>
-            {vatTreatment === "domestic" && taxRatePct > 0 && (
-              <div className="flex justify-between py-1 text-secondary">
-                <span>VAT ({taxRatePct}%)</span>
-                <span className="tabular-nums">{formatMoney(taxCents, currency)}</span>
-              </div>
-            )}
-            {vatTreatment !== "domestic" && (
-              <div className="flex justify-between py-1 text-secondary">
-                <span>VAT</span>
-                <span className="tabular-nums">{formatMoney(0, currency)}</span>
-              </div>
-            )}
-            {discountCents > 0 && (
-              <div className="flex justify-between py-1 text-secondary">
-                <span>Discount</span>
-                <span className="tabular-nums">-{formatMoney(discountCents, currency)}</span>
-              </div>
-            )}
-            <div className="mt-1 flex items-baseline justify-between rounded-lg bg-muted px-3 py-2.5">
-              <span className="font-mono text-xs uppercase tracking-[0.15em] text-secondary">
+        <Box sx={{ mt: 3, display: "flex", justifyContent: "flex-end" }}>
+          <Box sx={{ width: "100%", maxWidth: 260, fontSize: 14 }}>
+            {totalRow("Subtotal", formatMoney(subtotal, currency))}
+            {vatTreatment === "domestic" && taxRatePct > 0 && totalRow(`VAT (${taxRatePct}%)`, formatMoney(taxCents, currency))}
+            {vatTreatment !== "domestic" && totalRow("VAT", formatMoney(0, currency))}
+            {discountCents > 0 && totalRow("Discount", `-${formatMoney(discountCents, currency)}`)}
+            <Box
+              sx={{
+                mt: 0.5,
+                display: "flex",
+                alignItems: "baseline",
+                justifyContent: "space-between",
+                borderRadius: 2,
+                bgcolor: "var(--color-muted)",
+                px: 1.5,
+                py: 1.25,
+              }}
+            >
+              <Typography sx={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.15em", textTransform: "uppercase", color: "text.secondary" }}>
                 Total
-              </span>
-              <span className="font-display text-xl font-medium tabular-nums text-primary">
+              </Typography>
+              <Typography sx={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 500, fontVariantNumeric: "tabular-nums" }}>
                 {formatMoney(total, currency)}
-              </span>
-            </div>
-          </div>
-        </div>
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
 
-        <div className="mt-10 border-t border-border pt-6">
-          <p className="font-display text-sm italic text-secondary">
+        <Box sx={{ mt: 5, borderTop: 1, borderColor: "divider", pt: 3 }}>
+          <Typography sx={{ fontFamily: "var(--font-display)", fontSize: 14, fontStyle: "italic", color: "text.secondary" }}>
             Thank you for the opportunity to work together.
-          </p>
-          {note && <p className="mt-2 font-mono text-[10px] text-muted-foreground">{note}</p>}
-        </div>
-      </div>
-    </div>
+          </Typography>
+          {note && <Typography sx={{ mt: 1, fontFamily: "var(--font-mono)", fontSize: 10, color: "text.muted" }}>{note}</Typography>}
+        </Box>
+      </Box>
+    </Paper>
   );
 }

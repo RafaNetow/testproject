@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { CheckCircle, CircleNotch } from "@phosphor-icons/react/dist/ssr";
+import Stack from "@mui/material/Stack";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -52,7 +53,7 @@ export function ContactForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
+        <Stack spacing={1}>
           <label htmlFor="name" className="text-sm font-medium text-secondary">
             Name
           </label>
@@ -64,8 +65,8 @@ export function ContactForm() {
             autoComplete="name"
             className="rounded-lg border border-border bg-background px-4 py-3 text-[15px] text-primary outline-none transition-colors focus:border-accent"
           />
-        </div>
-        <div className="flex flex-col gap-2">
+        </Stack>
+        <Stack spacing={1}>
           <label htmlFor="email" className="text-sm font-medium text-secondary">
             Work email
           </label>
@@ -77,10 +78,10 @@ export function ContactForm() {
             autoComplete="email"
             className="rounded-lg border border-border bg-background px-4 py-3 text-[15px] text-primary outline-none transition-colors focus:border-accent"
           />
-        </div>
+        </Stack>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <Stack spacing={1}>
         <label htmlFor="company" className="text-sm font-medium text-secondary">
           Company <span className="text-muted-foreground">(optional)</span>
         </label>
@@ -91,9 +92,9 @@ export function ContactForm() {
           autoComplete="organization"
           className="rounded-lg border border-border bg-background px-4 py-3 text-[15px] text-primary outline-none transition-colors focus:border-accent"
         />
-      </div>
+      </Stack>
 
-      <div className="flex flex-col gap-2">
+      <Stack spacing={1}>
         <label htmlFor="message" className="text-sm font-medium text-secondary">
           What are you working on?
         </label>
@@ -104,7 +105,7 @@ export function ContactForm() {
           rows={4}
           className="resize-none rounded-lg border border-border bg-background px-4 py-3 text-[15px] text-primary outline-none transition-colors focus:border-accent"
         />
-      </div>
+      </Stack>
 
       {status === "error" && (
         <p role="alert" className="text-sm text-destructive">

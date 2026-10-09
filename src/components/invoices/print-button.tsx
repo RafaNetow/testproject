@@ -1,16 +1,17 @@
 "use client";
 
-import { DownloadSimple } from "@phosphor-icons/react/dist/ssr";
+import Button from "@mui/material/Button";
+import Download from "@mui/icons-material/Download";
 
 export function PrintButton() {
   return (
-    <button
-      type="button"
+    <Button
+      variant="contained"
+      startIcon={<Download />}
       onClick={() => window.print()}
-      className="btn-primary print:hidden inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium"
+      sx={{ "@media print": { display: "none" } }}
     >
-      <DownloadSimple size={16} weight="bold" />
       Save as PDF
-    </button>
+    </Button>
   );
 }

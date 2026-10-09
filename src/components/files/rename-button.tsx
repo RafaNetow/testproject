@@ -1,43 +1,86 @@
 "use client";
 
-import { useRef } from "react";
-import { PencilSimple } from "@phosphor-icons/react/dist/ssr";
+import { useId, useRef, useState } from "react";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import IconButton from "@mui/material/IconButton";
+import TextField from "@mui/material/TextField";
+import EditOutlined from "@mui/icons-material/EditOutlined";
 
 /**
- * A hidden-input + prompt() pair that submits its parent <form> with the new
- * name — mirrors the existing window.confirm() pattern used by ConfirmButton,
- * rather than introducing a whole new inline-edit UI just for this.
+ * Opens a small dialog to rename something, then submits the surrounding
+ * server-action <form> with the new name in a hidden field.
  */
 export function RenameButton({
   fieldName,
   currentValue,
   promptText,
   ariaLabel,
-  className,
 }: {
   fieldName: string;
   currentValue: string;
   promptText: string;
   ariaLabel: string;
-  className?: string;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const hiddenRef = useRef<HTMLInputElement>(null);
+  const titleId = useId();
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(currentValue);
 
-  function onClick() {
-    const next = window.prompt(promptText, currentValue);
-    if (!next || !next.trim() || next.trim() === currentValue) return;
-    if (inputRef.current) {
-      inputRef.current.value = next.trim();
-      inputRef.current.form?.requestSubmit();
-    }
+  function save() {
+    const next = value.trim();
+    setOpen(false);
+    if (!next || next === currentValue || !hiddenRef.current) return;
+    hiddenRef.current.value = next;
+    hiddenRef.current.form?.requestSubmit();
   }
 
   return (
     <>
-      <input ref={inputRef} type="hidden" name={fieldName} />
-      <button type="button" onClick={onClick} aria-label={ariaLabel} className={className}>
-        <PencilSimple size={14} />
-      </button>
+      <input ref={hiddenRef} type="hidden" name={fieldName} />
+      <IconButton
+        size="small"
+        aria-label={ariaLabel}
+        onClick={() => {
+          setValue(currentValue);
+          setOpen(true);
+        }}
+        sx={{ color: "text.muted", "&:hover": { color: "primary.main" } }}
+      >
+        <EditOutlined sx={{ fontSize: 16 }} />
+      </IconButton>
+
+      <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby={titleId} maxWidth="xs" fullWidth>
+        <DialogTitle id={titleId} sx={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          {promptText}
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            label="Name"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                save();
+              }
+            }}
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={() => setOpen(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={save} variant="contained">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

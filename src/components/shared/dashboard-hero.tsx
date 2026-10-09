@@ -1,46 +1,61 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import { MolecularAccent } from "@/components/molecular-accent";
 
+const noSubscription = () => () => {};
+
+function greetingNow() {
+  const hour = new Date().getHours();
+  return hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+}
+
+function dateLabelNow() {
+  return new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+}
+
 /**
- * Greeting/date are computed client-side, after mount, using the visitor's
- * own local clock — computing them from the server's clock would show the
- * wrong time-of-day greeting depending on the gap between server and
- * visitor timezones, and SSR-ing a guess would risk a hydration mismatch
- * the moment the two disagree (the same class of bug fixed earlier for
- * date/currency formatting).
+ * Greeting and date come from the visitor's own clock. The server renders a
+ * neutral placeholder (it doesn't know the visitor's time of day), and the
+ * client snapshot replaces it after hydration without a mismatch.
  */
 export function DashboardHero({ name, subtitle }: { name?: string; subtitle: string }) {
-  const [greeting, setGreeting] = useState("Welcome back");
-  const [dateLabel, setDateLabel] = useState("");
-
-  useEffect(() => {
-    const hour = new Date().getHours();
-    setGreeting(hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening");
-    setDateLabel(
-      new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })
-    );
-  }, []);
+  const greeting = useSyncExternalStore(noSubscription, greetingNow, () => "Welcome back");
+  const dateLabel = useSyncExternalStore(noSubscription, dateLabelNow, () => "");
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-[#0a0e16] px-6 py-8 sm:px-10 sm:py-10">
-      <MolecularAccent
-        tone="bright"
-        particleCount={40}
-        desktopOnly={false}
-        className="absolute inset-0 h-full w-full opacity-60"
-      />
-      <div className="relative z-10">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-white/40">
-          {dateLabel || " "}
-        </p>
-        <h1 className="mt-2 font-display text-2xl font-medium text-white sm:text-3xl">
+    <Box
+      sx={{
+        position: "relative",
+        overflow: "hidden",
+        borderRadius: 4,
+        bgcolor: "#0a0e16",
+        px: { xs: 3, sm: 5 },
+        py: { xs: 4, sm: 5 },
+      }}
+    >
+      <MolecularAccent tone="bright" particleCount={40} desktopOnly={false} opacity={0.6} />
+      <Box sx={{ position: "relative", zIndex: 1 }}>
+        <Typography
+          sx={{
+            fontFamily: "var(--font-mono)",
+            fontSize: 12,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.4)",
+            minHeight: "1.5em",
+          }}
+        >
+          {dateLabel}
+        </Typography>
+        <Typography variant="h1" sx={{ mt: 1, fontSize: { xs: 24, sm: 30 }, color: "#fff" }}>
           {greeting}
           {name ? `, ${name}` : ""}.
-        </h1>
-        <p className="mt-2 text-sm text-white/60">{subtitle}</p>
-      </div>
-    </div>
+        </Typography>
+        <Typography sx={{ mt: 1, fontSize: 14, color: "rgba(255,255,255,0.6)" }}>{subtitle}</Typography>
+      </Box>
+    </Box>
   );
 }

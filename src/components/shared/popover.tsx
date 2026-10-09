@@ -1,51 +1,39 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
+import Box from "@mui/material/Box";
+import MuiPopover from "@mui/material/Popover";
 
-/** A floating panel that closes on an outside click or Escape — unlike a
- * native <details>, which only toggles closed by re-clicking its summary. */
+/** A floating panel anchored to its trigger; closes on an outside click or Escape. */
 export function Popover({
   trigger,
   children,
   align = "left",
-  className,
 }: {
   trigger: (props: { open: boolean; toggle: () => void }) => ReactNode;
   children: (close: () => void) => ReactNode;
   align?: "left" | "right";
-  className?: string;
 }) {
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-
-    function onPointerDown(e: PointerEvent) {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open]);
+  const anchorRef = useRef<HTMLSpanElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const open = Boolean(anchorEl);
+  const close = () => setAnchorEl(null);
 
   return (
-    <div ref={rootRef} className={`relative ${className ?? ""}`}>
-      {trigger({ open, toggle: () => setOpen((o) => !o) })}
-      {open && (
-        <div className={`absolute z-20 mt-2 ${align === "right" ? "right-0" : "left-0"}`}>
-          {children(() => setOpen(false))}
-        </div>
-      )}
-    </div>
+    <>
+      <Box component="span" ref={anchorRef} sx={{ display: "inline-flex" }}>
+        {trigger({ open, toggle: () => setAnchorEl((a) => (a ? null : anchorRef.current)) })}
+      </Box>
+      <MuiPopover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={close}
+        anchorOrigin={{ vertical: "bottom", horizontal: align }}
+        transformOrigin={{ vertical: "top", horizontal: align }}
+        slotProps={{ paper: { variant: "outlined", sx: { mt: 1, borderRadius: 3, boxShadow: 6 } } }}
+      >
+        {children(close)}
+      </MuiPopover>
+    </>
   );
 }

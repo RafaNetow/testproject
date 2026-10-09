@@ -1,3 +1,5 @@
+import Box from "@mui/material/Box";
+
 /**
  * Development-only marker showing which Supabase the dev server is talking
  * to, so a local session is never mistaken for production (or vice versa).
@@ -12,13 +14,25 @@ export function DevEnvironmentBadge() {
   const isLocal = /^https?:\/\/(127\.0\.0\.1|localhost)(:|\/|$)/.test(url);
 
   return (
-    <div
+    <Box
       role="status"
-      className={`pointer-events-none fixed bottom-3 right-3 z-[100] rounded-full px-3 py-1 text-xs font-semibold shadow-md ${
-        isLocal ? "bg-emerald-600 text-white" : "bg-red-600 text-white"
-      }`}
+      sx={{
+        pointerEvents: "none",
+        position: "fixed",
+        bottom: 12,
+        right: 12,
+        zIndex: 2000,
+        borderRadius: 999,
+        px: 1.5,
+        py: 0.5,
+        fontSize: 12,
+        fontWeight: 600,
+        color: "#fff",
+        bgcolor: isLocal ? "#059669" : "#dc2626",
+        boxShadow: 3,
+      }}
     >
       {isLocal ? "Local DB" : "Production DB"}
-    </div>
+    </Box>
   );
 }

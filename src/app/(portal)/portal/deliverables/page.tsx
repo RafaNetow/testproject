@@ -8,6 +8,8 @@ import {
 } from "@/components/deliverables/deliverables-view";
 import { loadDeliverables } from "@/lib/deliverables-data";
 import { todayInCopenhagen } from "@/lib/deliverables";
+import Stack from "@mui/material/Stack";
+import { EmptyState } from "@/components/shared/empty-state";
 
 export default async function PortalDeliverablesPage({
   searchParams,
@@ -19,15 +21,12 @@ export default async function PortalDeliverablesPage({
 
   if (!project) {
     return (
-      <div className="flex flex-col gap-8">
+      <Stack spacing={4}>
         <SectionHeader eyebrow="Deliverables" title="Deliverables" />
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
-          <p className="font-display text-lg font-medium text-primary">No project yet</p>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Once your engagement is set up, your deliverables will appear here.
-          </p>
-        </div>
-      </div>
+        <EmptyState title="No project yet">
+          Once your engagement is set up, your deliverables will appear here.
+        </EmptyState>
+      </Stack>
     );
   }
 
@@ -35,7 +34,7 @@ export default async function PortalDeliverablesPage({
   const deliverables: DeliverableRow[] = await loadDeliverables(supabase, project.id);
 
   return (
-    <div className="flex flex-col gap-8">
+    <Stack spacing={4}>
       <SectionHeader
         eyebrow="Deliverables"
         title={project.name}
@@ -53,6 +52,6 @@ export default async function PortalDeliverablesPage({
         canReview={role === "owner"}
         today={todayInCopenhagen()}
       />
-    </div>
+    </Stack>
   );
 }

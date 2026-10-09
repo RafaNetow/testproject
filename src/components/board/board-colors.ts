@@ -1,14 +1,16 @@
 /** Fixed, hash-assigned palette for labels and assignee avatars — consistent
- * per tag/person without needing a manual color-picker UI. */
+ * per tag/person without needing a manual color-picker UI. `light-dark()`
+ * picks the right shade from the page's color-scheme, which the portal sets
+ * to dark under `prefers-color-scheme: dark`. */
 const PALETTE = [
-  { bg: "bg-sky-100 dark:bg-sky-500/15", text: "text-sky-700 dark:text-sky-400" },
-  { bg: "bg-emerald-100 dark:bg-emerald-500/15", text: "text-emerald-700 dark:text-emerald-400" },
-  { bg: "bg-amber-100 dark:bg-amber-500/15", text: "text-amber-700 dark:text-amber-400" },
-  { bg: "bg-violet-100 dark:bg-violet-500/15", text: "text-violet-700 dark:text-violet-400" },
-  { bg: "bg-rose-100 dark:bg-rose-500/15", text: "text-rose-700 dark:text-rose-400" },
-  { bg: "bg-cyan-100 dark:bg-cyan-500/15", text: "text-cyan-700 dark:text-cyan-400" },
-  { bg: "bg-orange-100 dark:bg-orange-500/15", text: "text-orange-700 dark:text-orange-400" },
-  { bg: "bg-teal-100 dark:bg-teal-500/15", text: "text-teal-700 dark:text-teal-400" },
+  { bg: "light-dark(#e0f2fe, rgb(14 165 233 / 0.15))", text: "light-dark(#0369a1, #38bdf8)" },
+  { bg: "light-dark(#d1fae5, rgb(16 185 129 / 0.15))", text: "light-dark(#047857, #34d399)" },
+  { bg: "light-dark(#fef3c7, rgb(245 158 11 / 0.15))", text: "light-dark(#b45309, #fbbf24)" },
+  { bg: "light-dark(#ede9fe, rgb(139 92 246 / 0.15))", text: "light-dark(#6d28d9, #a78bfa)" },
+  { bg: "light-dark(#ffe4e6, rgb(244 63 94 / 0.15))", text: "light-dark(#be123c, #fb7185)" },
+  { bg: "light-dark(#cffafe, rgb(6 182 212 / 0.15))", text: "light-dark(#0e7490, #22d3ee)" },
+  { bg: "light-dark(#ffedd5, rgb(249 115 22 / 0.15))", text: "light-dark(#c2410c, #fb923c)" },
+  { bg: "light-dark(#ccfbf1, rgb(20 184 166 / 0.15))", text: "light-dark(#0f766e, #2dd4bf)" },
 ];
 
 function hash(text: string) {

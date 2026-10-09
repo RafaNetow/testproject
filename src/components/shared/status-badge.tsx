@@ -1,29 +1,34 @@
+"use client";
+
+import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
+
 const DOT_COLORS: Record<string, string> = {
-  onboarding: "bg-sky-400",
-  active: "bg-emerald-400",
-  at_risk: "bg-amber-400",
-  offboarded: "bg-slate-400",
-  paused: "bg-amber-400",
-  completed: "bg-slate-400",
-  sent: "bg-sky-400",
-  draft: "bg-slate-400",
-  in_progress: "bg-sky-400",
-  in_review: "bg-amber-400",
-  changes_requested: "bg-orange-400",
-  approved: "bg-emerald-400",
-  overdue: "bg-red-400",
-  paid: "bg-emerald-400",
-  signed: "bg-emerald-400",
-  partially_signed: "bg-amber-400",
-  upcoming: "bg-sky-400",
-  past: "bg-slate-400",
-  cancelled: "bg-red-400",
+  onboarding: "#38bdf8",
+  active: "#34d399",
+  at_risk: "#fbbf24",
+  offboarded: "#94a3b8",
+  paused: "#fbbf24",
+  completed: "#94a3b8",
+  sent: "#38bdf8",
+  draft: "#94a3b8",
+  in_progress: "#38bdf8",
+  in_review: "#fbbf24",
+  changes_requested: "#fb923c",
+  approved: "#34d399",
+  overdue: "#f87171",
+  paid: "#34d399",
+  signed: "#34d399",
+  partially_signed: "#fbbf24",
+  upcoming: "#38bdf8",
+  past: "#94a3b8",
+  cancelled: "#f87171",
 };
 
 /**
  * A dot + label pill — the pattern used by Linear/Vercel/Stripe-style
  * dashboards — instead of a flat tinted-background pill, which reads as
- * dated/"Bootstrap-y" and relies on color alone to carry meaning.
+ * dated and relies on colour alone to carry meaning.
  */
 export function StatusBadge({
   status,
@@ -34,17 +39,26 @@ export function StatusBadge({
   label?: string;
   tone?: "light" | "dark";
 }) {
-  const dot = DOT_COLORS[status] ?? "bg-slate-400";
+  const dot = DOT_COLORS[status] ?? "#94a3b8";
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-wider ${
-        tone === "dark"
-          ? "border-white/15 bg-white/5 text-white/80"
-          : "border-border bg-card text-secondary"
-      }`}
-    >
-      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dot}`} />
-      {(label ?? status).replace("_", " ")}
-    </span>
+    <Chip
+      size="small"
+      variant="outlined"
+      icon={<Box component="span" sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: dot, flexShrink: 0 }} />}
+      label={(label ?? status).replaceAll("_", " ")}
+      sx={{
+        height: 22,
+        fontFamily: "var(--font-mono)",
+        fontSize: 10,
+        fontWeight: 500,
+        letterSpacing: "0.06em",
+        textTransform: "uppercase",
+        ...(tone === "dark"
+          ? { borderColor: "rgba(255,255,255,0.15)", bgcolor: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.8)" }
+          : { borderColor: "divider", bgcolor: "background.paper", color: "text.secondary" }),
+        "& .MuiChip-icon": { ml: 1, mr: -0.25 },
+        "& .MuiChip-label": { px: 1 },
+      }}
+    />
   );
 }

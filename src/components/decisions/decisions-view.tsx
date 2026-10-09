@@ -1,4 +1,11 @@
-import { Trash } from "@phosphor-icons/react/dist/ssr";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
 import { logDecision, deleteDecision } from "@/lib/actions/decisions";
 
@@ -26,113 +33,92 @@ export function DecisionsView({
   const logForThisProject = logDecision.bind(null, projectId, revalidatePaths);
 
   return (
-    <div className="flex flex-col gap-6">
+    <Stack spacing={3}>
       {canLog && (
-        <form
-          action={logForThisProject}
-          className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5"
-        >
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="decision-title" className="text-sm font-medium text-secondary">
-              Decision
-            </label>
-            <input
-              id="decision-title"
-              name="title"
-              required
-              placeholder="e.g. Crosslinker swap approved"
-              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="decision-body" className="text-sm font-medium text-secondary">
-              Details (optional)
-            </label>
-            <textarea
-              id="decision-body"
+        <Paper component="form" action={logForThisProject} variant="outlined" sx={{ p: 2.5 }}>
+          <Stack spacing={2}>
+            <TextField name="title" label="Decision" required placeholder="e.g. Crosslinker swap approved" />
+            <TextField
               name="body"
-              rows={2}
+              label="Details (optional)"
+              multiline
+              minRows={2}
               placeholder="Any context worth keeping with the record"
-              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
             />
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <div className="flex min-w-[160px] flex-1 flex-col gap-1.5">
-              <label htmlFor="decision-date" className="text-sm font-medium text-secondary">
-                Date
-              </label>
-              <input
-                id="decision-date"
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+              <TextField
                 name="decided_at"
+                label="Date"
                 type="date"
                 defaultValue={new Date().toISOString().slice(0, 10)}
-                className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+                slotProps={{ inputLabel: { shrink: true } }}
+                sx={{ flex: 1, minWidth: 160 }}
               />
-            </div>
-            <div className="flex min-w-[220px] flex-1 flex-col gap-1.5">
-              <label htmlFor="decision-participants" className="text-sm font-medium text-secondary">
-                Participants (optional)
-              </label>
-              <input
-                id="decision-participants"
+              <TextField
                 name="participants"
+                label="Participants (optional)"
                 placeholder="Comma-separated names"
-                className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
+                sx={{ flex: 2, minWidth: 220 }}
               />
-            </div>
-          </div>
-          <button
-            type="submit"
-            className="btn-primary self-start rounded-full px-5 py-2.5 text-sm font-medium"
-          >
-            Log decision
-          </button>
-        </form>
+            </Box>
+            <Box>
+              <Button type="submit" variant="contained">
+                Log decision
+              </Button>
+            </Box>
+          </Stack>
+        </Paper>
       )}
 
       {!decisions.length ? (
-        <p className="text-sm text-muted-foreground">No decisions logged yet.</p>
+        <Typography sx={{ fontSize: 14, color: "text.muted" }}>No decisions logged yet.</Typography>
       ) : (
-        <div className="divide-y divide-border border-t border-border">
+        <Box sx={{ borderTop: 1, borderColor: "divider" }}>
           {decisions.map((d) => {
             const deleteThis = deleteDecision.bind(null, d.id, revalidatePaths);
             return (
-              <div key={d.id} className="flex items-start justify-between gap-4 py-5">
+              <Box
+                key={d.id}
+                sx={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  justifyContent: "space-between",
+                  gap: 2,
+                  py: 2.5,
+                  borderBottom: 1,
+                  borderColor: "divider",
+                }}
+              >
                 <div>
-                  <p className="font-display text-base font-medium text-primary">{d.title}</p>
+                  <Typography variant="h3" sx={{ fontSize: 16 }}>
+                    {d.title}
+                  </Typography>
                   {d.body && (
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{d.body}</p>
+                    <Typography sx={{ mt: 0.5, fontSize: 14, lineHeight: 1.6, color: "text.muted" }}>{d.body}</Typography>
                   )}
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                    <span className="font-mono">
+                  <Box sx={{ mt: 1, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1 }}>
+                    <Typography component="span" sx={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "text.muted" }}>
                       {new Date(d.decided_at).toLocaleDateString("en-GB")}
-                    </span>
+                    </Typography>
                     {d.decision_participants?.map((p) => (
-                      <span
-                        key={p.participant_name}
-                        className="rounded-full bg-muted px-2 py-0.5"
-                      >
-                        {p.participant_name}
-                      </span>
+                      <Chip key={p.participant_name} label={p.participant_name} size="small" sx={{ height: 22, fontSize: 12 }} />
                     ))}
-                  </div>
+                  </Box>
                 </div>
                 {canDelete && (
                   <form action={deleteThis}>
                     <ConfirmButton
                       confirmText={`Delete the decision "${d.title}"? This can't be undone.`}
                       ariaLabel={`Delete decision "${d.title}"`}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    >
-                      <Trash size={15} />
-                    </ConfirmButton>
+                      icon={<DeleteOutlined sx={{ fontSize: 18 }} />}
+                    />
                   </form>
                 )}
-              </div>
+              </Box>
             );
           })}
-        </div>
+        </Box>
       )}
-    </div>
+    </Stack>
   );
 }

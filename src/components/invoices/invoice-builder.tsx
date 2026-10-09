@@ -1,7 +1,19 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Clock, Plus, Trash } from "@phosphor-icons/react/dist/ssr";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import AccessTimeOutlined from "@mui/icons-material/AccessTimeOutlined";
+import Add from "@mui/icons-material/Add";
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import { SelectField } from "@/components/shared/select-field";
 import {
   createInvoiceWithLineItems,
@@ -9,9 +21,6 @@ import {
   type VatTreatment,
 } from "@/lib/actions/invoices";
 import { InvoicePreview } from "./invoice-preview";
-
-const inputClass =
-  "rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent";
 
 const VAT_OPTIONS: { value: VatTreatment; label: string }[] = [
   { value: "domestic", label: "Danish domestic (25% moms)" },
@@ -150,237 +159,185 @@ export function InvoiceBuilder({
   const availableHours = unbilledHours.filter((h) => !importedHourIds.includes(h.id));
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5">
-        <p className="font-mono text-xs uppercase tracking-widest text-accent">New invoice</p>
-        {duplicateFrom && (
-          <p className="-mt-2 text-xs text-muted-foreground">
-            Pre-filled from that invoice — give it a new number and due date before sending.
-          </p>
-        )}
-
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-secondary">Invoice #</label>
-            <input
-              value={invoiceNumber}
-              onChange={(e) => setInvoiceNumber(e.target.value)}
-              placeholder="INV-0001"
-              className={inputClass}
-            />
+    <Box sx={{ display: "grid", gap: 3, gridTemplateColumns: { xs: "1fr", lg: "repeat(2, 1fr)" } }}>
+      <Paper variant="outlined" sx={{ p: 2.5 }}>
+        <Stack spacing={2}>
+          <div>
+            <Typography variant="h2" sx={{ fontSize: 18 }}>
+              New invoice
+            </Typography>
+            {duplicateFrom && (
+              <Typography sx={{ mt: 0.5, fontSize: 12, color: "text.muted" }}>
+                Pre-filled from that invoice — give it a new number and due date before sending.
+              </Typography>
+            )}
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-secondary">Currency</label>
-            <SelectField value={currency} onChange={(e) => setCurrency(e.target.value)}>
+
+          <Box sx={{ display: "grid", gap: 1.5, gridTemplateColumns: "repeat(2, 1fr)" }}>
+            <TextField label="Invoice #" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} placeholder="INV-0001" />
+            <SelectField label="Currency" value={currency} onChange={(e) => setCurrency(e.target.value)}>
               <option value="DKK">DKK</option>
               <option value="EUR">EUR</option>
               <option value="USD">USD</option>
             </SelectField>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-secondary">Issued</label>
-            <input
+            <TextField
+              label="Issued"
               type="date"
               value={issuedAt}
               onChange={(e) => setIssuedAt(e.target.value)}
-              className={inputClass}
+              slotProps={{ inputLabel: { shrink: true } }}
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-secondary">Due date</label>
-            <input
+            <TextField
+              label="Due date"
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className={inputClass}
+              slotProps={{ inputLabel: { shrink: true } }}
             />
-          </div>
-        </div>
+          </Box>
 
-        {availableHours.length > 0 && (
-          <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
-            <p className="flex items-center gap-1.5 text-sm font-medium text-secondary">
-              <Clock size={14} />
-              Import billable hours
-            </p>
-            <div className="flex max-h-40 flex-col gap-1 overflow-y-auto">
-              {availableHours.map((h) => (
-                <label key={h.id} className="flex items-center gap-2 text-sm text-primary">
-                  <input
-                    type="checkbox"
-                    checked={selectedHourIds.has(h.id)}
-                    onChange={() => toggleHourSelection(h.id)}
-                    className="h-4 w-4 rounded border-border accent-accent"
+          {availableHours.length > 0 && (
+            <Paper variant="outlined" sx={{ p: 1.5, bgcolor: "background.default" }}>
+              <Typography sx={{ display: "flex", alignItems: "center", gap: 0.75, fontSize: 14, fontWeight: 500, color: "text.secondary" }}>
+                <AccessTimeOutlined sx={{ fontSize: 16 }} />
+                Import billable hours
+              </Typography>
+              <Box sx={{ mt: 0.5, display: "flex", maxHeight: 160, flexDirection: "column", overflowY: "auto" }}>
+                {availableHours.map((h) => (
+                  <FormControlLabel
+                    key={h.id}
+                    control={<Checkbox size="small" checked={selectedHourIds.has(h.id)} onChange={() => toggleHourSelection(h.id)} />}
+                    label={
+                      <Box component="span" sx={{ display: "flex", alignItems: "center", gap: 1, fontSize: 14, minWidth: 0 }}>
+                        <Box component="span" sx={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "text.muted" }}>
+                          {new Date(h.entry_date).toLocaleDateString("en-GB")}
+                        </Box>
+                        <span>{h.hours}h</span>
+                        <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "text.muted" }}>
+                          {h.category}
+                          {h.description ? ` — ${h.description}` : ""}
+                        </Box>
+                      </Box>
+                    }
+                    sx={{ mr: 0 }}
                   />
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {new Date(h.entry_date).toLocaleDateString("en-GB")}
-                  </span>
-                  <span>{h.hours}h</span>
-                  <span className="truncate text-muted-foreground">
-                    {h.category}
-                    {h.description ? ` — ${h.description}` : ""}
-                  </span>
-                </label>
-              ))}
-            </div>
-            <div className="flex flex-wrap items-end gap-2">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-secondary">Rate / hour</label>
-                <input
+                ))}
+              </Box>
+              <Box sx={{ mt: 1, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1 }}>
+                <TextField
+                  label="Rate / hour"
                   type="number"
-                  min={0}
-                  step="0.01"
                   value={hourlyRate}
                   onChange={(e) => setHourlyRate(Number(e.target.value) || 0)}
-                  className={`${inputClass} w-28`}
+                  slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
+                  fullWidth={false}
+                  sx={{ width: 130 }}
                 />
-              </div>
-              <button
-                type="button"
-                disabled={!selectedHourIds.size}
-                onClick={importSelectedHours}
-                className="rounded-full border border-border px-3.5 py-2 text-xs font-medium text-secondary transition-colors hover:bg-muted disabled:opacity-40"
-              >
-                Add {selectedHourIds.size || ""} to invoice
-              </button>
-            </div>
-          </div>
-        )}
+                <Button variant="outlined" color="secondary" size="small" disabled={!selectedHourIds.size} onClick={importSelectedHours}>
+                  Add {selectedHourIds.size || ""} to invoice
+                </Button>
+              </Box>
+            </Paper>
+          )}
 
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-secondary">Line items</label>
-          {lineItems.map((item, i) => (
-            <div key={i} className="flex items-start gap-2">
-              <input
-                value={item.description}
-                onChange={(e) => updateItem(i, { description: e.target.value })}
-                placeholder="Description"
-                className={`${inputClass} min-w-0 flex-1`}
-              />
-              <input
-                type="number"
-                min={0}
-                value={item.quantity}
-                onChange={(e) => updateItem(i, { quantity: Number(e.target.value) || 0 })}
-                className={`${inputClass} w-16 text-right`}
-                title="Quantity"
-              />
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                value={item.unitPriceCents / 100}
-                onChange={(e) =>
-                  updateItem(i, { unitPriceCents: Math.round(Number(e.target.value) * 100) || 0 })
-                }
-                className={`${inputClass} w-24 text-right`}
-                title="Unit price"
-              />
-              <button
-                type="button"
-                onClick={() => removeItem(i)}
-                disabled={lineItems.length === 1}
-                aria-label={`Remove line item ${i + 1}`}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-30"
-              >
-                <Trash size={14} />
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={addItem}
-            className="mt-1 inline-flex w-fit items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-muted"
-          >
-            <Plus size={13} weight="bold" />
-            Add line
-          </button>
-        </div>
+          <Stack spacing={1}>
+            <Typography sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}>Line items</Typography>
+            {lineItems.map((item, i) => (
+              <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <TextField
+                  value={item.description}
+                  onChange={(e) => updateItem(i, { description: e.target.value })}
+                  placeholder="Description"
+                  slotProps={{ htmlInput: { "aria-label": `Line ${i + 1} description` } }}
+                  sx={{ flex: 1, minWidth: 0 }}
+                />
+                <TextField
+                  type="number"
+                  value={item.quantity}
+                  onChange={(e) => updateItem(i, { quantity: Number(e.target.value) || 0 })}
+                  title="Quantity"
+                  slotProps={{ htmlInput: { min: 0, "aria-label": `Line ${i + 1} quantity`, style: { textAlign: "right" } } }}
+                  fullWidth={false}
+                  sx={{ width: 76 }}
+                />
+                <TextField
+                  type="number"
+                  value={item.unitPriceCents / 100}
+                  onChange={(e) => updateItem(i, { unitPriceCents: Math.round(Number(e.target.value) * 100) || 0 })}
+                  title="Unit price"
+                  slotProps={{ htmlInput: { min: 0, step: 0.01, "aria-label": `Line ${i + 1} unit price`, style: { textAlign: "right" } } }}
+                  fullWidth={false}
+                  sx={{ width: 110 }}
+                />
+                <IconButton
+                  size="small"
+                  onClick={() => removeItem(i)}
+                  disabled={lineItems.length === 1}
+                  aria-label={`Remove line item ${i + 1}`}
+                  sx={{ color: "text.muted", "&:hover": { color: "error.main" } }}
+                >
+                  <DeleteOutlined sx={{ fontSize: 18 }} />
+                </IconButton>
+              </Box>
+            ))}
+            <Box>
+              <Button variant="outlined" color="secondary" size="small" startIcon={<Add />} onClick={addItem}>
+                Add line
+              </Button>
+            </Box>
+          </Stack>
 
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-secondary">VAT treatment</label>
-          <SelectField
-            value={vatTreatment}
-            onChange={(e) => changeVatTreatment(e.target.value as VatTreatment)}
-          >
+          <SelectField label="VAT treatment" value={vatTreatment} onChange={(e) => changeVatTreatment(e.target.value as VatTreatment)}>
             {VAT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
             ))}
           </SelectField>
-        </div>
 
-        {vatTreatment === "eu_reverse_charge" && (
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-secondary">
-              Buyer&apos;s VAT number (required for reverse charge)
-            </label>
-            <input
+          {vatTreatment === "eu_reverse_charge" && (
+            <TextField
+              label="Buyer's VAT number (required for reverse charge)"
               value={buyerVatNumber}
               onChange={(e) => setBuyerVatNumber(e.target.value)}
               placeholder="e.g. DE123456789"
-              className={inputClass}
             />
-          </div>
-        )}
+          )}
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-secondary">VAT %</label>
-            <input
+          <Box sx={{ display: "grid", gap: 1.5, gridTemplateColumns: "repeat(2, 1fr)" }}>
+            <TextField
+              label="VAT %"
               type="number"
-              min={0}
-              step="0.1"
               value={taxRatePct}
               disabled={vatTreatment !== "domestic"}
               onChange={(e) => setTaxRatePct(Number(e.target.value) || 0)}
-              className={`${inputClass} disabled:opacity-50`}
+              slotProps={{ htmlInput: { min: 0, step: 0.1 } }}
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-secondary">Discount</label>
-            <input
+            <TextField
+              label="Discount"
               type="number"
-              min={0}
-              step="0.01"
               value={discountCents / 100}
               onChange={(e) => setDiscountCents(Math.round(Number(e.target.value) * 100) || 0)}
-              className={inputClass}
+              slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
             />
-          </div>
-        </div>
+          </Box>
 
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() => submit("draft")}
-            className="rounded-full border border-primary px-5 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground disabled:opacity-60"
-          >
-            Save as draft
-          </button>
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() => submit("sent")}
-            className="btn-primary rounded-full px-5 py-2.5 text-sm font-medium disabled:opacity-60"
-          >
-            {isPending ? "Saving…" : "Send invoice"}
-          </button>
-        </div>
+          <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5 }}>
+            <Button variant="outlined" color="navy" disabled={isPending} onClick={() => submit("draft")}>
+              Save as draft
+            </Button>
+            <Button variant="contained" disabled={isPending} onClick={() => submit("sent")}>
+              {isPending ? "Saving…" : "Send invoice"}
+            </Button>
+          </Box>
 
-        {message && (
-          <p
-            role="status"
-            className={`text-sm leading-relaxed ${
-              message.success ? "text-emerald-700 dark:text-emerald-400" : "text-destructive"
-            }`}
-          >
-            {message.text}
-          </p>
-        )}
-      </div>
+          {message && (
+            <Alert role="status" variant="outlined" severity={message.success ? "success" : "error"}>
+              {message.text}
+            </Alert>
+          )}
+        </Stack>
+      </Paper>
 
       <InvoicePreview
         orgName={orgName}
@@ -395,6 +352,6 @@ export function InvoiceBuilder({
         buyerVatNumber={buyerVatNumber}
         discountCents={discountCents}
       />
-    </div>
+    </Box>
   );
 }

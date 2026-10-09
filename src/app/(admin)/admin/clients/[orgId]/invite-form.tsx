@@ -1,7 +1,11 @@
 "use client";
 
 import { useActionState } from "react";
-import { PaperPlaneTilt } from "@phosphor-icons/react/dist/ssr";
+import Alert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Send from "@mui/icons-material/Send";
 import { SelectField } from "@/components/shared/select-field";
 import { inviteMember, type InviteResult } from "./actions";
 
@@ -12,52 +16,25 @@ export function InviteForm({ orgId }: { orgId: string }) {
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-3">
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="email" className="text-sm font-medium text-secondary">
-          Email
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          placeholder="client@company.com"
-          className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="role" className="text-sm font-medium text-secondary">
-          Role
-        </label>
-        <SelectField id="role" name="role" defaultValue="owner">
-          <option value="owner">Owner</option>
-          <option value="collaborator">Collaborator</option>
-        </SelectField>
-      </div>
-      <button
-        type="submit"
-        disabled={isPending}
-        className="btn-primary inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium disabled:opacity-60"
-      >
-        <PaperPlaneTilt size={16} weight="bold" />
+    <Stack component="form" action={formAction} spacing={2}>
+      <TextField name="email" type="email" label="Email" required placeholder="client@company.com" />
+      <SelectField name="role" label="Role" defaultValue="owner">
+        <option value="owner">Owner</option>
+        <option value="collaborator">Collaborator</option>
+      </SelectField>
+      <Button type="submit" variant="contained" startIcon={<Send />} disabled={isPending}>
         {isPending ? "Sending…" : "Send invite"}
-      </button>
+      </Button>
 
       {state && (
-        <p
+        <Alert
           role="status"
-          className={`text-sm leading-relaxed ${
-            !state.success
-              ? "text-destructive"
-              : state.emailSent
-                ? "text-emerald-700 dark:text-emerald-400"
-                : "text-amber-700 dark:text-amber-400"
-          }`}
+          variant="outlined"
+          severity={!state.success ? "error" : state.emailSent ? "success" : "warning"}
         >
           {state.message}
-        </p>
+        </Alert>
       )}
-    </form>
+    </Stack>
   );
 }

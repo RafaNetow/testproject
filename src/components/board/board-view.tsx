@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -22,10 +22,21 @@ import {
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Plus, ChatCircleDots, Paperclip } from "@phosphor-icons/react/dist/ssr";
+import Avatar from "@mui/material/Avatar";
+import AvatarGroup from "@mui/material/AvatarGroup";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import Add from "@mui/icons-material/Add";
+import AttachFile from "@mui/icons-material/AttachFile";
+import ChatBubbleOutlined from "@mui/icons-material/ChatBubbleOutlined";
 import { createCard, reorderCards } from "@/lib/actions/board";
 import { CardDetailModal, type ModalCard } from "./card-detail-modal";
 import { colorFor, initials } from "./board-colors";
+import { EmptyState } from "@/components/shared/empty-state";
 
 type Column = { id: string; name: string; position: number };
 type Card = {
@@ -73,10 +84,10 @@ function dueDateTone(dueDate: string | null): "overdue" | "soon" | "normal" | nu
   return "normal";
 }
 
-const DUE_STYLES: Record<string, string> = {
-  overdue: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400",
-  soon: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400",
-  normal: "bg-muted text-muted-foreground",
+const DUE_COLORS: Record<string, { bg: string; color: string }> = {
+  overdue: { bg: "light-dark(#fee2e2, rgb(239 68 68 / 0.15))", color: "light-dark(#b91c1c, #f87171)" },
+  soon: { bg: "light-dark(#fef3c7, rgb(245 158 11 / 0.15))", color: "light-dark(#b45309, #fbbf24)" },
+  normal: { bg: "var(--color-muted)", color: "var(--color-muted-foreground)" },
 };
 
 function groupByColumn(columns: Column[], cards: Card[]) {
@@ -131,9 +142,12 @@ export function BoardView({
   // (new card, moved-elsewhere update, etc.) — without this, anything that
   // isn't purely reflected in an existing card's own fields (i.e. a brand
   // new card) would only show up after a manual page reload.
-  useEffect(() => {
+  // Adjusted during render (not in an effect) so the board never paints a stale frame.
+  const [syncedFrom, setSyncedFrom] = useState({ columns, cards });
+  if (syncedFrom.columns !== columns || syncedFrom.cards !== cards) {
+    setSyncedFrom({ columns, cards });
     setColumnCardIds(groupByColumn(columns, cards));
-  }, [columns, cards]);
+  }
 
   const cardById = useMemo(() => new Map(cards.map((c) => [c.id, c])), [cards]);
   const memberById = useMemo(() => new Map(members.map((m) => [m.id, m])), [members]);
@@ -211,14 +225,12 @@ export function BoardView({
     void reorderCards(revalidatePaths, col, finalIds);
   }
 
+
   if (!columns.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
-        <p className="font-display text-lg font-medium text-primary">No board yet</p>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          This project doesn&apos;t have any board columns set up.
-        </p>
-      </div>
+      <EmptyState title="No board yet">
+        This project doesn&apos;t have any board columns set up.
+      </EmptyState>
     );
   }
 
@@ -246,7 +258,7 @@ export function BoardView({
         onDragOver={onDragOver}
         onDragEnd={onDragEnd}
       >
-        <div className="flex gap-4 overflow-x-auto pb-2">
+        <Box sx={{ display: "flex", gap: 2, overflowX: "auto", pb: 1 }}>
           {columns.map((col) => {
             const ids = columnCardIds[col.id] ?? [];
             const createInThisColumn = createCard.bind(null, projectId, col.id, revalidatePaths);
@@ -262,9 +274,7 @@ export function BoardView({
                       assigneeIds={assigneesByCard.get(id) ?? []}
                       memberById={memberById}
                       commentCount={commentsByCard.get(id)?.length ?? 0}
-                      attachmentCount={
-                        (fileIdsByCard.get(id)?.length ?? 0) + (linksByCard.get(id)?.length ?? 0)
-                      }
+                      attachmentCount={(fileIdsByCard.get(id)?.length ?? 0) + (linksByCard.get(id)?.length ?? 0)}
                       onOpen={() => setOpenCardId(id)}
                     />
                   );
@@ -272,23 +282,22 @@ export function BoardView({
               </BoardColumn>
             );
           })}
-        </div>
+        </Box>
 
         <DragOverlay>
           {activeCard ? (
-            <div className="w-[252px]">
+            <Box sx={{ width: 252 }}>
               <CardFace
                 card={activeCard}
                 assigneeIds={assigneesByCard.get(activeCard.id) ?? []}
                 memberById={memberById}
                 commentCount={commentsByCard.get(activeCard.id)?.length ?? 0}
                 attachmentCount={
-                  (fileIdsByCard.get(activeCard.id)?.length ?? 0) +
-                  (linksByCard.get(activeCard.id)?.length ?? 0)
+                  (fileIdsByCard.get(activeCard.id)?.length ?? 0) + (linksByCard.get(activeCard.id)?.length ?? 0)
                 }
                 dragging
               />
-            </div>
+            </Box>
           ) : null}
         </DragOverlay>
       </DndContext>
@@ -329,73 +338,69 @@ function BoardColumn({
   const [adding, setAdding] = useState(false);
 
   return (
-    <div className="flex w-[280px] shrink-0 flex-col gap-3 rounded-2xl bg-muted/50 p-3">
-      <div className="flex items-center justify-between px-1">
-        <h3 className="font-display text-sm font-medium text-primary">{column.name}</h3>
-        <span className="rounded-full bg-card px-2 py-0.5 font-mono text-[11px] text-muted-foreground">
+    <Stack
+      spacing={1.5}
+      sx={{
+        width: 280,
+        flexShrink: 0,
+        borderRadius: 4,
+        bgcolor: "color-mix(in srgb, var(--color-muted) 50%, transparent)",
+        p: 1.5,
+      }}
+    >
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 0.5 }}>
+        <Typography variant="h3" sx={{ fontSize: 14 }}>
+          {column.name}
+        </Typography>
+        <Box
+          component="span"
+          sx={{ borderRadius: 999, bgcolor: "background.paper", px: 1, py: 0.25, fontFamily: "var(--font-mono)", fontSize: 11, color: "text.muted" }}
+        >
           {cardIds.length}
-        </span>
-      </div>
+        </Box>
+      </Box>
 
       <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
-        <div
+        <Stack
           ref={setNodeRef}
-          className={`flex min-h-[8px] flex-col gap-2 rounded-xl transition-colors ${
-            isOver ? "bg-accent/5" : ""
-          }`}
+          spacing={1}
+          sx={{ minHeight: 8, borderRadius: 3, transition: "background-color 150ms", bgcolor: isOver ? "action.selected" : "transparent" }}
         >
           {children}
-        </div>
+        </Stack>
       </SortableContext>
 
       {adding ? (
-        <form
-          action={async (formData) => {
+        <Stack
+          component="form"
+          action={async (formData: FormData) => {
             await createAction(formData);
             setAdding(false);
           }}
-          className="flex flex-col gap-2"
+          spacing={1}
         >
-          <textarea
-            name="title"
-            required
-            autoFocus
-            placeholder="Card title…"
-            rows={2}
-            className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-primary outline-none transition-colors focus:border-accent"
-          />
-          <div className="flex items-center gap-2">
-            <input
-              name="due_date"
-              type="date"
-              className="flex-1 rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-primary outline-none transition-colors focus:border-accent"
-            />
-            <button
-              type="submit"
-              className="btn-primary shrink-0 rounded-full px-3 py-1.5 text-xs font-medium"
-            >
+          <TextField name="title" required autoFocus placeholder="Card title…" multiline minRows={2} slotProps={{ htmlInput: { "aria-label": "Card title" } }} />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <TextField name="due_date" type="date" slotProps={{ htmlInput: { "aria-label": "Due date" } }} sx={{ flex: 1 }} />
+            <Button type="submit" variant="contained" size="small">
               Add
-            </button>
-            <button
-              type="button"
-              onClick={() => setAdding(false)}
-              className="shrink-0 rounded-full px-2 py-1.5 text-xs font-medium text-muted-foreground hover:bg-card"
-            >
+            </Button>
+            <Button size="small" color="secondary" onClick={() => setAdding(false)}>
               Cancel
-            </button>
-          </div>
-        </form>
+            </Button>
+          </Box>
+        </Stack>
       ) : (
-        <button
-          type="button"
+        <Button
           onClick={() => setAdding(true)}
-          className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-sm text-muted-foreground transition-colors hover:bg-card hover:text-primary"
+          startIcon={<Add />}
+          color="secondary"
+          sx={{ justifyContent: "flex-start", borderRadius: 2, color: "text.muted", "&:hover": { bgcolor: "background.paper", color: "text.primary" } }}
         >
-          <Plus size={14} weight="bold" />
           Add a card
-        </button>
+        </Button>
       )}
-    </div>
+    </Stack>
   );
 }
 
@@ -414,9 +419,7 @@ function SortableCard({
   attachmentCount: number;
   onOpen: () => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: card.id,
-  });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: card.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -437,6 +440,8 @@ function SortableCard({
     </div>
   );
 }
+
+const metaSx = { display: "flex", alignItems: "center", gap: 0.5, fontSize: 11, color: "text.muted" } as const;
 
 function CardFace({
   card,
@@ -459,77 +464,100 @@ function CardFace({
   const assignees = assigneeIds.map((id) => memberById.get(id)).filter(Boolean) as Member[];
 
   return (
-    <div
+    <Paper
+      variant="outlined"
       onClick={onClick}
-      className={`flex cursor-pointer flex-col gap-2 rounded-xl border border-border bg-card p-3 transition-shadow hover:shadow-md ${
-        dragging ? "rotate-2 shadow-xl" : "shadow-sm"
-      }`}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 1,
+        borderRadius: 3,
+        p: 1.5,
+        cursor: "pointer",
+        transition: "box-shadow 150ms",
+        boxShadow: dragging ? 8 : 1,
+        transform: dragging ? "rotate(2deg)" : undefined,
+        "&:hover": { boxShadow: 4 },
+      }}
     >
       {card.tags && card.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1">
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
           {card.tags.map((t) => {
             const color = colorFor(t);
             return (
-              <span
+              <Box
                 key={t}
-                className={`rounded-full px-2 py-0.5 font-mono text-[9px] font-medium uppercase tracking-wide ${color.bg} ${color.text}`}
+                component="span"
+                sx={{
+                  borderRadius: 999,
+                  px: 1,
+                  py: 0.25,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 9,
+                  fontWeight: 500,
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  bgcolor: color.bg,
+                  color: color.text,
+                }}
               >
                 {t}
-              </span>
+              </Box>
             );
           })}
-        </div>
+        </Box>
       )}
 
-      <p className="text-sm font-medium leading-snug text-primary">{card.title}</p>
+      <Typography sx={{ fontSize: 14, fontWeight: 500, lineHeight: 1.35 }}>{card.title}</Typography>
 
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2.5">
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
           {tone && (
-            <span
-              className={`rounded-full px-2 py-0.5 font-mono text-[10px] font-medium ${DUE_STYLES[tone]}`}
+            <Box
+              component="span"
+              sx={{
+                borderRadius: 999,
+                px: 1,
+                py: 0.25,
+                fontFamily: "var(--font-mono)",
+                fontSize: 10,
+                fontWeight: 500,
+                bgcolor: DUE_COLORS[tone].bg,
+                color: DUE_COLORS[tone].color,
+              }}
             >
-              {parseLocalDate(card.due_date!).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "short",
-              })}
-            </span>
+              {parseLocalDate(card.due_date!).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+            </Box>
           )}
           {commentCount > 0 && (
-            <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-              <ChatCircleDots size={13} />
+            <Box component="span" sx={metaSx}>
+              <ChatBubbleOutlined sx={{ fontSize: 13 }} />
               {commentCount}
-            </span>
+            </Box>
           )}
           {attachmentCount > 0 && (
-            <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-              <Paperclip size={13} />
+            <Box component="span" sx={metaSx}>
+              <AttachFile sx={{ fontSize: 13 }} />
               {attachmentCount}
-            </span>
+            </Box>
           )}
-        </div>
+        </Box>
         {assignees.length > 0 && (
-          <div className="flex -space-x-1.5">
-            {assignees.slice(0, 3).map((m) => {
+          <AvatarGroup
+            max={4}
+            sx={{ "& .MuiAvatar-root": { width: 24, height: 24, fontSize: 9, fontFamily: "var(--font-mono)", borderWidth: 2 } }}
+          >
+            {assignees.map((m) => {
               const color = colorFor(m.id);
               return (
-                <span
-                  key={m.id}
-                  title={m.full_name ?? "Unnamed"}
-                  className={`flex h-6 w-6 items-center justify-center rounded-full border-2 border-card font-mono text-[9px] font-medium ${color.bg} ${color.text}`}
-                >
+                <Avatar key={m.id} title={m.full_name ?? "Unnamed"} sx={{ bgcolor: color.bg, color: color.text }}>
                   {initials(m.full_name)}
-                </span>
+                </Avatar>
               );
             })}
-            {assignees.length > 3 && (
-              <span className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-card bg-muted font-mono text-[9px] font-medium text-muted-foreground">
-                +{assignees.length - 3}
-              </span>
-            )}
-          </div>
+          </AvatarGroup>
         )}
-      </div>
-    </div>
+      </Box>
+    </Paper>
   );
 }

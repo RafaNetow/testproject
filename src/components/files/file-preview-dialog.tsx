@@ -1,7 +1,13 @@
 "use client";
 
-import { useRef } from "react";
-import { Eye, X } from "@phosphor-icons/react/dist/ssr";
+import { useState } from "react";
+import Box from "@mui/material/Box";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import IconButton from "@mui/material/IconButton";
+import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
+import Close from "@mui/icons-material/Close";
 
 export function FilePreviewDialog({
   filename,
@@ -12,7 +18,7 @@ export function FilePreviewDialog({
   url: string;
   mimeType: string | null;
 }) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [open, setOpen] = useState(false);
   const isImage = mimeType?.startsWith("image/");
   const isPdf = mimeType === "application/pdf";
 
@@ -20,43 +26,50 @@ export function FilePreviewDialog({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => dialogRef.current?.showModal()}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-accent"
+      <IconButton
+        size="small"
         title="Preview"
         aria-label={`Preview "${filename}"`}
+        onClick={() => setOpen(true)}
+        sx={{ color: "text.muted", "&:hover": { color: "primary.main" } }}
       >
-        <Eye size={16} />
-      </button>
+        <VisibilityOutlined sx={{ fontSize: 18 }} />
+      </IconButton>
 
-      <dialog
-        ref={dialogRef}
-        className="m-auto max-h-[90dvh] w-full max-w-3xl rounded-2xl border border-border bg-card p-0 backdrop:bg-black/60"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) dialogRef.current?.close();
-        }}
-      >
-        <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
-          <p className="truncate text-sm font-medium text-primary">{filename}</p>
-          <button
-            type="button"
-            onClick={() => dialogRef.current?.close()}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
-            aria-label="Close preview"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="max-h-[calc(90dvh-3.5rem)] overflow-auto p-4">
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            borderBottom: 1,
+            borderColor: "divider",
+            py: 1.5,
+            fontSize: 14,
+            fontWeight: 500,
+          }}
+        >
+          <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {filename}
+          </Box>
+          <IconButton size="small" aria-label="Close preview" onClick={() => setOpen(false)}>
+            <Close sx={{ fontSize: 18 }} />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 2 }}>
           {isImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={url} alt={filename} className="mx-auto max-w-full rounded-lg" />
+            <Box component="img" src={url} alt={filename} sx={{ display: "block", mx: "auto", maxWidth: "100%", borderRadius: 2 }} />
           ) : (
-            <iframe src={url} title={filename} className="h-[75dvh] w-full rounded-lg border border-border" />
+            <Box
+              component="iframe"
+              src={url}
+              title={filename}
+              sx={{ width: "100%", height: "75dvh", border: 1, borderColor: "divider", borderRadius: 2 }}
+            />
           )}
-        </div>
-      </dialog>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

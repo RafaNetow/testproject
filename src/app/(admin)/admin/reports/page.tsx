@@ -1,8 +1,19 @@
-import Link from "next/link";
-import { DownloadSimple } from "@phosphor-icons/react/dist/ssr";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import FileDownloadOutlined from "@mui/icons-material/FileDownloadOutlined";
 import { createClient } from "@/lib/supabase/server";
 import { deriveInvoiceStatus } from "@/lib/invoice-status";
 import { SectionHeader } from "@/components/shared/section-header";
+import { StatTiles } from "@/components/shared/stat-tiles";
+import { EmptyState } from "@/components/shared/empty-state";
+import { LinkTable } from "@/components/shared/link-table";
+import Stack from "@mui/material/Stack";
+
+const onDarkButtonSx = {
+  borderColor: "rgba(255,255,255,0.15)",
+  color: "rgba(255,255,255,0.8)",
+  "&:hover": { borderColor: "rgba(255,255,255,0.3)", bgcolor: "rgba(255,255,255,0.1)", color: "#fff" },
+} as const;
 
 type InvoiceRow = {
   id: string;
@@ -103,126 +114,79 @@ export default async function AdminReportsPage() {
     .map(([orgId, row]) => ({ orgId, ...row }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
+  const joinMoney = (m: Map<string, number>) =>
+    m.size ? [...m.entries()].map(([c, cents]) => formatMoney(cents, c)).join(" · ") : "—";
+
   return (
-    <div className="flex flex-col gap-10">
+    <Stack spacing={5}>
       <SectionHeader
         eyebrow="Reports"
         title="Business overview"
         subtitle="Revenue, outstanding invoices, and billable hours across every client."
         actions={
           <>
-            <a
-              href="/api/export/invoices"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              <DownloadSimple size={15} />
+            <Button href="/api/export/invoices" variant="outlined" startIcon={<FileDownloadOutlined />} sx={onDarkButtonSx}>
               Export invoices
-            </a>
-            <a
-              href="/api/export/hours"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              <DownloadSimple size={15} />
+            </Button>
+            <Button href="/api/export/hours" variant="outlined" startIcon={<FileDownloadOutlined />} sx={onDarkButtonSx}>
               Export hours
-            </a>
+            </Button>
           </>
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-          <p className="text-sm font-medium text-secondary">Collected this month</p>
-          <p className="mt-2 font-display text-2xl font-medium text-primary">
-            {paidThisMonth.length ? sumByCurrency(paidThisMonth).join(" · ") : "—"}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-          <p className="text-sm font-medium text-secondary">Outstanding</p>
-          <p className="mt-2 font-display text-2xl font-medium text-primary">
-            {outstanding.length ? sumByCurrency(outstanding).join(" · ") : "—"}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">{outstanding.length} invoice(s)</p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-          <p className="text-sm font-medium text-secondary">Overdue</p>
-          <p className="mt-2 font-display text-2xl font-medium text-destructive">
-            {overdue.length ? sumByCurrency(overdue).join(" · ") : "—"}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">{overdue.length} invoice(s)</p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-          <p className="text-sm font-medium text-secondary">Hours this month</p>
-          <p className="mt-2 font-display text-2xl font-medium text-primary">
-            {totalHoursThisMonth.toFixed(1)}h
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">{totalHoursAllTime.toFixed(1)}h all-time</p>
-        </div>
-      </div>
+      <StatTiles
+        compact
+        tiles={[
+          {
+            label: "Collected this month",
+            value: paidThisMonth.length ? sumByCurrency(paidThisMonth).join(" · ") : "—",
+          },
+          {
+            label: "Outstanding",
+            value: outstanding.length ? sumByCurrency(outstanding).join(" · ") : "—",
+            hint: `${outstanding.length} invoice(s)`,
+          },
+          {
+            label: "Overdue",
+            value: overdue.length ? sumByCurrency(overdue).join(" · ") : "—",
+            hint: `${overdue.length} invoice(s)`,
+            tone: "error",
+          },
+          {
+            label: "Hours this month",
+            value: `${totalHoursThisMonth.toFixed(1)}h`,
+            hint: `${totalHoursAllTime.toFixed(1)}h all-time`,
+          },
+        ]}
+      />
 
-      <div>
-        <p className="text-sm font-medium text-secondary">By client</p>
+      <Stack spacing={1.5}>
+        <Typography sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}>By client</Typography>
         {!clientRows.length ? (
-          <div className="mt-3 rounded-2xl border border-dashed border-border bg-card px-6 py-10 text-center">
-            <p className="text-sm text-muted-foreground">No invoices or hours logged yet.</p>
-          </div>
+          <EmptyState title="Nothing to report yet">No invoices or hours logged yet.</EmptyState>
         ) : (
-          <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card">
-            <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th className="px-5 py-3 font-medium">Client</th>
-                  <th className="px-5 py-3 font-medium">Paid</th>
-                  <th className="px-5 py-3 font-medium">Outstanding</th>
-                  <th className="px-5 py-3 font-medium">Hours logged</th>
-                </tr>
-              </thead>
-              <tbody>
-                {clientRows.map((row) => (
-                  <tr
-                    key={row.orgId}
-                    className="border-b border-border transition-colors last:border-0 hover:bg-muted"
-                  >
-                    <td className="p-0">
-                      <Link href={`/admin/clients/${row.orgId}`} className="block px-5 py-3.5 font-medium text-primary">
-                        {row.name}
-                      </Link>
-                    </td>
-                    <td className="p-0">
-                      <Link href={`/admin/clients/${row.orgId}`} className="block px-5 py-3.5 text-secondary">
-                        {row.paidCents.size
-                          ? [...row.paidCents.entries()].map(([c, cents]) => formatMoney(cents, c)).join(" · ")
-                          : "—"}
-                      </Link>
-                    </td>
-                    <td className="p-0">
-                      <Link href={`/admin/clients/${row.orgId}`} className="block px-5 py-3.5 text-secondary">
-                        {row.outstandingCents.size
-                          ? [...row.outstandingCents.entries()]
-                              .map(([c, cents]) => formatMoney(cents, c))
-                              .join(" · ")
-                          : "—"}
-                      </Link>
-                    </td>
-                    <td className="p-0">
-                      <Link href={`/admin/clients/${row.orgId}`} className="block px-5 py-3.5 text-secondary">
-                        {row.hours ? `${row.hours.toFixed(1)}h` : "—"}
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            </div>
-          </div>
+          <LinkTable
+            columns={["Client", "Paid", "Outstanding", "Hours logged"]}
+            rows={clientRows.map((row) => ({
+              key: row.orgId,
+              href: `/admin/clients/${row.orgId}`,
+              cells: [
+                row.name,
+                joinMoney(row.paidCents),
+                joinMoney(row.outstandingCents),
+                row.hours ? `${row.hours.toFixed(1)}h` : "—",
+              ],
+            }))}
+          />
         )}
-      </div>
+      </Stack>
 
       {unbilledHours > 0 && (
-        <p className="text-xs text-muted-foreground">
+        <Typography sx={{ fontSize: 12, color: "text.muted" }}>
           {unbilledHours.toFixed(1)}h of billable time hasn&apos;t been invoiced yet, across all clients.
-        </p>
+        </Typography>
       )}
-    </div>
+    </Stack>
   );
 }

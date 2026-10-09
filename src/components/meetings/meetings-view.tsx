@@ -1,4 +1,16 @@
-import { Plus, Trash, VideoCamera } from "@phosphor-icons/react/dist/ssr";
+import Accordion from "@mui/material/Accordion";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import Add from "@mui/icons-material/Add";
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import VideocamOutlined from "@mui/icons-material/VideocamOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
 import { SelectField } from "@/components/shared/select-field";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -28,169 +40,139 @@ export function MeetingsView({
   const createForThisProject = createMeeting.bind(null, projectId, revalidatePaths);
 
   return (
-    <div className="flex flex-col gap-6">
+    <Stack spacing={3}>
       {canManage && (
-        <form
+        <Paper
+          component="form"
           action={createForThisProject}
-          className="flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-5"
+          variant="outlined"
+          sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5, p: 2.5 }}
         >
-          <div className="flex min-w-[200px] flex-1 flex-col gap-1.5">
-            <label htmlFor="meeting-title" className="text-sm font-medium text-secondary">
-              Title
-            </label>
-            <input
-              id="meeting-title"
-              name="title"
-              required
-              placeholder="Monthly review"
-              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="meeting-when" className="text-sm font-medium text-secondary">
-              Date &amp; time
-            </label>
-            <input
-              id="meeting-when"
-              name="scheduled_at"
-              type="datetime-local"
-              required
-              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            />
-          </div>
-          <div className="flex w-28 flex-col gap-1.5">
-            <label htmlFor="meeting-duration" className="text-sm font-medium text-secondary">
-              Minutes
-            </label>
-            <input
-              id="meeting-duration"
-              name="duration_minutes"
-              type="number"
-              min={0}
-              placeholder="30"
-              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            />
-          </div>
-          <div className="flex min-w-[200px] flex-1 flex-col gap-1.5">
-            <label htmlFor="meeting-zoom" className="text-sm font-medium text-secondary">
-              Video link (optional)
-            </label>
-            <input
-              id="meeting-zoom"
-              name="zoom_url"
-              type="url"
-              placeholder="https://…"
-              className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-            />
-          </div>
-          <button
-            type="submit"
-            className="btn-primary inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium"
-          >
-            <Plus size={16} weight="bold" />
+          <TextField name="title" label="Title" required placeholder="Monthly review" sx={{ flex: 1, minWidth: 200 }} />
+          <TextField
+            name="scheduled_at"
+            label="Date & time"
+            type="datetime-local"
+            required
+            slotProps={{ inputLabel: { shrink: true } }}
+            fullWidth={false}
+            sx={{ width: 220 }}
+          />
+          <TextField
+            name="duration_minutes"
+            label="Minutes"
+            type="number"
+            placeholder="30"
+            slotProps={{ htmlInput: { min: 0 } }}
+            fullWidth={false}
+            sx={{ width: 110 }}
+          />
+          <TextField
+            name="zoom_url"
+            label="Video link (optional)"
+            type="url"
+            placeholder="https://…"
+            sx={{ flex: 1, minWidth: 200 }}
+          />
+          <Button type="submit" variant="contained" startIcon={<Add />}>
             Schedule
-          </button>
-        </form>
+          </Button>
+        </Paper>
       )}
 
       {!meetings.length ? (
-        <p className="text-sm text-muted-foreground">No meetings scheduled yet.</p>
+        <Typography sx={{ fontSize: 14, color: "text.muted" }}>No meetings scheduled yet.</Typography>
       ) : (
-        <div className="flex flex-col gap-3">
+        <Stack spacing={1.5}>
           {meetings.map((m) => {
             const updateThis = updateMeeting.bind(null, m.id, revalidatePaths);
             const deleteThis = deleteMeeting.bind(null, m.id, revalidatePaths);
             const when = new Date(m.scheduled_at);
             return (
-              <div key={m.id} className="rounded-2xl border border-border bg-card p-5">
-                <div className="flex flex-wrap items-start justify-between gap-3">
+              <Paper key={m.id} variant="outlined" sx={{ p: 2.5 }}>
+                <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 1.5 }}>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-display text-base font-medium text-primary">
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Typography variant="h3" sx={{ fontSize: 16 }}>
                         {m.title}
-                      </p>
+                      </Typography>
                       <StatusBadge status={m.status} />
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {when.toLocaleDateString("en-GB", {
-                        weekday: "short",
-                        month: "short",
-                        day: "numeric",
-                      })}{" "}
-                      at{" "}
-                      {when.toLocaleTimeString(undefined, {
-                        hour: "numeric",
-                        minute: "2-digit",
-                      })}
+                    </Box>
+                    <Typography sx={{ mt: 0.5, fontSize: 14, color: "text.muted" }}>
+                      {when.toLocaleDateString("en-GB", { weekday: "short", month: "short", day: "numeric" })} at{" "}
+                      {when.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
                       {m.duration_minutes ? ` · ${m.duration_minutes} min` : ""}
-                    </p>
+                    </Typography>
                     {m.notes && (
-                      <p className="mt-2 max-w-xl text-sm leading-relaxed text-secondary">
+                      <Typography sx={{ mt: 1, maxWidth: 576, fontSize: 14, lineHeight: 1.6, color: "text.secondary" }}>
                         {m.notes}
-                      </p>
+                      </Typography>
                     )}
                   </div>
                   {m.zoom_url && (
-                    <a
+                    <Button
+                      component="a"
                       href={m.zoom_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-muted"
+                      variant="outlined"
+                      color="secondary"
+                      startIcon={<VideocamOutlined />}
                     >
-                      <VideoCamera size={16} />
                       Join
-                    </a>
+                    </Button>
                   )}
-                </div>
+                </Box>
 
                 {canManage && (
-                  <details className="mt-3 border-t border-border pt-3">
-                    <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
-                      Manage
-                    </summary>
-                    <div className="mt-3 flex flex-wrap items-end gap-3">
-                      <form action={updateThis} className="flex flex-1 flex-wrap items-end gap-3">
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-sm font-medium text-secondary">Status</label>
-                          <SelectField name="status" defaultValue={m.status}>
-                            <option value="upcoming">Upcoming</option>
-                            <option value="past">Past</option>
-                            <option value="cancelled">Cancelled</option>
-                          </SelectField>
-                        </div>
-                        <div className="flex min-w-[220px] flex-1 flex-col gap-1.5">
-                          <label className="text-sm font-medium text-secondary">Notes</label>
-                          <input
-                            name="notes"
-                            defaultValue={m.notes ?? ""}
-                            placeholder="What was covered / decided"
-                            className="rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm text-primary outline-none transition-colors focus:border-accent"
-                          />
-                        </div>
-                        <button
-                          type="submit"
-                          className="rounded-full border border-primary px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-                        >
+                  <Accordion
+                    disableGutters
+                    elevation={0}
+                    sx={{ mt: 1.5, bgcolor: "transparent", borderTop: 1, borderColor: "divider", "&::before": { display: "none" } }}
+                  >
+                    <AccordionSummary
+                      expandIcon={<ExpandMore sx={{ fontSize: 18 }} />}
+                      sx={{ px: 0, minHeight: 40, "& .MuiAccordionSummary-content": { my: 1 } }}
+                    >
+                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "text.muted" }}>Manage</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ px: 0, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5 }}>
+                      <Box
+                        component="form"
+                        action={updateThis}
+                        sx={{ display: "flex", flex: 1, flexWrap: "wrap", alignItems: "center", gap: 1.5 }}
+                      >
+                        <SelectField name="status" label="Status" defaultValue={m.status} sx={{ width: 160 }}>
+                          <option value="upcoming">Upcoming</option>
+                          <option value="past">Past</option>
+                          <option value="cancelled">Cancelled</option>
+                        </SelectField>
+                        <TextField
+                          name="notes"
+                          label="Notes"
+                          defaultValue={m.notes ?? ""}
+                          placeholder="What was covered / decided"
+                          sx={{ flex: 1, minWidth: 220 }}
+                        />
+                        <Button type="submit" variant="outlined" color="navy">
                           Save
-                        </button>
-                      </form>
+                        </Button>
+                      </Box>
                       <form action={deleteThis}>
                         <ConfirmButton
                           confirmText={`Delete the meeting "${m.title}"?`}
                           ariaLabel={`Delete meeting "${m.title}"`}
-                          className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                        >
-                          <Trash size={15} />
-                        </ConfirmButton>
+                          icon={<DeleteOutlined sx={{ fontSize: 18 }} />}
+                        />
                       </form>
-                    </div>
-                  </details>
+                    </AccordionDetails>
+                  </Accordion>
                 )}
-              </div>
+              </Paper>
             );
           })}
-        </div>
+        </Stack>
       )}
-    </div>
+    </Stack>
   );
 }
