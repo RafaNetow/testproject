@@ -5,6 +5,13 @@ import { createClient } from "@/lib/supabase/client";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
+// Local Supabase catches every email in Mailpit instead of sending it, so in
+// dev against a local stack, point the tester at that inbox.
+const LOCAL_MAILBOX_URL = "http://127.0.0.1:54324";
+const showLocalMailbox =
+  process.env.NODE_ENV === "development" &&
+  /^https?:\/\/(127\.0\.0\.1|localhost)(:|\/|$)/.test(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "");
+
 const GENERIC_SEND_ERROR =
   "We couldn't send the sign-in link right now. Please try again in a moment.";
 
@@ -68,6 +75,20 @@ export function LoginForm() {
           sign-in, open it on this device. If it doesn&apos;t arrive within a
           minute, check your spam folder.
         </p>
+        {showLocalMailbox && (
+          <p className="mt-3 rounded-lg bg-muted px-3 py-2 text-sm text-secondary">
+            Local dev: no real email is sent.{" "}
+            <a
+              href={LOCAL_MAILBOX_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-accent underline underline-offset-2"
+            >
+              Open the local inbox
+            </a>
+            .
+          </p>
+        )}
         <button
           type="button"
           onClick={() => setStatus("idle")}
