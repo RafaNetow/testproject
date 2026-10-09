@@ -16,6 +16,8 @@ type AppShellProps = {
   subtitle: string;
   userEmail: string;
   notifications: NotificationItem[];
+  /** Counts shown beside a nav item, keyed by its href — e.g. what's waiting on the user. */
+  badges?: Record<string, number>;
   children: ReactNode;
 };
 
@@ -32,6 +34,7 @@ export function AppShell({
   subtitle,
   userEmail,
   notifications,
+  badges,
   children,
 }: AppShellProps) {
   const pathname = usePathname();
@@ -45,6 +48,7 @@ export function AppShell({
     <nav className="flex flex-1 flex-col gap-1 px-3">
       {navItems.map(({ label, href, icon: ItemIcon }) => {
         const active = isActive(href);
+        const count = badges?.[href] ?? 0;
         return (
           <Link
             key={href}
@@ -62,6 +66,14 @@ export function AppShell({
           >
             <ItemIcon size={18} weight={active ? "fill" : "regular"} />
             {label}
+            {count > 0 && (
+              <span
+                aria-label={`${count} waiting`}
+                className="ml-auto rounded-full bg-[#7dd3fc]/15 px-2 py-0.5 font-mono text-xs font-medium text-[#7dd3fc]"
+              >
+                {count}
+              </span>
+            )}
           </Link>
         );
       })}

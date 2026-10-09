@@ -1,6 +1,7 @@
 import type { Icon } from "@phosphor-icons/react";
 import {
   ChartLineUp,
+  Cube,
   SquaresFour,
   FolderOpen,
   VideoCamera,
@@ -20,6 +21,7 @@ export type NavItem = { label: string; href: string; icon: Icon };
 export const PORTAL_NAV: NavItem[] = [
   { label: "Executive Summary", href: "/portal", icon: ChartLineUp },
   { label: "Board", href: "/portal/board", icon: SquaresFour },
+  { label: "Deliverables", href: "/portal/deliverables", icon: Cube },
   { label: "Files", href: "/portal/files", icon: FolderOpen },
   { label: "Meetings", href: "/portal/meetings", icon: VideoCamera },
   { label: "Decisions", href: "/portal/decisions", icon: ChatCircleDots },

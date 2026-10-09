@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   ChatCircleDots,
   Clock,
+  Cube,
   FileText,
   FolderOpen,
   NotePencil,
@@ -15,6 +16,7 @@ import {
 
 const SECTIONS = [
   { href: "board", label: "Board", icon: SquaresFour },
+  { href: "deliverables", label: "Deliverables", icon: Cube },
   { href: "decisions", label: "Decisions", icon: ChatCircleDots },
   { href: "files", label: "Files", icon: FolderOpen },
   { href: "meetings", label: "Meetings", icon: VideoCamera },

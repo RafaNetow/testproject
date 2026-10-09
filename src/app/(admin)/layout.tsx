@@ -10,7 +10,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const { data: rows } = user
     ? await supabase
         .from("notifications")
-        .select("id, message, card_id, project_id, org_id, read_at, created_at")
+        .select("id, message, card_id, project_id, org_id, kind, read_at, created_at")
         .eq("recipient_id", user.id)
         .order("created_at", { ascending: false })
         .limit(20)
@@ -21,7 +21,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     message: n.message,
     href:
       n.org_id && n.project_id
-        ? `/admin/clients/${n.org_id}/projects/${n.project_id}/board`
+        ? `/admin/clients/${n.org_id}/projects/${n.project_id}/${
+            n.kind === "deliverable" ? "deliverables" : "board"
+          }`
         : "/admin",
     read: !!n.read_at,
     created_at: n.created_at,

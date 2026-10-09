@@ -6,6 +6,12 @@
 --   owner@cliente.test     client owner   (/portal, sees invoices & contracts)
 --   colab@cliente.test     client collaborator (/portal, no invoices)
 --
+-- owner@cliente.test is the "has everything" demo user: two projects, deliverables
+-- in every status (three awaiting their review), a populated board, decisions,
+-- meetings, updates, hours, invoices, contracts and notifications. Real files
+-- are uploaded separately by scripts/seed-files.mjs (they need actual blobs in
+-- Storage), which `npm run db:start` / `db:reset` run for you.
+--
 -- Some rows deliberately reproduce findings from docs/AUDITORIA.md
 -- (on branch audit/review-2026-10-08) so they can be checked in the UI.
 
