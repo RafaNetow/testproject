@@ -1,33 +1,38 @@
-# Auditoría del proyecto — 2026-10-08
+# Auditoría del proyecto — 2026-10-08 (actualizada 2026-10-09)
 
 Revisión de seguridad, calidad de código y QA funcional del proyecto Alchemica (Next.js 16 + Supabase).
+
+**Estado:** ningún hallazgo de este documento está corregido todavía. Los cambios hechos hasta ahora fueron el módulo Deliverables, el pulido de la portada y el entorno local.
 
 ## Cómo se hizo
 
 - Herramientas automáticas: `eslint`, `tsc --noEmit`, `vitest run`, `npm audit --omit=dev`.
 - Revisión manual de autenticación, políticas RLS (`supabase/migrations/`), Server Actions y rutas de API.
 - Pruebas en navegador (escritorio y móvil 375×812) del sitio público.
-- El portal y el admin **no se probaron en navegador** porque no había `.env.local` con Supabase.
+- **Segunda ronda (2026-10-09):** con un Supabase local y datos de prueba se recorrieron todos los módulos del admin y del portal del cliente, con los roles admin, dueño del cliente y colaborador, más pruebas directas de permisos contra la base de datos. Sus hallazgos están en la **Parte 3**.
 
 Cada hallazgo indica cómo se comprobó:
 
-- ✅ **Probado**: reproducido en el navegador.
-- 📄 **Código**: deducido leyendo el código y las migraciones. Hay que confirmarlo con Supabase conectado: si la base de datos de producción tiene políticas que no están en las migraciones, alguno podría no ocurrir.
+- ✅ **Probado**: reproducido en la aplicación o directamente contra la base de datos local.
+- 📄 **Código**: deducido leyendo el código y las migraciones. Si la base de datos de producción tiene políticas que no están en las migraciones, alguno podría no ocurrir.
+- ➖ **No verificable**: depende de claves externas (Resend, Documenso) o de eventos que la herramienta de pruebas no genera.
 
 ## Resumen
 
 | Herramienta | Resultado |
 | --- | --- |
 | `tsc --noEmit` | Sin errores |
-| `vitest run` | 19/19 tests pasan (3 archivos) |
-| `eslint` | 5 errores |
+| `vitest run` | 28/28 tests pasan (4 archivos) |
+| `eslint` | 4 errores (calendario, dashboard, login y tablero) |
 | `npm audit` | 6 vulnerabilidades (1 crítica, 4 altas, 1 moderada) |
 
 ### Prioridades
 
-1. **SEC-01**: escalada a administrador por la política de `profiles`.
+1. **SEC-01**: escalada a administrador por la política de `profiles` (confirmado).
 2. **SEC-02**: actualizar `next` a 16.4.0.
-3. **QA-02 a QA-06**: errores de facturación.
+3. **QA-02 a QA-06 y QA-20**: errores de facturación y borradores visibles al cliente.
+4. **QA-17**: archivos con `#`, `?` o `%` en el nombre quedan inaccesibles.
+5. **SEC-07**: un evento tardío del webhook degrada un contrato firmado.
 
 ---
 
@@ -68,13 +73,17 @@ Cada hallazgo indica cómo se comprobó:
 
 ## 🟠 Altas
 
-### SEC-03 · Se pueden mandar notificaciones falsas a cualquier usuario
+### SEC-03 · Se pueden mandar notificaciones falsas a cualquier usuario ✅
+
+- **Confirmado (2026-10-09):** como `owner@cliente.test` se insertó en `notifications` un mensaje falso dirigido al admin, sin proyecto, y la base lo aceptó.
 
 - **Dónde:** [supabase/migrations/0014_notifications.sql](../supabase/migrations/0014_notifications.sql), política `"members create notifications on own project"`.
 - **Problema:** solo comprueba `actor_id = auth.uid()`. Con `project_id = null`, cualquier usuario puede insertar una notificación con cualquier texto para cualquier `recipient_id`, incluido el admin. Sirve para phishing dentro de la app.
 - **Arreglo:** exigir `project_id not null` y que el destinatario sea miembro de esa organización (o admin).
 
-### SEC-04 · Se puede subir un archivo a nombre de otra persona
+### SEC-04 · Se puede subir un archivo a nombre de otra persona ✅
+
+- **Confirmado (2026-10-09):** como cliente se insertó un registro de archivo con `uploaded_by` apuntando al admin, y la base lo aceptó.
 
 - **Dónde:** `0001_init.sql:391`, política `"members upload files into own project"`.
 - **Problema:** no exige `uploaded_by = auth.uid()`, así que un miembro puede atribuir un archivo a otra persona. Tampoco valida que `folder_id` pertenezca al mismo proyecto.
@@ -185,20 +194,23 @@ Cada hallazgo indica cómo se comprobó:
 - **Corrección:** este hallazgo era incorrecto. `0003_client_collaboration.sql` añade políticas que permiten a los miembros crear y editar tarjetas, y `0012_kanban_upgrade.sql` les permite adjuntar y quitar archivos. Solo el borrado de tarjetas queda reservado al admin, y la interfaz ya oculta ese botón con `canDelete`.
 - **Origen del error:** la revisión inicial buscó las políticas línea a línea y no detectó las que están escritas en varias líneas. Los demás hallazgos de RLS se volvieron a comprobar y se mantienen.
 
-### QA-02 · El descuento en facturas calcula mal el IVA 📄
+### QA-02 · El descuento en facturas calcula mal el IVA ✅
 
+- **Confirmado (2026-10-09):** en el creador de facturas, 9.500 DKK de horas con 25 % de IVA y 3.000 DKK de descuento dieron un total de **8.875 DKK** (guardado así en la base de datos). Lo correcto es (9.500 − 3.000) × 1,25 = **8.125 DKK**: 750 DKK de más.
 - **Pasos:** crear una factura doméstica de 1.000 DKK con 25 % de IVA y 200 DKK de descuento.
 - **Esperado:** (1.000 − 200) × 1,25 = **1.000 DKK**.
 - **Actual:** 1.000 + 250 − 200 = **1.050 DKK**. El IVA se calcula sobre el importe sin descontar.
 - **Dónde:** `src/lib/invoice-totals.ts` y `src/lib/actions/invoices.ts:65`. La misma fórmula está duplicada en los dos sitios.
 
-### QA-03 · Una factura puede quedar con total negativo 📄
+### QA-03 · Una factura puede quedar con total negativo ✅
 
+- **Confirmado (2026-10-09):** una línea de 100 DKK con 5.000 DKK de descuento se guardó como borrador con `amount_cents = -487500` (−4.875 DKK).
 - **Pasos:** poner un descuento mayor que el subtotal.
 - **Actual:** se guarda una factura con `amount_cents` negativo. El input tiene `min={0}` pero no tiene máximo, y el servidor no valida nada.
 
-### QA-04 · Se pueden repetir números de factura 📄
+### QA-04 · Se pueden repetir números de factura ✅
 
+- **Confirmado (2026-10-09):** se creó una segunda factura con el número `2026-001`, que ya existía, y el sistema la aceptó.
 - `invoices.invoice_number` no tiene restricción `unique`.
 - En Dinamarca la numeración de facturas tiene que ser única y correlativa.
 
@@ -225,19 +237,20 @@ Cada hallazgo indica cómo se comprobó:
 - `deriveInvoiceStatus` compara `new Date("YYYY-MM-DD")`, que es medianoche UTC, con la hora actual.
 - Una factura que vence hoy ya sale como vencida desde la madrugada. Los tests no cubren este caso.
 
-### QA-08 · Las horas de las reuniones salen en UTC, no en hora danesa 📄
+### QA-08 · Las horas de las reuniones salen en UTC, no en hora danesa ✅
+
+- **Confirmado (2026-10-09):** al programar una reunión a las 14:00 desde un equipo en UTC-6, se guardó como `20:00 UTC`. La hora escrita se interpreta con la zona horaria **del servidor**, no con la de quien la escribe. En Vercel (UTC) una reunión a las 14:00 en Copenhague se guardaría como 14:00 UTC, es decir, dos horas tarde.
 
 - `meetings-view.tsx` y `admin/calendar/page.tsx` formatean las horas en el servidor, que en Vercel está en UTC.
 - Una reunión a las 14:00 en Copenhague se muestra con 1 o 2 horas de diferencia.
 - El cambio de "próxima" a "pasada" también ocurre a la hora equivocada.
 - Al crear una reunión, `new Date(datetime-local)` también se interpreta en la zona horaria del servidor.
 
-### QA-09 · Las fechas sin hora se desplazan un día en zonas horarias negativas ✅
+### QA-09 · Las fechas sin hora se desplazan un día cuando el servidor está en una zona horaria negativa ✅
 
-- **Confirmado (2026-10-09):** en un equipo en UTC-6, una factura con `due_date = 2026-10-09` se muestra como "Due 08/10/2026". Todas las fechas de facturas salen un día antes.
-
+- **Confirmado (2026-10-09):** con el servidor en UTC-6 (el equipo de desarrollo), una factura con `due_date = 2026-10-09` se muestra como "Due 08/10/2026", y una decisión guardada correctamente el 9 de octubre aparece con fecha 08/10. Las horas trabajadas y las líneas de factura sufren lo mismo.
+- **Matiz:** el desfase lo causa la zona horaria del **servidor**, porque las fechas se formatean allí. En Vercel (UTC) estas fechas simples se verían bien; el fallo real en producción son las horas de reuniones (QA-08). Conviene corregirlo igualmente para que no dependa de dónde se ejecute.
 - Horas trabajadas, decisiones, vencimientos y líneas de factura usan `new Date("YYYY-MM-DD")`.
-- Para un usuario en América aparecen un día antes.
 - El tablero sí usa `parseLocalDate`, así que el comportamiento es inconsistente dentro de la propia app.
 
 ### QA-10 · El formulario de contacto acepta un email y luego lo rechaza ✅
@@ -287,6 +300,118 @@ Cada hallazgo indica cómo se comprobó:
 
 ---
 
+# Parte 3 — Hallazgos de la ronda por módulos (2026-10-09)
+
+Se recorrió cada módulo con los tres roles contra un Supabase local. Todo lo marcado ✅ se reprodujo; los datos de prueba están en `supabase/seed.sql` y `supabase/seed-demo.sql`.
+
+## 🔴 Seguridad e integridad
+
+### SEC-07 · Un evento tardío del webhook degrada un contrato firmado ✅
+
+- **Dónde:** [src/app/api/webhooks/documenso/route.ts](../src/app/api/webhooks/documenso/route.ts), rama `DOCUMENT_SENT`.
+- **Prueba:** con el secreto configurado, se envió `DOCUMENT_SENT` para un contrato en estado `signed`. Respuesta 200 y el contrato quedó en **`sent`**.
+- **Problema:** los webhooks se reintentan y pueden llegar desordenados. La rama `DOCUMENT_SENT` actualiza sin condición (solo la rama de firma parcial tiene `.neq("signing_status", "signed")`), así que un evento repetido o tardío borra el estado firmado.
+- **Arreglo:** que el estado solo avance (`draft → sent → partially_signed → signed`) y nunca retroceda; y registrar el id del evento para ignorar repeticiones.
+
+### SEC-08 · El enlace de reunión acepta cualquier esquema, incluido `javascript:` ✅
+
+- **Dónde:** `createMeeting` y `updateMeeting` (`src/lib/actions/meetings.ts`), campo `zoom_url`.
+- **Prueba:** se guardó `javascript:alert(document.domain)` como enlace de Zoom. React 19 lo neutraliza al pintar el botón "Join" (lo sustituye por un error), así que **hoy no es explotable**, pero el dato malo queda guardado y el botón no funciona.
+- **Arreglo:** aceptar solo `http:` y `https:`. (Los enlaces del tablero ya lo hacen bien: añaden `https://` a lo que no empiece por http.)
+
+### SEC-09 · El webhook responde 500 ante un cuerpo que no es JSON ✅
+
+- Un `POST` con JSON roto devuelve 500 en lugar de 400 porque `request.json()` no está dentro de un `try`. Con el secreto correcto es solo ruido en los logs, pero conviene validarlo.
+
+## 🔴 Graves (funcionales)
+
+### QA-17 · Los archivos con `#`, `?` o `%` en el nombre quedan inaccesibles ✅
+
+- **Prueba:** se subió `c#?%.txt`. La base de datos guardó la ruta `.../92fc…-c#?%.txt`, pero en Storage el objeto quedó como `.../92fc…-c` (cortado en el `#`). El archivo aparece listado pero **no se puede descargar** (ni siquiera se genera el enlace).
+- **Causa:** `src/lib/actions/files.ts:33` construye la ruta con `file.name` sin limpiar.
+- **Arreglo:** generar la ruta de Storage con un nombre saneado (por ejemplo solo `[A-Za-z0-9._-]`) y guardar el nombre original aparte en `filename`, que ya existe.
+
+### QA-20 · El cliente ve contratos en borrador ✅
+
+- **Prueba:** `owner@cliente.test` ve en `/portal/contracts` el contrato "Statement of work — phase 2" en estado `draft`, que aún no se le ha enviado. Es el mismo problema que QA-05 con las facturas.
+- **Causa:** ni la consulta del portal ni la política RLS de `contracts` filtran por `signing_status`.
+- **Arreglo:** política RLS `signing_status <> 'draft'` para los miembros del cliente (como se hizo con los entregables).
+
+### QA-21 · Firma electrónica: solo verificado el caso sin configurar ➖
+
+- Sin `DOCUMENSO_API_KEY`, "Send for e-signature" falla con el mensaje claro `DOCUMENSO_API_KEY is not configured.` y no deja datos a medias (el contrato sigue en `draft`).
+- El envío real, la firma y la descarga del PDF firmado no se pudieron verificar.
+
+## 🟠 Medios
+
+### QA-18 · Se aceptan más de 24 horas en un día ✅
+
+- Se registraron **30 horas** en una sola entrada sin ningún aviso. `hours_entries.hours` es `numeric(5,2)`, así que solo falla a partir de 1.000.
+- **Arreglo:** validar `0 < horas ≤ 24` en el servidor y con `max` en el formulario.
+
+### QA-19 · Las tarjetas nuevas no guardan quién las creó ✅
+
+- `createCard` (`src/lib/actions/board.ts:74`) llama a `requireSessionUser()` pero descarta el usuario, y el `insert` no incluye `created_by`. Una tarjeta creada por un cliente queda con `created_by = null`.
+- **Efecto:** las notificaciones de comentarios avisan "a los asignados y al creador", así que el creador nunca recibe aviso en tarjetas nuevas.
+
+### QA-22 · "Cobrado este mes" usa la fecha de emisión, no la de pago ✅
+
+- `src/app/(admin)/admin/reports/page.tsx:64` filtra las facturas pagadas por `issued_at`. No existe una columna de fecha de pago (`paid_at`), así que una factura emitida en septiembre y pagada en octubre no cuenta como cobrada en octubre.
+- Además `h.entry_date >= monthStart` compara una fecha (`2026-10-01`) con un texto ISO (`2026-10-01T06:00:00.000Z`) y excluye las horas del día 1 de cada mes.
+
+### QA-23 · Subir más de 4 MB da un mensaje técnico ✅
+
+- Un archivo de 5 MB falla con `Body exceeded 4mb limit`. Para datos de laboratorio (espectros, hojas de especificación) 4 MB es poco. Conviene un mensaje legible y, si es necesario, subida directa a Storage con URL firmada.
+
+### QA-24 · El valor estimado de un prospecto solo admite enteros ✅
+
+- El campo no tiene `step="0.01"`, así que el navegador rechaza `1234.56` aunque el servidor guarda céntimos.
+
+### QA-25 · Asignar a alguien en el tablero no le notifica ✅
+
+- `toggleCardAssignee` no crea notificación. Solo los comentarios notifican.
+
+### QA-26 · Funciones a medias: Onboarding, Feedback y Riesgos ✅
+
+- Las tablas `onboarding_checklist_items`, `feedback_threads`, `feedback_messages` y `risks` existen con sus permisos, pero **ningún código las usa** (0 referencias en `src`). Un cliente convertido desde un prospecto queda con 0 pasos de onboarding.
+
+## 🟡 Menores
+
+### QA-27 · Detalles de interfaz ✅
+
+- El detalle de tarjeta muestra **"IN IN PROGRESS"** (el "in" se duplica).
+- Las reuniones pasadas siguen mostrando el botón **"Join"**.
+- Guardar el CVR y la dirección en Team no muestra ninguna confirmación.
+- El formulario de horas se limpia sin avisar de que se guardó.
+- Los botones "Delete project" tienen todos el mismo nombre accesible.
+- Decisiones y actualizaciones no se pueden editar, solo borrar.
+- El cliente no puede invitar a su equipo desde el portal (la política RLS lo permite, pero no hay pantalla).
+- La factura no muestra la dirección del vendedor (`BUSINESS_INFO.address` está vacío): obligatoria en una factura danesa.
+
+### QA-28 · El CSV no lleva BOM 📄
+
+- `/api/export/hours` y `/api/export/invoices` devuelven UTF-8 sin BOM. Excel suele mostrar mal æ, ø y å. Las fechas salen en formato técnico (`2026-10-09T00:00:00+00:00`).
+
+### QA-29 · Las páginas legales no identifican a la empresa 📄
+
+- `privacy` y `terms` no indican el responsable del tratamiento (nombre legal, CVR, dirección) ni la ley y jurisdicción aplicables. Es un tema de contenido, no de código: conviene revisarlo con un asesor.
+
+## Lo que funciona bien ✅
+
+- **Acceso:** login con magic link para admin, dueño y colaborador; el invitado queda vinculado a su organización la primera vez que entra; las rutas protegidas redirigen.
+- **Admin:** dashboard, clientes (crear, editar, borrar), invitaciones, proyectos (editar con validación, borrar), tablero (asignar, etiquetas, enlaces seguros, borrar sin huérfanos), archivos (carpetas, mover, descargar), reuniones, actualizaciones (HTML escapado), horas (crear, editar, borrar), facturas (importar horas, cambiar estado, duplicar, borrar), contratos (crear con PDF), prospectos (convertir a cliente), búsqueda en todas las entidades, notificaciones y exportaciones.
+- **Portal:** resumen, tablero (crear, comentar), archivos (subir y descargar), reuniones, decisiones, actualizaciones, horas, equipo (editar CVR) y facturas.
+- **Módulo Deliverables (nuevo):** el cliente no puede modificar, borrar ni crear entregables; su única escritura es `review_deliverable()`, que exige ser el dueño del workspace y que el entregable esté en revisión. Verificado como dueño, colaborador, otro cliente, admin y anónimo. Los borradores no son visibles para el cliente ni a través de sus archivos.
+
+## No verificable en esta ronda ➖
+
+- **Arrastrar tarjetas entre columnas:** la herramienta de pruebas no genera los eventos de puntero de la librería de arrastre.
+- **Firma electrónica real y envío de correos:** faltan las claves de Documenso y Resend.
+- **Cómo se ve el CSV en Excel.**
+
+---
+
 ## Pendiente
 
-- Confirmar los hallazgos 📄 con Supabase conectado (`.env.local`), usando un usuario cliente de prueba.
+- Corregir los hallazgos, empezando por SEC-01 y SEC-02.
+- Confirmar con un cliente real si los hallazgos de permisos (SEC-03, SEC-04) se comportan igual en producción, por si allí hay políticas que no están en las migraciones.
