@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Avatar from "@mui/material/Avatar";
 import List from "@mui/material/List";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
