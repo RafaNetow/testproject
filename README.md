@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Alchemica
 
-## Getting Started
+Marketing site, client portal (`/portal`) and admin (`/admin`) for Alchemica — Next.js 16 + Supabase.
 
-First, run the development server:
+## Local development
+
+### Requirements
+
+- Node.js 22.18+.
+- Docker Desktop, running. On Windows it needs WSL 2 (`wsl --install` from an admin terminal, then reboot).
+
+### First run
 
 ```bash
+npm install
+npm run db:start   # starts Supabase in Docker, applies supabase/migrations and supabase/seed.sql
+npm run db:env     # writes the local Supabase URL and keys into .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Test logins
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Sign-in is by magic link. Request it at http://localhost:3000/login, then open the email in the local inbox at http://127.0.0.1:54324.
 
-## Learn More
+| Email | Role |
+| --- | --- |
+| `admin@alchemica.test` | Platform admin (`/admin`) |
+| `owner@cliente.test` | Client owner (`/portal`, sees invoices and contracts) |
+| `colab@cliente.test` | Client collaborator (`/portal`) |
 
-To learn more about Next.js, take a look at the following resources:
+### Database commands
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Command | What it does |
+| --- | --- |
+| `npm run db:start` | Start local Supabase |
+| `npm run db:stop` | Stop it (data is kept) |
+| `npm run db:reset` | Wipe and recreate from migrations + seed |
+| `npm run db:env` | Refresh `.env.local` with the local keys |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Supabase Studio (table editor, SQL) runs at http://127.0.0.1:54323.
 
-## Deploy on Vercel
+### Optional services
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The contact form, invite emails and contract signing need `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `DOCUMENSO_API_KEY` and `DOCUMENSO_WEBHOOK_SECRET` in `.env.local` (see `.env.example`). Without them those features show a fallback message; everything else works.
