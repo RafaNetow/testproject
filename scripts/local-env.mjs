@@ -19,6 +19,7 @@ const values = {
   NEXT_PUBLIC_SUPABASE_URL: status.API_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: status.ANON_KEY ?? status.PUBLISHABLE_KEY,
   SUPABASE_SERVICE_ROLE_KEY: status.SERVICE_ROLE_KEY ?? status.SECRET_KEY,
+  NEXT_PUBLIC_SITE_URL: "http://localhost:3000",
 };
 
 const missing = Object.entries(values).filter(([, v]) => !v).map(([k]) => k);
@@ -28,13 +29,13 @@ if (missing.length) {
 }
 
 const path = ".env.local";
-const lines = existsSync(path) ? readFileSync(path, "utf8").split(/\r?\n/) : [];
+const lines = existsSync(path) ? readFileSync(path, "utf8").trimEnd().split(/\r?\n/) : [];
 for (const [key, value] of Object.entries(values)) {
   const i = lines.findIndex((l) => l.startsWith(`${key}=`));
   if (i === -1) lines.push(`${key}=${value}`);
   else lines[i] = `${key}=${value}`;
 }
-writeFileSync(path, lines.filter((l, i) => l || i < lines.length - 1).join("\n") + "\n");
+writeFileSync(path, lines.join("\n").trim() + "\n");
 
 console.log(`.env.local updated with local Supabase at ${values.NEXT_PUBLIC_SUPABASE_URL}`);
 const inbox = status.INBUCKET_URL ?? status.MAILPIT_URL;

@@ -8,6 +8,10 @@ import { createClient } from "@/lib/supabase/server";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
+// Where invite emails send people to sign in. Local dev sets this to
+// localhost so an invite never points a tester at the production site.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.alchemica.dk";
+
 export type InviteResult = {
   success: boolean;
   emailSent: boolean;
@@ -31,7 +35,7 @@ async function sendInviteEmail(
     to: email,
     replyTo: "hello@alchemica.dk",
     subject: "You've been invited to the Alchemica client portal",
-    text: `You've been added to ${orgName}'s workspace on Alchemica.\n\nSign in at https://www.alchemica.dk/login using this email address (${email}) — no password needed, just a one-time link sent to your inbox.`,
+    text: `You've been added to ${orgName}'s workspace on Alchemica.\n\nSign in at ${SITE_URL}/login using this email address (${email}) — no password needed, just a one-time link sent to your inbox.`,
   });
 
   if (error) {
