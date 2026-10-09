@@ -39,17 +39,15 @@ export function ActivityFeed({
   emptyText: string;
 }) {
   return (
-    <div>
-      <Typography component="h2" sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}>
+    <Paper variant="outlined" sx={{ overflow: "hidden" }}>
+      <Typography variant="h2" sx={{ px: 3, pt: 3, pb: 1, fontSize: 18 }}>
         {title}
       </Typography>
       {!items.length ? (
-        <Paper variant="outlined" sx={{ mt: 1.5, borderStyle: "dashed", px: 3, py: 5, textAlign: "center" }}>
-          <Typography sx={{ fontSize: 14, color: "text.muted" }}>{emptyText}</Typography>
-        </Paper>
+        <Typography sx={{ px: 3, pt: 2, pb: 4, fontSize: 14, color: "text.muted" }}>{emptyText}</Typography>
       ) : (
-        <Paper variant="outlined" sx={{ mt: 1.5, overflow: "hidden" }}>
-          <List disablePadding>
+        <>
+          <List disablePadding sx={{ px: 1, pb: 1 }}>
             {items.map((item, i) => {
               const ItemIcon = ICONS[item.type];
               return (
@@ -57,19 +55,27 @@ export function ActivityFeed({
                   key={`${item.href}-${i}`}
                  
                   href={item.href}
-                  divider={i < items.length - 1}
-                  sx={{ px: 2.5, py: 1.25 }}
+                  sx={{ borderRadius: 1, px: 2, py: 1.25 }}
                 >
                   <ListItemAvatar sx={{ minWidth: 44 }}>
-                    <Avatar sx={{ width: 32, height: 32, bgcolor: "var(--color-muted)", color: "text.muted" }}>
-                      <ItemIcon sx={{ fontSize: 16 }} />
+                    <Avatar
+                      variant="rounded"
+                      sx={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: 1.5,
+                        bgcolor: "color-mix(in srgb, var(--color-accent) 10%, transparent)",
+                        color: "primary.main",
+                      }}
+                    >
+                      <ItemIcon sx={{ fontSize: 18 }} />
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText
                     primary={item.label}
                     secondary={item.sublabel}
                     slotProps={{
-                      primary: { noWrap: true, sx: { fontSize: 14 } },
+                      primary: { noWrap: true, sx: { fontSize: 14, fontWeight: 600 } },
                       secondary: { sx: { fontSize: 12, color: "text.muted" } },
                     }}
                   />
@@ -80,8 +86,8 @@ export function ActivityFeed({
               );
             })}
           </List>
-        </Paper>
+        </>
       )}
-    </div>
+    </Paper>
   );
 }

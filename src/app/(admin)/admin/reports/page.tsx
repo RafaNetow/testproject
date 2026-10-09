@@ -9,12 +9,6 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { LinkTable } from "@/components/shared/link-table";
 import Stack from "@mui/material/Stack";
 
-const onDarkButtonSx = {
-  borderColor: "rgba(255,255,255,0.15)",
-  color: "rgba(255,255,255,0.8)",
-  "&:hover": { borderColor: "rgba(255,255,255,0.3)", bgcolor: "rgba(255,255,255,0.1)", color: "#fff" },
-} as const;
-
 type InvoiceRow = {
   id: string;
   amount_cents: number;
@@ -125,10 +119,10 @@ export default async function AdminReportsPage() {
         subtitle="Revenue, outstanding invoices, and billable hours across every client."
         actions={
           <>
-            <Button href="/api/export/invoices" variant="outlined" startIcon={<FileDownloadOutlined />} sx={onDarkButtonSx}>
+            <Button href="/api/export/invoices" variant="outlined" startIcon={<FileDownloadOutlined />} color="secondary">
               Export invoices
             </Button>
-            <Button href="/api/export/hours" variant="outlined" startIcon={<FileDownloadOutlined />} sx={onDarkButtonSx}>
+            <Button href="/api/export/hours" variant="outlined" startIcon={<FileDownloadOutlined />} color="secondary">
               Export hours
             </Button>
           </>

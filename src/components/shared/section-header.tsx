@@ -1,17 +1,13 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import Box from "@mui/material/Box";
 import MuiLink from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
-import ArrowBack from "@mui/icons-material/ArrowBack";
-import { MolecularAccent } from "@/components/molecular-accent";
 
 /**
- * The slim, dark, molecular-network-branded header used across every
- * top-level admin/portal page — the same visual language as DashboardHero,
- * just shorter, since a full-height greeting banner on every single work
- * page (Board, Files, Invoices…) would be more motion than a data-dense
- * screen should carry.
+ * The page heading used across every admin/portal page — a plain title with a
+ * breadcrumb trail beneath and actions on the right, in the "Minimal"
+ * dashboard style. Data-dense work pages (Board, Files, Invoices…) get to
+ * start right under it instead of below a banner.
  */
 export function SectionHeader({
   eyebrow,
@@ -21,6 +17,7 @@ export function SectionHeader({
   actions,
   backLink,
 }: {
+  /** Shown as the last breadcrumb — the section this page belongs to. */
   eyebrow?: string;
   title: ReactNode;
   /** Rendered inline next to the title — e.g. a status pill. */
@@ -29,75 +26,51 @@ export function SectionHeader({
   actions?: ReactNode;
   backLink?: { href: string; label: string };
 }) {
+  const crumbs = [backLink, eyebrow].filter(Boolean);
+
   return (
-    <Box
-      sx={{
-        position: "relative",
-        overflow: "hidden",
-        borderRadius: 4,
-        bgcolor: "#0a0e16",
-        px: { xs: 3, sm: 4 },
-        py: 3,
-      }}
-    >
-      <MolecularAccent tone="bright" particleCount={20} desktopOnly={false} opacity={0.4} />
-      <Box
-        sx={{
-          position: "relative",
-          zIndex: 1,
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "flex-end",
-          justifyContent: "space-between",
-          gap: 2,
-        }}
-      >
-        <div>
-          {backLink && (
-            <MuiLink
-             
-              href={backLink.href}
-              underline="none"
-              sx={{
-                mb: 1,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 1,
-                fontSize: 14,
-                fontWeight: 500,
-                color: "rgba(255,255,255,0.5)",
-                "&:hover": { color: "#fff" },
-              }}
-            >
-              <ArrowBack sx={{ fontSize: 16 }} />
-              {backLink.label}
-            </MuiLink>
-          )}
-          {eyebrow && (
-            <Typography
-              sx={{
-                fontFamily: "var(--font-mono)",
-                fontSize: 12,
-                letterSpacing: "0.2em",
-                textTransform: "uppercase",
-                color: "#7dd3fc",
-              }}
-            >
-              {eyebrow}
-            </Typography>
-          )}
-          <Box sx={{ mt: eyebrow ? 1 : 0, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5 }}>
-            <Typography variant="h1" sx={{ fontSize: 24, color: "#fff" }}>
-              {title}
-            </Typography>
-            {titleExtra}
+    <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+      <Box sx={{ minWidth: 0 }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5 }}>
+          <Typography variant="h1" sx={{ fontSize: 24, lineHeight: 1.5 }}>
+            {title}
+          </Typography>
+          {titleExtra}
+        </Box>
+        {crumbs.length > 0 && (
+          <Box
+            component="nav"
+            aria-label="Breadcrumb"
+            sx={{ mt: 0.5, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.25, fontSize: 14 }}
+          >
+            {backLink && (
+              <MuiLink href={backLink.href} color="text.primary" sx={{ fontWeight: 500 }}>
+                {backLink.label}
+              </MuiLink>
+            )}
+            {backLink && eyebrow && <Dot />}
+            {eyebrow && (
+              <Typography component="span" sx={{ fontSize: 14, color: "text.muted" }}>
+                {eyebrow}
+              </Typography>
+            )}
+            {backLink && !eyebrow && (
+              <>
+                <Dot />
+                <Typography component="span" noWrap sx={{ fontSize: 14, color: "text.muted", maxWidth: 280 }}>
+                  {title}
+                </Typography>
+              </>
+            )}
           </Box>
-          {subtitle && (
-            <Typography sx={{ mt: 0.75, fontSize: 14, color: "rgba(255,255,255,0.6)" }}>{subtitle}</Typography>
-          )}
-        </div>
-        {actions && <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1 }}>{actions}</Box>}
+        )}
+        {subtitle && <Typography sx={{ mt: 1, fontSize: 14, color: "text.secondary" }}>{subtitle}</Typography>}
       </Box>
+      {actions && <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1 }}>{actions}</Box>}
     </Box>
   );
+}
+
+function Dot() {
+  return <Box component="span" aria-hidden sx={{ width: 4, height: 4, borderRadius: "50%", bgcolor: "text.muted" }} />;
 }

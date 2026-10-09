@@ -31,28 +31,58 @@
  * per-section (see section-header.tsx's own `dark` prop) and swapping their
  * tokens wholesale on system preference would fight that, not complement it.
  *
- * Set on <body> (when it contains the app shell) rather than on the shell
- * itself, so MUI dialogs, menus and popovers — which render in a portal
- * directly under <body> — pick up the same tokens.
+ * Set on <html> (when it contains the app shell) rather than on the shell
+ * itself: MUI resolves its palette variables at :root, and its dialogs, menus
+ * and popovers render in a portal outside the shell — both need these tokens.
  */
-@media (prefers-color-scheme: dark) {
-  body:has(.app-shell) {
-    color-scheme: dark;
-    --background: #0a0e16;
-    --foreground: #e5e9f0;
+/*
+ * The app shell uses a "Minimal dashboard" look: a cool grey neutral scale,
+ * soft card shadows instead of borders, and Public Sans for every heading
+ * (the marketing site keeps Fraunces/Inter).
+ */
+:root:has(.app-shell) {
+  --font-display: var(--font-dashboard);
+  --heading-weight: 700;
+  --font-body: var(--font-dashboard);
 
-    --color-primary: #f1f5f9;
-    --color-primary-foreground: #0b1220;
-    --color-secondary: #9aa5b8;
-    --color-accent: #0ea5e9;
+  --background: #f9fafb;
+  --foreground: #1c252e;
+
+  --color-primary: #1c252e;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #637381;
+  --color-muted: #f4f6f8;
+  --color-muted-foreground: #919eab;
+  --color-border: rgb(145 158 171 / 0.2);
+  --color-card: #ffffff;
+  --color-destructive: #ff5630;
+
+  --shadow-card: 0 0 2px 0 rgb(145 158 171 / 0.2), 0 12px 24px -4px rgb(145 158 171 / 0.12);
+  --shadow-dropdown: 0 0 2px 0 rgb(145 158 171 / 0.24), -20px 20px 40px -4px rgb(145 158 171 / 0.24);
+  --border-dashed: rgb(145 158 171 / 0.24);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:has(.app-shell) {
+    color-scheme: dark;
+    --background: #141a21;
+    --foreground: #ffffff;
+
+    --color-primary: #ffffff;
+    --color-primary-foreground: #1c252e;
+    --color-secondary: #919eab;
+    --color-accent: #3ba7e6;
     --color-accent-foreground: #04121c;
-    --color-muted: #151b28;
-    --color-muted-foreground: #8b94a7;
-    --color-border: #262f42;
-    --color-card: #111826;
-    --color-ring: #0ea5e9;
-    --color-destructive: #f87171;
+    --color-muted: #28323d;
+    --color-muted-foreground: #637381;
+    --color-border: rgb(145 158 171 / 0.2);
+    --color-card: #1c252e;
+    --color-ring: #3ba7e6;
+    --color-destructive: #ff8c67;
     --color-destructive-foreground: #2a0a0a;
+
+    --shadow-card: 0 0 2px 0 rgb(0 0 0 / 0.2), 0 12px 24px -4px rgb(0 0 0 / 0.12);
+    --shadow-dropdown: 0 0 2px 0 rgb(0 0 0 / 0.24), -20px 20px 40px -4px rgb(0 0 0 / 0.24);
   }
 }
 

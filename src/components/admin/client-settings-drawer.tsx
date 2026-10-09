@@ -23,11 +23,7 @@ export function ClientSettingsDrawer({ children }: { children: ReactNode }) {
         onClick={() => setOpen(true)}
         title="Client settings"
         aria-label="Open client settings"
-        sx={{
-          border: "1px solid rgba(255,255,255,0.15)",
-          color: "rgba(255,255,255,0.7)",
-          "&:hover": { bgcolor: "rgba(255,255,255,0.1)", color: "#fff" },
-        }}
+        sx={{ border: "1px solid rgb(145 158 171 / 0.32)", borderRadius: 2 }}
       >
         <SettingsOutlined sx={{ fontSize: 18 }} />
       </IconButton>

@@ -110,14 +110,15 @@ export function AdminSearch() {
             alignItems: "center",
             gap: 1,
             borderRadius: 2,
-            border: "1px solid rgba(255,255,255,0.1)",
-            bgcolor: "rgba(255,255,255,0.05)",
+            border: "1px solid transparent",
+            bgcolor: "var(--color-muted)",
             px: 1.5,
             py: 0.75,
-            "&:focus-within": { borderColor: "rgba(255,255,255,0.25)" },
+            transition: "border-color 150ms, background-color 150ms",
+            "&:focus-within": { borderColor: "var(--color-primary)", bgcolor: "background.paper" },
           }}
         >
-          <SearchIcon sx={{ fontSize: 16, color: "rgba(255,255,255,0.4)", flexShrink: 0 }} />
+          <SearchIcon sx={{ fontSize: 18, color: "text.muted", flexShrink: 0 }} />
           <InputBase
             inputProps={params.slotProps.htmlInput}
             placeholder="Search everything…"
@@ -125,8 +126,8 @@ export function AdminSearch() {
               flex: 1,
               minWidth: 0,
               fontSize: 14,
-              color: "#fff",
-              "& input::placeholder": { color: "rgba(255,255,255,0.35)", opacity: 1 },
+              color: "text.primary",
+              "& input::placeholder": { color: "var(--color-muted-foreground)", opacity: 1 },
             }}
           />
           <Box
@@ -135,12 +136,14 @@ export function AdminSearch() {
               display: { xs: "none", sm: "block" },
               flexShrink: 0,
               borderRadius: 0.5,
-              border: "1px solid rgba(255,255,255,0.15)",
+              bgcolor: "background.paper",
+              boxShadow: "var(--shadow-card)",
               px: 0.75,
               py: 0.25,
               fontFamily: "var(--font-mono)",
               fontSize: 10,
-              color: "rgba(255,255,255,0.4)",
+              fontWeight: 600,
+              color: "text.secondary",
             }}
           >
             ⌘K

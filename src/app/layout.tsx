@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Inter, JetBrains_Mono, Public_Sans } from "next/font/google";
 import { CookieNotice } from "@/components/cookie-notice";
 import { DevEnvironmentBadge } from "@/components/dev-environment-badge";
 import { MuiProvider } from "@/components/providers/mui-provider";
@@ -17,6 +17,13 @@ const inter = Inter({
   variable: "--font-body",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
+});
+
+// Portal/admin typeface (the "Minimal dashboard" look) — see globals.css.
+const publicSans = Public_Sans({
+  variable: "--font-dashboard",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -55,7 +62,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} ${publicSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-body">
         <MuiProvider>

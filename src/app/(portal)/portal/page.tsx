@@ -1,4 +1,8 @@
 import Stack from "@mui/material/Stack";
+import FolderOpenOutlined from "@mui/icons-material/FolderOpenOutlined";
+import ForumOutlined from "@mui/icons-material/ForumOutlined";
+import VideocamOutlined from "@mui/icons-material/VideocamOutlined";
+import ViewKanbanOutlined from "@mui/icons-material/ViewKanbanOutlined";
 import { createClient } from "@/lib/supabase/server";
 import { getPortalProjectContext } from "@/lib/portal-context";
 import { DashboardHero } from "@/components/shared/dashboard-hero";
@@ -139,11 +143,12 @@ export default async function PortalHome() {
     .slice(0, 8);
 
   const KPI_TILES = [
-    { label: "Board items", value: cardCount ?? 0 },
-    { label: "Decisions logged", value: decisionCount ?? 0 },
-    { label: "Files", value: fileCount ?? 0 },
+    { label: "Board items", value: cardCount ?? 0, icon: <ViewKanbanOutlined /> },
+    { label: "Decisions logged", value: decisionCount ?? 0, icon: <ForumOutlined /> },
+    { label: "Files", value: fileCount ?? 0, icon: <FolderOpenOutlined /> },
     {
       label: "Next meeting",
+      icon: <VideocamOutlined />,
       value: nextMeeting
         ? new Date(nextMeeting.scheduled_at).toLocaleDateString("en-GB", {
             month: "short",

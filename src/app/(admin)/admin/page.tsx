@@ -5,6 +5,7 @@ import BusinessOutlined from "@mui/icons-material/BusinessOutlined";
 import CalendarMonthOutlined from "@mui/icons-material/CalendarMonthOutlined";
 import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
 import TrackChangesOutlined from "@mui/icons-material/TrackChangesOutlined";
+import WorkOutlineOutlined from "@mui/icons-material/WorkOutlineOutlined";
 import { getSessionUser } from "@/lib/dal";
 import { LinkBox } from "@/components/shared/link-box";
 import { createClient } from "@/lib/supabase/server";
@@ -153,25 +154,24 @@ export default async function AdminDashboard() {
       <StatTiles
         columns={3}
         tiles={[
-          { label: "Active clients", value: orgCount ?? "—" },
-          { label: "Projects", value: projectCount ?? "—" },
-          { label: "Upcoming meetings", value: upcomingMeetingsCount ?? "—" },
+          { label: "Active clients", value: orgCount ?? "—", icon: <BusinessOutlined /> },
+          { label: "Projects", value: projectCount ?? "—", icon: <WorkOutlineOutlined /> },
+          { label: "Upcoming meetings", value: upcomingMeetingsCount ?? "—", icon: <CalendarMonthOutlined /> },
         ]}
       />
 
       <div>
-        <Typography component="h2" sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}>
+        <Typography variant="h2" sx={{ fontSize: 18 }}>
           Quick links
         </Typography>
-        <Box sx={{ mt: 1.5, display: "grid", gap: 2, gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(4, 1fr)" } }}>
+        <Box sx={{ mt: 2, display: "grid", gap: 3, gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(4, 1fr)" } }}>
           {QUICK_LINKS.map(({ label, href, icon: LinkIcon }) => (
             <LinkBox
               key={href}
               href={href}
               sx={{
-                border: 1,
-                borderColor: "divider",
-                borderRadius: 4,
+                borderRadius: 2,
+                boxShadow: "var(--shadow-card)",
                 bgcolor: "background.paper",
                 color: "text.primary",
                 display: "flex",
@@ -180,12 +180,24 @@ export default async function AdminDashboard() {
                 gap: 1.5,
                 p: 2.5,
                 textDecoration: "none",
-                transition: "background-color 150ms",
-                "&:hover": { bgcolor: "action.hover" },
+                transition: "transform 200ms",
+                "&:hover": { transform: "translateY(-2px)" },
               }}
             >
-              <LinkIcon sx={{ fontSize: 22, color: "primary.main" }} />
-              <Typography sx={{ fontSize: 14, fontWeight: 500 }}>{label}</Typography>
+              <Box
+                sx={{
+                  display: "grid",
+                  placeItems: "center",
+                  width: 40,
+                  height: 40,
+                  borderRadius: 1.5,
+                  bgcolor: "color-mix(in srgb, var(--color-accent) 12%, transparent)",
+                  color: "primary.main",
+                }}
+              >
+                <LinkIcon sx={{ fontSize: 22 }} />
+              </Box>
+              <Typography sx={{ fontSize: 14, fontWeight: 600 }}>{label}</Typography>
             </LinkBox>
           ))}
         </Box>

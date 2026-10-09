@@ -17,9 +17,10 @@ function dateLabelNow() {
 }
 
 /**
- * Greeting and date come from the visitor's own clock. The server renders a
- * neutral placeholder (it doesn't know the visitor's time of day), and the
- * client snapshot replaces it after hydration without a mismatch.
+ * The dashboard's welcome card. Greeting and date come from the visitor's own
+ * clock: the server renders a neutral placeholder (it doesn't know the
+ * visitor's time of day) and the client snapshot replaces it after hydration
+ * without a mismatch.
  */
 export function DashboardHero({ name, subtitle }: { name?: string; subtitle: string }) {
   const greeting = useSyncExternalStore(noSubscription, greetingNow, () => "Welcome back");
@@ -30,31 +31,24 @@ export function DashboardHero({ name, subtitle }: { name?: string; subtitle: str
       sx={{
         position: "relative",
         overflow: "hidden",
-        borderRadius: 4,
-        bgcolor: "#0a0e16",
+        borderRadius: 2,
         px: { xs: 3, sm: 5 },
         py: { xs: 4, sm: 5 },
+        color: "text.primary",
+        background:
+          "linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 10%, var(--color-card)), color-mix(in srgb, var(--color-accent) 22%, var(--color-card)))",
       }}
     >
-      <MolecularAccent tone="bright" particleCount={40} desktopOnly={false} opacity={0.6} />
-      <Box sx={{ position: "relative", zIndex: 1 }}>
-        <Typography
-          sx={{
-            fontFamily: "var(--font-mono)",
-            fontSize: 12,
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            color: "rgba(255,255,255,0.4)",
-            minHeight: "1.5em",
-          }}
-        >
-          {dateLabel}
-        </Typography>
-        <Typography variant="h1" sx={{ mt: 1, fontSize: { xs: 24, sm: 30 }, color: "#fff" }}>
+      <Box sx={{ position: "absolute", inset: 0, left: "45%", display: { xs: "none", md: "block" } }}>
+        <MolecularAccent particleCount={36} opacity={0.9} />
+      </Box>
+      <Box sx={{ position: "relative", zIndex: 1, maxWidth: 520 }}>
+        <Typography sx={{ fontSize: 13, fontWeight: 600, color: "primary.main", minHeight: "1.5em" }}>{dateLabel}</Typography>
+        <Typography variant="h1" sx={{ mt: 1, fontSize: { xs: 24, sm: 30 } }}>
           {greeting}
-          {name ? `, ${name}` : ""}.
+          {name ? `, ${name}` : ""} 👋
         </Typography>
-        <Typography sx={{ mt: 1, fontSize: 14, color: "rgba(255,255,255,0.6)" }}>{subtitle}</Typography>
+        <Typography sx={{ mt: 1.5, fontSize: 15, lineHeight: 1.6, color: "text.secondary" }}>{subtitle}</Typography>
       </Box>
     </Box>
   );

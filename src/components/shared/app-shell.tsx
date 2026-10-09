@@ -3,26 +3,29 @@
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import ListSubheader from "@mui/material/ListSubheader";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
 import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
-import { SignOutButton } from "@/components/sign-out-button";
+import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
+import HomeOutlined from "@mui/icons-material/HomeOutlined";
+import { useSignOut } from "@/components/sign-out-button";
 import { AdminSearch } from "@/components/shared/admin-search";
-import { MolecularAccent } from "@/components/molecular-accent";
 import { NotificationBell, type NotificationItem } from "@/components/shared/notification-bell";
 import { PORTAL_NAV, ADMIN_NAV } from "@/lib/nav-items";
 
-/** The sidebar is always dark, in both colour schemes. */
-export const SIDEBAR_BG = "#0a0e16";
-const SIDEBAR_ACTIVE = "#7dd3fc";
-const SIDEBAR_WIDTH = 256;
+const SIDEBAR_WIDTH = 280;
+const HEADER_HEIGHT = { xs: 64, lg: 72 };
 
 type AppShellProps = {
   variant: "portal" | "admin";
@@ -35,12 +38,22 @@ type AppShellProps = {
   children: ReactNode;
 };
 
+function initialsFor(email: string) {
+  const name = email.split("@")[0] ?? "";
+  const parts = name.split(/[._-]+/).filter(Boolean);
+  return (parts.length > 1 ? parts[0][0] + parts[1][0] : name.slice(0, 2)).toUpperCase() || "?";
+}
+
 /**
- * Shared sidebar + topbar chrome for both the client portal and admin
+ * Shared sidebar + header chrome for both the client portal and admin
  * console — parameterized rather than forked, so the two surfaces stay
- * visually and behaviorally consistent. Nav items (which carry icon
- * component references) are looked up here rather than passed as a prop,
- * since functions can't cross the Server->Client Component boundary.
+ * visually and behaviorally consistent. Laid out like a "Minimal" MUI
+ * dashboard: a light sidebar with a dashed edge, a translucent sticky header
+ * with search/notifications/account, and a centered content column.
+ *
+ * Nav items (which carry icon component references) are looked up here
+ * rather than passed as a prop, since functions can't cross the
+ * Server->Client Component boundary.
  */
 export function AppShell({
   variant,
@@ -58,8 +71,58 @@ export function AppShell({
   const isActive = (href: string) =>
     href === pathname || (href !== "/portal" && href !== "/admin" && pathname.startsWith(href));
 
+  const brand = (
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, px: 2.5, py: 3 }}>
+      <Box
+        component={Link}
+        href="/"
+        aria-label={`${brandLabel} home`}
+        sx={{
+          display: "grid",
+          placeItems: "center",
+          width: 40,
+          height: 40,
+          borderRadius: 1.5,
+          background: "linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 60%, white), var(--color-accent))",
+          color: "#fff",
+          fontWeight: 800,
+          fontSize: 18,
+          textDecoration: "none",
+          boxShadow: "0 8px 16px -4px color-mix(in srgb, var(--color-accent) 40%, transparent)",
+        }}
+      >
+        A
+      </Box>
+      <div>
+        <Typography sx={{ fontSize: 16, fontWeight: 700, lineHeight: 1.2 }}>{brandLabel}</Typography>
+        <Typography sx={{ fontSize: 12, color: "text.muted" }}>{subtitle}</Typography>
+      </div>
+    </Box>
+  );
+
   const navList = (
-    <List component="nav" aria-label="Main" sx={{ flex: 1, px: 1.5, py: 0 }}>
+    <List
+      component="nav"
+      aria-label="Main"
+      sx={{ flex: 1, px: 2, py: 0 }}
+      subheader={
+        <ListSubheader
+          disableSticky
+          sx={{
+            bgcolor: "transparent",
+            px: 1.5,
+            lineHeight: "36px",
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            color: "text.muted",
+          }}
+        >
+          {variant === "portal" ? "Workspace" : "Management"}
+        </ListSubheader>
+      }
+    >
       {navItems.map(({ label, href, icon: ItemIcon, activeIcon: ActiveIcon }) => {
         const active = isActive(href);
         const count = badges?.[href] ?? 0;
@@ -72,32 +135,43 @@ export function AppShell({
             selected={active}
             onClick={() => setOpen(false)}
             sx={{
-              borderRadius: 2,
+              minHeight: 44,
+              borderRadius: 1,
               mb: 0.5,
-              py: 1.25,
-              color: "rgba(255,255,255,0.6)",
-              "&:hover": { bgcolor: "rgba(255,255,255,0.05)", color: "#fff" },
-              "&.Mui-selected, &.Mui-selected:hover": { bgcolor: "rgba(255,255,255,0.1)", color: SIDEBAR_ACTIVE },
+              pl: 1.5,
+              pr: 1,
+              color: "text.secondary",
+              "&:hover": { bgcolor: "action.hover" },
+              "&.Mui-selected, &.Mui-selected:hover": {
+                bgcolor: "color-mix(in srgb, var(--color-accent) 8%, transparent)",
+                color: "primary.main",
+              },
+              "&.Mui-selected:hover": { bgcolor: "color-mix(in srgb, var(--color-accent) 16%, transparent)" },
             }}
           >
-            <ListItemIcon sx={{ minWidth: 32, color: "inherit" }}>
-              <Icon sx={{ fontSize: 19 }} />
+            <ListItemIcon sx={{ minWidth: 36, color: "inherit" }}>
+              <Icon sx={{ fontSize: 22 }} />
             </ListItemIcon>
-            <ListItemText primary={label} slotProps={{ primary: { sx: { fontSize: 14, fontWeight: 500 } } }} />
+            <ListItemText
+              primary={label}
+              slotProps={{ primary: { sx: { fontSize: 14, fontWeight: active ? 600 : 500 } } }}
+            />
             {count > 0 && (
               <Box
                 component="span"
                 aria-label={`${count} waiting`}
                 sx={{
                   ml: 1,
-                  px: 1,
-                  py: 0.25,
-                  borderRadius: 999,
-                  bgcolor: "rgba(125,211,252,0.15)",
-                  color: SIDEBAR_ACTIVE,
-                  fontFamily: "var(--font-mono)",
+                  minWidth: 24,
+                  height: 24,
+                  px: 0.75,
+                  display: "inline-grid",
+                  placeItems: "center",
+                  borderRadius: 0.75,
+                  bgcolor: "color-mix(in srgb, var(--color-destructive) 16%, transparent)",
+                  color: "error.main",
                   fontSize: 12,
-                  fontWeight: 500,
+                  fontWeight: 700,
                 }}
               >
                 {count}
@@ -109,137 +183,180 @@ export function AppShell({
     </List>
   );
 
-  const userBlock = (
-    <Box sx={{ borderTop: "1px solid rgba(255,255,255,0.1)", px: 3, py: 2.5 }}>
-      <Typography noWrap sx={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>
-        {userEmail}
-      </Typography>
-      <SignOutButton tone="dark" />
+  const sidebarFooter = (
+    <Box sx={{ p: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1.5,
+          p: 1.5,
+          borderRadius: 1.5,
+          bgcolor: "var(--color-muted)",
+        }}
+      >
+        <Avatar sx={{ width: 36, height: 36, fontSize: 14, bgcolor: "primary.main", color: "primary.contrastText" }}>
+          {initialsFor(userEmail)}
+        </Avatar>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography noWrap sx={{ fontSize: 13, fontWeight: 600 }}>
+            {userEmail}
+          </Typography>
+          <Typography sx={{ fontSize: 12, color: "text.muted" }}>{variant === "admin" ? "Administrator" : "Client"}</Typography>
+        </Box>
+      </Box>
     </Box>
   );
 
+  const sidebarContent = (
+    <>
+      {brand}
+      {navList}
+      {sidebarFooter}
+    </>
+  );
+
   return (
-    <Box className="app-shell" sx={{ display: "flex", minHeight: "100dvh", bgcolor: "var(--color-muted)" }}>
+    <Box className="app-shell" sx={{ display: "flex", minHeight: "100dvh", bgcolor: "background.default" }}>
       <Box
         component="aside"
         sx={{
           display: { xs: "none", lg: "flex" },
+          position: "sticky",
+          top: 0,
+          height: "100dvh",
           width: SIDEBAR_WIDTH,
           flexShrink: 0,
           flexDirection: "column",
-          bgcolor: SIDEBAR_BG,
+          overflowY: "auto",
+          borderRight: "1px dashed var(--border-dashed)",
         }}
       >
-        <Box sx={{ position: "relative", height: 176, flexShrink: 0, overflow: "hidden" }}>
-          <MolecularAccent tone="bright" opacity={0.7} />
-          <Box sx={{ position: "absolute", right: 16, top: 16, zIndex: 1 }}>
-            <NotificationBell notifications={notifications} dark />
-          </Box>
-          <Box
-            sx={{
-              position: "relative",
-              zIndex: 1,
-              display: "flex",
-              height: "100%",
-              flexDirection: "column",
-              justifyContent: "flex-end",
-              px: 3,
-              pb: 3,
-            }}
-          >
-            <Typography
-              component={Link}
-              href="/"
-              sx={{ fontFamily: "var(--font-display)", fontSize: 18, color: "#fff", textDecoration: "none" }}
-            >
-              {brandLabel}
-            </Typography>
-            <Typography
-              sx={{
-                mt: 0.25,
-                fontFamily: "var(--font-mono)",
-                fontSize: 11,
-                letterSpacing: "0.2em",
-                textTransform: "uppercase",
-                color: "rgba(255,255,255,0.4)",
-              }}
-            >
-              {subtitle}
-            </Typography>
-          </Box>
-        </Box>
-        {variant === "admin" && (
-          <Box sx={{ p: 1.5 }}>
-            <AdminSearch />
-          </Box>
-        )}
-        {navList}
-        {userBlock}
+        {sidebarContent}
       </Box>
+
+      <Drawer
+        anchor="left"
+        open={open}
+        onClose={() => setOpen(false)}
+        sx={{ display: { lg: "none" } }}
+        slotProps={{ paper: { sx: { width: SIDEBAR_WIDTH, borderRadius: 0, bgcolor: "background.default" } } }}
+      >
+        {sidebarContent}
+      </Drawer>
 
       <Box sx={{ display: "flex", flex: 1, flexDirection: "column", minWidth: 0 }}>
         <Box
           component="header"
           sx={{
-            display: { xs: "flex", lg: "none" },
+            position: "sticky",
+            top: 0,
+            zIndex: (t) => t.zIndex.appBar,
+            display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            bgcolor: SIDEBAR_BG,
-            px: 3,
-            py: 2,
+            gap: 1,
+            height: HEADER_HEIGHT,
+            px: { xs: 2, sm: 3, lg: 5 },
+            bgcolor: "color-mix(in srgb, var(--background) 80%, transparent)",
+            backdropFilter: "blur(6px)",
           }}
         >
-          <Typography
-            component={Link}
-            href="/"
-            sx={{ fontFamily: "var(--font-display)", fontSize: 18, color: "#fff", textDecoration: "none" }}
+          <IconButton
+            aria-label="Open menu"
+            aria-expanded={open}
+            onClick={() => setOpen(true)}
+            sx={{ display: { lg: "none" }, ml: -1 }}
           >
-            {brandLabel}
-          </Typography>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <NotificationBell notifications={notifications} dark />
-            <IconButton
-              aria-label={open ? "Close menu" : "Open menu"}
-              aria-expanded={open}
-              onClick={() => setOpen((v) => !v)}
-              sx={{ color: "#fff", width: 44, height: 44 }}
-            >
-              {open ? <CloseIcon /> : <MenuIcon />}
-            </IconButton>
-          </Box>
-        </Box>
+            <MenuIcon />
+          </IconButton>
 
-        <Drawer
-          anchor="left"
-          open={open}
-          onClose={() => setOpen(false)}
-          sx={{ display: { lg: "none" } }}
-          slotProps={{ paper: { sx: { width: SIDEBAR_WIDTH + 24, bgcolor: SIDEBAR_BG, borderRadius: 0 } } }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 3, py: 2 }}>
-            <Typography sx={{ fontFamily: "var(--font-display)", fontSize: 18, color: "#fff" }}>{brandLabel}</Typography>
-            <IconButton aria-label="Close menu" onClick={() => setOpen(false)} sx={{ color: "#fff" }}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
           {variant === "admin" && (
-            <Box sx={{ px: 1.5, pb: 1.5 }}>
+            <Box sx={{ width: { xs: "100%", sm: 320 }, maxWidth: 320 }}>
               <AdminSearch />
             </Box>
           )}
-          {navList}
-          {userBlock}
-        </Drawer>
+
+          <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 1 }}>
+            <NotificationBell notifications={notifications} />
+            <AccountMenu email={userEmail} variant={variant} />
+          </Box>
+        </Box>
 
         <Box
           component="main"
           key={pathname}
           className="app-shell-main"
-          sx={{ flex: 1, px: { xs: 2, sm: 3, lg: 5 }, py: { xs: 3, sm: 4, lg: 5 } }}
+          sx={{
+            flex: 1,
+            width: "100%",
+            maxWidth: 1200,
+            mx: "auto",
+            px: { xs: 2, sm: 3, lg: 5 },
+            pt: { xs: 1, lg: 2 },
+            pb: { xs: 6, lg: 10 },
+          }}
         >
           {children}
         </Box>
       </Box>
     </Box>
+  );
+}
+
+function AccountMenu({ email, variant }: { email: string; variant: "portal" | "admin" }) {
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  const signOut = useSignOut();
+
+  return (
+    <>
+      <IconButton
+        aria-label="Account"
+        aria-haspopup="menu"
+        onClick={(e) => setAnchor(e.currentTarget)}
+        sx={{
+          p: "3px",
+          background: "conic-gradient(from 90deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 30%, white), var(--color-accent))",
+        }}
+      >
+        <Avatar
+          sx={{
+            width: 34,
+            height: 34,
+            fontSize: 13,
+            border: "2px solid",
+            borderColor: "background.default",
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
+          }}
+        >
+          {initialsFor(email)}
+        </Avatar>
+      </IconButton>
+      <Menu
+        anchorEl={anchor}
+        open={Boolean(anchor)}
+        onClose={() => setAnchor(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        slotProps={{ paper: { sx: { width: 240, mt: 1 } } }}
+      >
+        <Box sx={{ px: 1.5, py: 1 }}>
+          <Typography noWrap sx={{ fontSize: 14, fontWeight: 600 }}>
+            {email}
+          </Typography>
+          <Typography sx={{ fontSize: 13, color: "text.muted" }}>{variant === "admin" ? "Administrator" : "Client"}</Typography>
+        </Box>
+        <Divider sx={{ borderStyle: "dashed", my: 0.5 }} />
+        <MenuItem component={Link} href={variant === "admin" ? "/admin" : "/portal"} onClick={() => setAnchor(null)}>
+          <HomeOutlined sx={{ fontSize: 20, mr: 1.5, color: "text.secondary" }} />
+          Home
+        </MenuItem>
+        <Divider sx={{ borderStyle: "dashed", my: 0.5 }} />
+        <MenuItem onClick={signOut} sx={{ color: "error.main", fontWeight: 600 }}>
+          <LogoutOutlined sx={{ fontSize: 20, mr: 1.5 }} />
+          Sign out
+        </MenuItem>
+      </Menu>
+    </>
   );
 }
