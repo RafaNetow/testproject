@@ -18,22 +18,22 @@ export function Footer() {
             </p>
             <a
               href="mailto:hello@alchemica.dk"
-              className="mt-4 inline-block text-sm text-white/70 transition-colors hover:text-white"
+              className="mt-3 inline-block py-1.5 text-sm text-white/70 transition-colors hover:text-white"
             >
               hello@alchemica.dk
             </a>
           </div>
 
           <div>
-            <p className="font-mono text-xs uppercase tracking-widest text-white/40">
+            <p className="text-sm font-medium text-white">
               Sitemap
             </p>
-            <ul className="mt-4 flex flex-col gap-3">
+            <ul className="mt-3 flex flex-col gap-1">
               {LINKS.map((link) => (
                 <li key={link.href}>
                   <a
                     href={link.href}
-                    className="text-sm text-white/60 transition-colors hover:text-white"
+                    className="inline-block py-1.5 text-sm text-white/70 transition-colors hover:text-white"
                   >
                     {link.label}
                   </a>
@@ -43,12 +43,12 @@ export function Footer() {
           </div>
 
           <div className="lg:text-right">
-            <p className="font-mono text-xs uppercase tracking-widest text-white/40">
+            <p className="text-sm font-medium text-white">
               Sign in
             </p>
             <a
               href="/login"
-              className="mt-4 inline-block text-sm text-white/60 transition-colors hover:text-white"
+              className="mt-3 inline-block py-1.5 text-sm text-white/70 transition-colors hover:text-white"
             >
               Client &amp; admin login
             </a>
@@ -56,19 +56,19 @@ export function Footer() {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 pt-8">
-          <p className="text-xs text-white/35">
+          <p className="text-xs text-white/60">
             © {new Date().getFullYear()} Alchemica. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <a
               href="/terms"
-              className="text-xs text-white/50 transition-colors hover:text-white"
+              className="inline-block py-1.5 text-xs text-white/70 transition-colors hover:text-white"
             >
               Terms of service
             </a>
             <a
               href="/privacy"
-              className="text-xs text-white/50 transition-colors hover:text-white"
+              className="inline-block py-1.5 text-xs text-white/70 transition-colors hover:text-white"
             >
               Privacy &amp; data handling
             </a>

@@ -38,8 +38,6 @@ export function PortalShowcase() {
           <Reveal>
             <SectionHeader
               dark
-              index="03"
-              label="The client portal"
               title="You see the work as it happens."
             />
             <p className="mt-6 max-w-md text-[15px] leading-relaxed text-white/55">
@@ -65,7 +63,6 @@ export function PortalShowcase() {
 
           <Reveal delay={0.15}>
             <div className="relative" aria-hidden="true">
-              <div className="absolute -inset-8 rounded-[2rem] bg-accent/15 blur-3xl" />
               <div className="relative overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-white/10">
                 <div className="flex items-center gap-1.5 border-b border-border bg-muted px-4 py-3">
                   <span className="h-2.5 w-2.5 rounded-full bg-border" />
@@ -139,7 +136,7 @@ export function PortalShowcase() {
                   </div>
                 </div>
               </div>
-              <p className="mt-5 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
+              <p className="mt-5 text-center text-sm text-white/60">
                 Included with every engagement
               </p>
             </div>

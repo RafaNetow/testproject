@@ -32,8 +32,6 @@ export function CaseStudies() {
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <Reveal>
           <SectionHeader
-            index="02"
-            label="Representative scenarios"
             title="The kind of problem we're usually called in for."
           />
           <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
@@ -46,13 +44,10 @@ export function CaseStudies() {
             <Reveal
               key={s.tag}
               delay={i * 0.08}
-              className="grid grid-cols-1 gap-3 border-b border-border py-8 sm:gap-4 sm:py-10 lg:grid-cols-[3rem_1fr_1fr] lg:items-baseline lg:gap-10"
+              className="grid grid-cols-1 gap-3 border-b border-border py-8 sm:gap-4 sm:py-10 lg:grid-cols-2 lg:items-baseline lg:gap-10"
             >
-              <span className="font-mono text-sm text-muted-foreground">
-                {String(i + 1).padStart(2, "0")}
-              </span>
               <div>
-                <span className="font-mono text-xs uppercase tracking-widest text-accent">
+                <span className="text-sm font-medium text-accent">
                   {s.tag}
                 </span>
                 <div className="mt-2 flex items-center gap-2 text-base font-medium">
