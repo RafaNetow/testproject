@@ -26,12 +26,16 @@ import Avatar from "@mui/material/Avatar";
 import AvatarGroup from "@mui/material/AvatarGroup";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
+import IconButton from "@mui/material/IconButton";
+import InputBase from "@mui/material/InputBase";
 import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import Add from "@mui/icons-material/Add";
 import AttachFile from "@mui/icons-material/AttachFile";
+import CalendarMonthOutlined from "@mui/icons-material/CalendarMonthOutlined";
+import Close from "@mui/icons-material/Close";
 import ChatBubbleOutlined from "@mui/icons-material/ChatBubbleOutlined";
 import { createCard, reorderCards } from "@/lib/actions/board";
 import { CardDetailModal, type ModalCard } from "./card-detail-modal";
@@ -87,7 +91,7 @@ function dueDateTone(dueDate: string | null): "overdue" | "soon" | "normal" | nu
 const DUE_COLORS: Record<string, { bg: string; color: string }> = {
   overdue: { bg: "light-dark(#fee2e2, rgb(239 68 68 / 0.15))", color: "light-dark(#b91c1c, #f87171)" },
   soon: { bg: "light-dark(#fef3c7, rgb(245 158 11 / 0.15))", color: "light-dark(#b45309, #fbbf24)" },
-  normal: { bg: "var(--color-muted)", color: "var(--color-muted-foreground)" },
+  normal: { bg: "rgb(145 158 171 / 0.16)", color: "var(--color-secondary)" },
 };
 
 function groupByColumn(columns: Column[], cards: Card[]) {
@@ -258,7 +262,17 @@ export function BoardView({
         onDragOver={onDragOver}
         onDragEnd={onDragEnd}
       >
-        <Box sx={{ display: "flex", gap: 2, overflowX: "auto", pb: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 3,
+            overflowX: "auto",
+            pb: 2,
+            scrollbarWidth: "thin",
+            scrollbarColor: "rgb(145 158 171 / 0.4) transparent",
+          }}
+        >
           {columns.map((col) => {
             const ids = columnCardIds[col.id] ?? [];
             const createInThisColumn = createCard.bind(null, projectId, col.id, revalidatePaths);
@@ -286,7 +300,7 @@ export function BoardView({
 
         <DragOverlay>
           {activeCard ? (
-            <Box sx={{ width: 252 }}>
+            <Box sx={{ width: 304 }}>
               <CardFace
                 card={activeCard}
                 assigneeIds={assigneesByCard.get(activeCard.id) ?? []}
@@ -338,69 +352,103 @@ function BoardColumn({
   const [adding, setAdding] = useState(false);
 
   return (
-    <Stack
-      spacing={1.5}
+    <Box
       sx={{
-        width: 280,
+        display: "flex",
+        flexDirection: "column",
+        width: 336,
         flexShrink: 0,
-        borderRadius: 4,
-        bgcolor: "color-mix(in srgb, var(--color-muted) 50%, transparent)",
-        p: 1.5,
+        borderRadius: 2,
+        bgcolor: "var(--color-muted)",
+        p: 2,
+        transition: "background-color 150ms",
+        ...(isOver && { bgcolor: "color-mix(in srgb, var(--color-accent) 8%, var(--color-muted))" }),
       }}
     >
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 0.5 }}>
-        <Typography variant="h3" sx={{ fontSize: 14 }}>
-          {column.name}
-        </Typography>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
         <Box
           component="span"
-          sx={{ borderRadius: 999, bgcolor: "background.paper", px: 1, py: 0.25, fontFamily: "var(--font-mono)", fontSize: 11, color: "text.muted" }}
+          sx={{
+            display: "inline-grid",
+            placeItems: "center",
+            minWidth: 24,
+            height: 24,
+            px: 0.75,
+            borderRadius: "50%",
+            bgcolor: "rgb(145 158 171 / 0.16)",
+            color: "text.secondary",
+            fontSize: 12,
+            fontWeight: 700,
+          }}
         >
           {cardIds.length}
         </Box>
+        <Typography variant="h3" noWrap sx={{ flex: 1, fontSize: 16 }}>
+          {column.name}
+        </Typography>
+        <Tooltip title="Add task">
+          <IconButton size="small" aria-label={`Add a card to ${column.name}`} onClick={() => setAdding(true)}>
+            <Add sx={{ fontSize: 20 }} />
+          </IconButton>
+        </Tooltip>
       </Box>
 
-      <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
-        <Stack
-          ref={setNodeRef}
-          spacing={1}
-          sx={{ minHeight: 8, borderRadius: 3, transition: "background-color 150ms", bgcolor: isOver ? "action.selected" : "transparent" }}
-        >
-          {children}
-        </Stack>
-      </SortableContext>
-
-      {adding ? (
-        <Stack
+      {adding && (
+        <Box
           component="form"
           action={async (formData: FormData) => {
             await createAction(formData);
             setAdding(false);
           }}
-          spacing={1}
+          sx={{ mb: 2, p: 2, borderRadius: 1.5, bgcolor: "background.paper", boxShadow: CARD_SHADOW }}
         >
-          <TextField name="title" required autoFocus placeholder="Card title…" multiline minRows={2} slotProps={{ htmlInput: { "aria-label": "Card title" } }} />
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <TextField name="due_date" type="date" slotProps={{ htmlInput: { "aria-label": "Due date" } }} sx={{ flex: 1 }} />
+          <InputBase
+            name="title"
+            required
+            autoFocus
+            multiline
+            fullWidth
+            placeholder="Untitled"
+            inputProps={{ "aria-label": "Card title" }}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") setAdding(false);
+            }}
+            sx={{ fontSize: 14, fontWeight: 600 }}
+          />
+          <Box sx={{ mt: 1.5, display: "flex", alignItems: "center", gap: 1 }}>
+            <TextField
+              name="due_date"
+              type="date"
+              slotProps={{ htmlInput: { "aria-label": "Due date" } }}
+              sx={{ flex: 1, "& input": { fontSize: 13 } }}
+            />
             <Button type="submit" variant="contained" size="small">
               Add
             </Button>
-            <Button size="small" color="secondary" onClick={() => setAdding(false)}>
-              Cancel
-            </Button>
+            <IconButton size="small" aria-label="Cancel" onClick={() => setAdding(false)}>
+              <Close sx={{ fontSize: 18 }} />
+            </IconButton>
           </Box>
+        </Box>
+      )}
+
+      <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
+        <Stack ref={setNodeRef} spacing={2} sx={{ minHeight: 48 }}>
+          {children}
         </Stack>
-      ) : (
+      </SortableContext>
+
+      {!adding && (
         <Button
           onClick={() => setAdding(true)}
           startIcon={<Add />}
-          color="secondary"
-          sx={{ justifyContent: "flex-start", borderRadius: 2, color: "text.muted", "&:hover": { bgcolor: "background.paper", color: "text.primary" } }}
+          color="inherit"
+          sx={{ mt: cardIds.length ? 2 : 0, justifyContent: "flex-start", color: "text.secondary", "&:hover": { bgcolor: "rgb(145 158 171 / 0.12)" } }}
         >
-          Add a card
+          Add task
         </Button>
       )}
-    </Stack>
+    </Box>
   );
 }
 
@@ -424,7 +472,7 @@ function SortableCard({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.4 : 1,
+    opacity: isDragging ? 0.24 : 1,
   };
 
   return (
@@ -441,7 +489,10 @@ function SortableCard({
   );
 }
 
-const metaSx = { display: "flex", alignItems: "center", gap: 0.5, fontSize: 11, color: "text.muted" } as const;
+/** Minimal's kanban card shadow — lighter than the dashboard card shadow. */
+const CARD_SHADOW = "0 1px 2px 0 rgb(145 158 171 / 0.16)";
+
+const metaSx = { display: "flex", alignItems: "center", gap: 0.25, fontSize: 12, color: "text.muted" } as const;
 
 function CardFace({
   card,
@@ -464,20 +515,20 @@ function CardFace({
   const assignees = assigneeIds.map((id) => memberById.get(id)).filter(Boolean) as Member[];
 
   return (
-    <Paper
-      variant="outlined"
+    <Box
       onClick={onClick}
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 1,
-        borderRadius: 3,
-        p: 1.5,
+        gap: 1.5,
+        borderRadius: 1.5,
+        bgcolor: "background.paper",
+        p: 2.5,
         cursor: "pointer",
-        transition: "box-shadow 150ms",
-        boxShadow: dragging ? 8 : 1,
-        transform: dragging ? "rotate(2deg)" : undefined,
-        "&:hover": { boxShadow: 4 },
+        boxShadow: dragging ? "var(--shadow-dropdown)" : CARD_SHADOW,
+        transform: dragging ? "rotate(3deg)" : undefined,
+        transition: "box-shadow 200ms",
+        "&:hover": { boxShadow: "var(--shadow-card)" },
       }}
     >
       {card.tags && card.tags.length > 0 && (
@@ -489,14 +540,13 @@ function CardFace({
                 key={t}
                 component="span"
                 sx={{
-                  borderRadius: 999,
-                  px: 1,
-                  py: 0.25,
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 9,
-                  fontWeight: 500,
-                  letterSpacing: "0.04em",
-                  textTransform: "uppercase",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  height: 22,
+                  borderRadius: 0.75,
+                  px: 0.75,
+                  fontSize: 11,
+                  fontWeight: 700,
                   bgcolor: color.bg,
                   color: color.text,
                 }}
@@ -508,56 +558,61 @@ function CardFace({
         </Box>
       )}
 
-      <Typography sx={{ fontSize: 14, fontWeight: 500, lineHeight: 1.35 }}>{card.title}</Typography>
+      <Typography sx={{ fontSize: 14, fontWeight: 600, lineHeight: 1.5 }}>{card.title}</Typography>
 
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
-          {tone && (
-            <Box
-              component="span"
-              sx={{
-                borderRadius: 999,
-                px: 1,
-                py: 0.25,
-                fontFamily: "var(--font-mono)",
-                fontSize: 10,
-                fontWeight: 500,
-                bgcolor: DUE_COLORS[tone].bg,
-                color: DUE_COLORS[tone].color,
-              }}
+      {(tone || commentCount > 0 || attachmentCount > 0 || assignees.length > 0) && (
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+            {tone && (
+              <Box
+                component="span"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  height: 22,
+                  borderRadius: 0.75,
+                  px: 0.75,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  bgcolor: DUE_COLORS[tone].bg,
+                  color: DUE_COLORS[tone].color,
+                }}
+              >
+                <CalendarMonthOutlined sx={{ fontSize: 13 }} />
+                {parseLocalDate(card.due_date!).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+              </Box>
+            )}
+            {commentCount > 0 && (
+              <Box component="span" sx={metaSx}>
+                <ChatBubbleOutlined sx={{ fontSize: 15 }} />
+                {commentCount}
+              </Box>
+            )}
+            {attachmentCount > 0 && (
+              <Box component="span" sx={metaSx}>
+                <AttachFile sx={{ fontSize: 15 }} />
+                {attachmentCount}
+              </Box>
+            )}
+          </Box>
+          {assignees.length > 0 && (
+            <AvatarGroup
+              max={3}
+              sx={{ "& .MuiAvatar-root": { width: 24, height: 24, fontSize: 10, fontWeight: 700, borderWidth: 2 } }}
             >
-              {parseLocalDate(card.due_date!).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-            </Box>
-          )}
-          {commentCount > 0 && (
-            <Box component="span" sx={metaSx}>
-              <ChatBubbleOutlined sx={{ fontSize: 13 }} />
-              {commentCount}
-            </Box>
-          )}
-          {attachmentCount > 0 && (
-            <Box component="span" sx={metaSx}>
-              <AttachFile sx={{ fontSize: 13 }} />
-              {attachmentCount}
-            </Box>
+              {assignees.map((m) => {
+                const color = colorFor(m.id);
+                return (
+                  <Avatar key={m.id} title={m.full_name ?? "Unnamed"} sx={{ bgcolor: color.bg, color: color.text }}>
+                    {initials(m.full_name)}
+                  </Avatar>
+                );
+              })}
+            </AvatarGroup>
           )}
         </Box>
-        {assignees.length > 0 && (
-          <AvatarGroup
-            max={4}
-            sx={{ "& .MuiAvatar-root": { width: 24, height: 24, fontSize: 9, fontFamily: "var(--font-mono)", borderWidth: 2 } }}
-          >
-            {assignees.map((m) => {
-              const color = colorFor(m.id);
-              return (
-                <Avatar key={m.id} title={m.full_name ?? "Unnamed"} sx={{ bgcolor: color.bg, color: color.text }}>
-                  {initials(m.full_name)}
-                </Avatar>
-              );
-            })}
-          </AvatarGroup>
-        )}
-      </Box>
-    </Paper>
+      )}
+    </Box>
   );
 }

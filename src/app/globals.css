@@ -107,8 +107,12 @@
   --font-mono: var(--font-mono);
 }
 
-* {
-  border-color: var(--color-border);
+/* Layered so MUI (and any component style) can override it — unlayered, it
+   would beat every border colour MUI sets, focus and hover states included. */
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
 }
 
 /* Any element accidentally wider than the viewport would otherwise force
