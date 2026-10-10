@@ -79,21 +79,9 @@ export function AppShell({
         component={Link}
         href="/"
         aria-label={`${brandLabel} home`}
-        sx={{
-          display: "grid",
-          placeItems: "center",
-          width: 40,
-          height: 40,
-          borderRadius: 1.5,
-          background: "linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 60%, white), var(--color-accent))",
-          color: "#fff",
-          fontWeight: 800,
-          fontSize: 18,
-          textDecoration: "none",
-          boxShadow: "0 8px 16px -4px color-mix(in srgb, var(--color-accent) 40%, transparent)",
-        }}
+        sx={{ display: "grid", placeItems: "center", width: 40, height: 40, color: "primary.main", textDecoration: "none" }}
       >
-        A
+        <BrandMark />
       </Box>
       <div>
         <Typography sx={{ fontSize: 16, fontWeight: 700, lineHeight: 1.2 }}>{brandLabel}</Typography>
@@ -304,6 +292,33 @@ export function AppShell({
         </Box>
       </Box>
     </Box>
+  );
+}
+
+/** A benzene-ring hexagon around the initial — a quiet chemistry signature. */
+function BrandMark() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+      <polygon points="20,2.5 35.2,11.25 35.2,28.75 20,37.5 4.8,28.75 4.8,11.25" fill="currentColor" />
+      <polygon
+        points="20,8 30.4,14 30.4,26 20,32 9.6,26 9.6,14"
+        fill="none"
+        stroke="var(--color-accent-foreground)"
+        strokeOpacity="0.35"
+        strokeWidth="1"
+      />
+      <text
+        x="20"
+        y="25.5"
+        textAnchor="middle"
+        fontSize="15"
+        fontWeight="700"
+        fontFamily="var(--font-dashboard), system-ui, sans-serif"
+        fill="var(--color-accent-foreground)"
+      >
+        A
+      </text>
+    </svg>
   );
 }
 

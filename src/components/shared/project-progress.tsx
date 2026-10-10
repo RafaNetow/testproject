@@ -11,10 +11,11 @@ import Stepper from "@mui/material/Stepper";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Check from "@mui/icons-material/Check";
+import { STATUS_TONE, figureSx } from "@/lib/palette";
 
 export type ProgressPhase = { id: string; name: string; progress_pct: number };
 
-const DONE = "#22c55e";
+const DONE = STATUS_TONE.success;
 
 /**
  * Where a project stands: its overall percentage and each stage on a
@@ -56,7 +57,7 @@ export function ProjectProgress({
             {titleExtra}
           </Box>
         </Box>
-        <Typography sx={{ flexShrink: 0, fontSize: 32, fontWeight: 700, lineHeight: 1, color: complete ? DONE : "primary.main" }}>
+        <Typography sx={{ ...figureSx, flexShrink: 0, fontSize: 32, fontWeight: 700, lineHeight: 1, color: complete ? DONE.text : "primary.main" }}>
           {total}%
         </Typography>
       </Box>
@@ -70,7 +71,7 @@ export function ProjectProgress({
           height: 8,
           borderRadius: 999,
           bgcolor: "rgb(145 158 171 / 0.16)",
-          "& .MuiLinearProgress-bar": { borderRadius: 999, bgcolor: complete ? DONE : "primary.main" },
+          "& .MuiLinearProgress-bar": { borderRadius: 999, bgcolor: complete ? DONE.solid : "primary.main" },
         }}
       />
 
@@ -90,7 +91,7 @@ export function ProjectProgress({
                   <Typography component="span" sx={{ display: "block", fontSize: 13, fontWeight: current ? 700 : 600, color: done || current ? "text.primary" : "text.secondary" }}>
                     {phase.name}
                   </Typography>
-                  <Typography component="span" sx={{ display: "block", mt: 0.25, fontSize: 12, fontWeight: 600, color: done ? DONE : current ? "primary.main" : "text.muted" }}>
+                  <Typography component="span" sx={{ ...figureSx, display: "block", mt: 0.25, fontSize: 12, fontWeight: 600, color: done ? DONE.text : current ? "primary.main" : "text.muted" }}>
                     {done ? "Done" : `${phase.progress_pct}%`}
                   </Typography>
                   {current && phase.progress_pct > 0 && (
@@ -127,10 +128,11 @@ function PhaseIcon({ completed: done, active: current, icon }: StepIconProps) {
         width: 28,
         height: 28,
         borderRadius: "50%",
+        ...figureSx,
         fontSize: 13,
         fontWeight: 700,
         ...(done
-          ? { bgcolor: DONE, color: "#fff" }
+          ? { bgcolor: DONE.solid, color: "#fff" }
           : current
             ? { bgcolor: "primary.main", color: "primary.contrastText", boxShadow: "0 0 0 4px color-mix(in srgb, var(--color-accent) 20%, transparent)" }
             : { bgcolor: "rgb(145 158 171 / 0.16)", color: "text.secondary" }),

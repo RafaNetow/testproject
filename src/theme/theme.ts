@@ -59,6 +59,10 @@ export const theme = createTheme({
       main: v("color-destructive"),
       contrastText: v("color-destructive-foreground"),
     },
+    // Status colours from the Okabe–Ito standard (globals.css, src/lib/palette.ts).
+    success: { main: v("color-success"), contrastText: "#ffffff" },
+    warning: { main: v("color-warning"), contrastText: "#1c252e" },
+    info: { main: v("color-info"), contrastText: "#ffffff" },
     text: {
       primary: v("color-primary"),
       secondary: v("color-secondary"),

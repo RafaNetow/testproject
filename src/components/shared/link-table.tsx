@@ -7,13 +7,15 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { LinkBox } from "./link-box";
+import { figureSx } from "@/lib/palette";
 
 export type LinkTableRow = { key: string; href: string; cells: ReactNode[] };
 
 /**
  * A table whose rows are whole-row links. Each cell wraps its content in the
  * same link so the click target fills the row without nesting a link in a `<tr>`.
- * The first column renders emphasized; the rest in secondary text.
+ * The first column renders emphasized; the rest in secondary text, and
+ * right-aligned (numeric) columns in tabular monospace figures.
  */
 export function LinkTable({
   columns,
@@ -52,6 +54,8 @@ export function LinkTable({
                       color: i === 0 ? "text.primary" : "text.secondary",
                       fontWeight: i === 0 ? 500 : 400,
                       textDecoration: "none",
+                      // Right-aligned columns are figures: set them as aligned, tabular readouts.
+                      ...(align?.[i] === "right" && { ...figureSx, color: "text.primary" }),
                     }}
                   >
                     {cell}

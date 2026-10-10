@@ -35,6 +35,7 @@ import ViewKanbanOutlined from "@mui/icons-material/ViewKanbanOutlined";
 import WorkOutlineOutlined from "@mui/icons-material/WorkOutlineOutlined";
 import type { SvgIconComponent } from "@mui/icons-material";
 import { createClient } from "@/lib/supabase/client";
+import { STATUS_TONE, category, type Tone } from "@/lib/palette";
 import { timeAgo } from "@/lib/time-ago";
 import { markNotificationsRead } from "@/lib/actions/notifications";
 import {
@@ -51,20 +52,25 @@ export type NotificationItem = {
   created_at: string;
 };
 
-const KIND_ICONS: Record<string, { icon: SvgIconComponent; color: string }> = {
-  card: { icon: ViewKanbanOutlined, color: "var(--color-accent)" },
-  deliverable: { icon: Inventory2Outlined, color: "#8e33ff" },
-  file: { icon: FolderOpenOutlined, color: "#ffab00" },
-  meeting: { icon: VideocamOutlined, color: "#00b8d9" },
-  decision: { icon: ForumOutlined, color: "#22c55e" },
-  update: { icon: EditNoteOutlined, color: "var(--color-accent)" },
-  hours: { icon: AccessTimeOutlined, color: "#ff8c00" },
-  invoice: { icon: ReceiptLongOutlined, color: "#118d57" },
-  contract: { icon: DescriptionOutlined, color: "#637381" },
-  team: { icon: GroupsOutlined, color: "#8e33ff" },
-  project: { icon: WorkOutlineOutlined, color: "var(--color-accent)" },
-  client: { icon: BusinessOutlined, color: "var(--color-accent)" },
-  prospect: { icon: TrackChangesOutlined, color: "#ff5630" },
+/**
+ * One mapping, from the shared colour standard (src/lib/palette.ts): the
+ * engagement's own work in the brand primary, money in success, things that
+ * may need the reader's attention in warning, the rest in category colours.
+ */
+const KIND_ICONS: Record<string, { icon: SvgIconComponent; tone: Tone }> = {
+  card: { icon: ViewKanbanOutlined, tone: STATUS_TONE.primary },
+  update: { icon: EditNoteOutlined, tone: STATUS_TONE.primary },
+  project: { icon: WorkOutlineOutlined, tone: STATUS_TONE.primary },
+  client: { icon: BusinessOutlined, tone: STATUS_TONE.primary },
+  deliverable: { icon: Inventory2Outlined, tone: STATUS_TONE.warning },
+  contract: { icon: DescriptionOutlined, tone: STATUS_TONE.warning },
+  invoice: { icon: ReceiptLongOutlined, tone: STATUS_TONE.success },
+  file: { icon: FolderOpenOutlined, tone: category(0) },
+  meeting: { icon: VideocamOutlined, tone: category(4) },
+  decision: { icon: ForumOutlined, tone: category(2) },
+  hours: { icon: AccessTimeOutlined, tone: category(3) },
+  team: { icon: GroupsOutlined, tone: category(3) },
+  prospect: { icon: TrackChangesOutlined, tone: STATUS_TONE.neutral },
 };
 
 /**
@@ -224,7 +230,7 @@ export function NotificationBell({
         ) : (
           <List disablePadding sx={{ maxHeight: 440, overflowY: "auto" }}>
             {items.map((n) => {
-              const { icon: KindIcon, color } =
+              const { icon: KindIcon, tone } =
                 KIND_ICONS[n.kind] ?? KIND_ICONS.card;
               return (
                 <ListItemButton
@@ -251,8 +257,8 @@ export function NotificationBell({
                       sx={{
                         width: 40,
                         height: 40,
-                        bgcolor: `color-mix(in srgb, ${color} 14%, transparent)`,
-                        color,
+                        bgcolor: tone.bg,
+                        color: tone.text,
                       }}
                     >
                       <KindIcon sx={{ fontSize: 20 }} />

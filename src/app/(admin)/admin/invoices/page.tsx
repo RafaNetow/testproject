@@ -58,6 +58,7 @@ export default async function AdminInvoicesPage({
       ) : (
         <LinkTable
           columns={["Client", "Invoice", "Amount", "Due", "Status"]}
+          align={["left", "left", "right", "left", "left"]}
           rows={invoices.map((inv) => ({
             key: inv.id,
             href: `/admin/clients/${inv.org_id}/projects/${inv.project_id}/invoices`,

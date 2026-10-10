@@ -162,6 +162,7 @@ export default async function AdminReportsPage() {
         ) : (
           <LinkTable
             columns={["Client", "Paid", "Outstanding", "Hours logged"]}
+            align={["left", "right", "right", "right"]}
             rows={clientRows.map((row) => ({
               key: row.orgId,
               href: `/admin/clients/${row.orgId}`,

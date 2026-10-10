@@ -13,6 +13,7 @@ import Close from "@mui/icons-material/Close";
 import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import EditOutlined from "@mui/icons-material/EditOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
+import { figureSx } from "@/lib/palette";
 import { SelectField } from "@/components/shared/select-field";
 import { StatusBadge } from "@/components/shared/status-badge";
 
@@ -97,7 +98,7 @@ export function EditableHoursRow({
         <Typography component="span" sx={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "text.muted" }}>
           {new Date(entry.entry_date).toLocaleDateString("en-GB", { month: "short", day: "numeric" })}
         </Typography>
-        <Typography component="span" sx={{ fontSize: 14, fontWeight: 500 }}>
+        <Typography component="span" sx={{ ...figureSx, fontSize: 14, fontWeight: 600 }}>
           {Number(entry.hours).toFixed(2)}h
         </Typography>
         {entry.category && <Chip size="small" label={entry.category} sx={{ height: 22, fontSize: 12 }} />}

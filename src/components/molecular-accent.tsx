@@ -6,8 +6,8 @@ import Box from "@mui/material/Box";
 type Particle = { x: number; y: number; vx: number; vy: number };
 
 const TONES = {
-  // Accent blue — the original login-page treatment.
-  accent: { line: "3,105,161", dot: "3,105,161" },
+  // Brand petrol (--color-accent).
+  accent: { line: "15,94,110", dot: "15,94,110" },
   // Whiter/brighter — for small dark panels (sidebar, dashboard hero) where
   // the muted accent blue all but disappears against a near-black background.
   bright: { line: "224,242,254", dot: "255,255,255" },

@@ -25,6 +25,7 @@ import FolderOutlined from "@mui/icons-material/FolderOutlined";
 import NavigateNext from "@mui/icons-material/NavigateNext";
 import NoteAddOutlined from "@mui/icons-material/NoteAddOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
+import { STATUS_TONE, category } from "@/lib/palette";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { UploadForm } from "./upload-form";
 import { FilePreviewDialog } from "./file-preview-dialog";
@@ -64,15 +65,15 @@ function folderHref(basePath: string, extraQuery: string | undefined, folderId: 
 /** A short type badge + hue per file kind, like a file manager's type icons. */
 function fileType(filename: string, mime: string | null) {
   const ext = filename.includes(".") ? filename.split(".").pop()!.toLowerCase() : "";
-  if (ext === "pdf" || mime === "application/pdf") return { label: "PDF", color: "#ff5630" };
+  if (ext === "pdf" || mime === "application/pdf") return { label: "PDF", tone: STATUS_TONE.error };
   if (mime?.startsWith("image/") || ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext))
-    return { label: "IMG", color: "#22c55e" };
-  if (["xls", "xlsx", "csv"].includes(ext)) return { label: ext === "csv" ? "CSV" : "XLS", color: "#118d57" };
+    return { label: "IMG", tone: category(2) };
+  if (["xls", "xlsx", "csv"].includes(ext)) return { label: ext === "csv" ? "CSV" : "XLS", tone: STATUS_TONE.success };
   if (["doc", "docx", "txt", "md", "rtf"].includes(ext))
-    return { label: ext === "txt" || ext === "md" ? "TXT" : "DOC", color: "#0b76c5" };
-  if (["ppt", "pptx"].includes(ext)) return { label: "PPT", color: "#ff8c00" };
-  if (["zip", "rar", "7z", "gz"].includes(ext)) return { label: "ZIP", color: "#8e33ff" };
-  return { label: (ext.slice(0, 4) || "FILE").toUpperCase(), color: "#637381" };
+    return { label: ext === "txt" || ext === "md" ? "TXT" : "DOC", tone: STATUS_TONE.info };
+  if (["ppt", "pptx"].includes(ext)) return { label: "PPT", tone: STATUS_TONE.warning };
+  if (["zip", "rar", "7z", "gz"].includes(ext)) return { label: "ZIP", tone: category(3) };
+  return { label: (ext.slice(0, 4) || "FILE").toUpperCase(), tone: STATUS_TONE.neutral };
 }
 
 const countSx = { ml: 1, flexShrink: 0, fontFamily: "var(--font-mono)", fontSize: 10, color: "text.muted" } as const;
@@ -338,7 +339,7 @@ export function FilesView({
                       }}
                     >
                       <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-                        <Folder sx={{ fontSize: 44, color: "#ffab00" }} />
+                        <Folder sx={{ fontSize: 44, color: "primary.main" }} />
                         {canManage && (
                           <Box sx={{ display: "flex", mr: -1, mt: -0.5, position: "relative", zIndex: 1 }}>
                             <form action={renameThis}>
@@ -435,8 +436,8 @@ export function FilesView({
                                 height: 36,
                                 flexShrink: 0,
                                 borderRadius: 1,
-                                bgcolor: `color-mix(in srgb, ${type.color} 14%, transparent)`,
-                                color: type.color,
+                                bgcolor: type.tone.bg,
+                                color: type.tone.text,
                                 fontSize: 10,
                                 fontWeight: 800,
                                 letterSpacing: "0.02em",

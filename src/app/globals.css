@@ -12,7 +12,9 @@
   --color-primary: #0f172a;
   --color-primary-foreground: #ffffff;
   --color-secondary: #334155;
-  --color-accent: #0369a1;
+  /* Brand primary: petrol blue — lab glassware and materials rather than
+     generic SaaS blue. */
+  --color-accent: #0f5e6e;
   --color-accent-foreground: #ffffff;
   --color-muted: #eef1f5;
   --color-muted-foreground: #5b6675;
@@ -21,6 +23,26 @@
   --color-ring: #0f172a;
   --color-destructive: #dc2626;
   --color-destructive-foreground: #ffffff;
+
+  /*
+   * Colour standard (see src/lib/palette.ts). Status and category colours
+   * come from the Okabe–Ito palette — the colour-blind-safe set used for
+   * scientific figures — so meaning never rests on red vs green alone.
+   * Status colours are for state only, never decoration.
+   */
+  --color-success: #009e73;
+  --color-warning: #e69f00;
+  --color-error: #d55e00;
+  --color-info: #0072b2;
+
+  --cat-1: #0072b2; /* blue */
+  --cat-2: #e69f00; /* orange */
+  --cat-3: #009e73; /* bluish green */
+  --cat-4: #cc79a7; /* reddish purple */
+  --cat-5: #56b4e9; /* sky blue */
+  --cat-6: #d55e00; /* vermillion */
+  --cat-7: #f0e442; /* yellow */
+  --cat-8: #6b7280; /* neutral */
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -55,7 +77,7 @@
   --color-muted-foreground: #919eab;
   --color-border: rgb(145 158 171 / 0.2);
   --color-card: #ffffff;
-  --color-destructive: #ff5630;
+  --color-destructive: var(--color-error);
 
   --shadow-card: 0 0 2px 0 rgb(145 158 171 / 0.2), 0 12px 24px -4px rgb(145 158 171 / 0.12);
   --shadow-dropdown: 0 0 2px 0 rgb(145 158 171 / 0.24), -20px 20px 40px -4px rgb(145 158 171 / 0.24);
@@ -71,15 +93,21 @@
     --color-primary: #ffffff;
     --color-primary-foreground: #1c252e;
     --color-secondary: #919eab;
-    --color-accent: #3ba7e6;
-    --color-accent-foreground: #04121c;
+    --color-accent: #5fb8c8;
+    --color-accent-foreground: #03191e;
     --color-muted: #28323d;
     --color-muted-foreground: #637381;
     --color-border: rgb(145 158 171 / 0.2);
     --color-card: #1c252e;
-    --color-ring: #3ba7e6;
-    --color-destructive: #ff8c67;
+    --color-ring: #5fb8c8;
+    --color-destructive: var(--color-error);
     --color-destructive-foreground: #2a0a0a;
+
+    /* Same hues, lifted for contrast on dark surfaces. */
+    --color-success: #2fbf92;
+    --color-warning: #f0b43c;
+    --color-error: #ef7a3a;
+    --color-info: #3a9ad9;
 
     --shadow-card: 0 0 2px 0 rgb(0 0 0 / 0.2), 0 12px 24px -4px rgb(0 0 0 / 0.12);
     --shadow-dropdown: 0 0 2px 0 rgb(0 0 0 / 0.24), -20px 20px 40px -4px rgb(0 0 0 / 0.24);

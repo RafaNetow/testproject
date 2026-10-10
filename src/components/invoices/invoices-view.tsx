@@ -14,6 +14,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { figureSx } from "@/lib/palette";
 import { updateInvoiceStatus, deleteInvoice } from "@/lib/actions/invoices";
 import { deriveInvoiceStatus } from "@/lib/invoice-status";
 import { InvoiceBuilder, type DuplicateFrom, type UnbilledHoursEntry } from "./invoice-builder";
@@ -114,7 +115,9 @@ export function InvoicesView({
                       <StatusBadge status={displayStatus} />
                     </Box>
                     <Typography sx={{ mt: 0.5, fontSize: 14, color: "text.muted" }}>
-                      {formatAmount(inv.amount_cents, inv.currency)}
+                      <Box component="span" sx={{ ...figureSx, color: "text.primary", fontWeight: 600 }}>
+                        {formatAmount(inv.amount_cents, inv.currency)}
+                      </Box>
                       {inv.due_date ? ` · Due ${new Date(inv.due_date).toLocaleDateString("en-GB")}` : ""}
                     </Typography>
                   </div>

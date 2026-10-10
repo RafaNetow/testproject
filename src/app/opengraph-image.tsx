@@ -15,7 +15,7 @@ export default async function Image() {
           flexDirection: "column",
           justifyContent: "center",
           padding: "80px",
-          background: "linear-gradient(135deg, #0b1220 0%, #0f2b47 55%, #0369a1 100%)",
+          background: "linear-gradient(135deg, #0b1220 0%, #0e2f38 55%, #0f5e6e 100%)",
           color: "#f8fafc",
           fontFamily: "serif",
         }}
@@ -26,7 +26,7 @@ export default async function Image() {
             fontSize: 30,
             letterSpacing: 6,
             textTransform: "uppercase",
-            color: "#7dd3fc",
+            color: "#7fd0dc",
             marginBottom: 28,
           }}
         >

@@ -167,7 +167,7 @@ function PhaseRow({
           aria-label={`${phase.name} progress`}
           valueLabelDisplay="auto"
           valueLabelFormat={(v) => `${v}%`}
-          sx={{ flex: 1, color: pct >= 100 ? "#22c55e" : "primary.main" }}
+          sx={{ flex: 1, color: pct >= 100 ? "success.main" : "primary.main" }}
         />
         <TextField
           type="number"

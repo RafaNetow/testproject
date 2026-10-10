@@ -1,16 +1,17 @@
 import Box from "@mui/material/Box";
+import { STATUS_TONE } from "@/lib/palette";
 
-type Tone = "success" | "info" | "warning" | "error" | "default";
+type Tone = "success" | "info" | "warning" | "error" | "neutral";
 
 const STATUS_TONES: Record<string, Tone> = {
   onboarding: "info",
   active: "success",
   at_risk: "warning",
-  offboarded: "default",
+  offboarded: "neutral",
   paused: "warning",
-  completed: "default",
+  completed: "neutral",
   sent: "info",
-  draft: "default",
+  draft: "neutral",
   in_progress: "info",
   in_review: "warning",
   changes_requested: "error",
@@ -20,18 +21,10 @@ const STATUS_TONES: Record<string, Tone> = {
   signed: "success",
   partially_signed: "warning",
   upcoming: "info",
-  past: "default",
+  past: "neutral",
   cancelled: "error",
 };
 
-/** Soft-tinted background + darker text of the same hue, per scheme. */
-const TONE_COLORS: Record<Tone, { bg: string; text: string }> = {
-  success: { bg: "rgb(34 197 94 / 0.16)", text: "light-dark(#118d57, #77ed8b)" },
-  info: { bg: "rgb(0 184 217 / 0.16)", text: "light-dark(#006c9c, #61f3f3)" },
-  warning: { bg: "rgb(255 171 0 / 0.16)", text: "light-dark(#b76e00, #ffd666)" },
-  error: { bg: "rgb(255 86 48 / 0.16)", text: "light-dark(#b71d18, #ffac82)" },
-  default: { bg: "rgb(145 158 171 / 0.16)", text: "light-dark(#637381, #919eab)" },
-};
 
 /** The "soft label" used by Minimal-style dashboards for every status. */
 export function StatusBadge({
@@ -43,7 +36,7 @@ export function StatusBadge({
   /** @deprecated Headers are light now; kept so existing call sites compile. */
   tone?: "light" | "dark";
 }) {
-  const colors = TONE_COLORS[STATUS_TONES[status] ?? "default"];
+  const colors = STATUS_TONE[STATUS_TONES[status] ?? "neutral"];
   return (
     <Box
       component="span"

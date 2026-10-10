@@ -40,6 +40,7 @@ import ChatBubbleOutlined from "@mui/icons-material/ChatBubbleOutlined";
 import { createCard, reorderCards } from "@/lib/actions/board";
 import { CardDetailModal, type ModalCard } from "./card-detail-modal";
 import { colorFor, initials } from "./board-colors";
+import { STATUS_TONE, type Tone } from "@/lib/palette";
 import { EmptyState } from "@/components/shared/empty-state";
 
 type Column = { id: string; name: string; position: number };
@@ -88,10 +89,10 @@ function dueDateTone(dueDate: string | null): "overdue" | "soon" | "normal" | nu
   return "normal";
 }
 
-const DUE_COLORS: Record<string, { bg: string; color: string }> = {
-  overdue: { bg: "light-dark(#fee2e2, rgb(239 68 68 / 0.15))", color: "light-dark(#b91c1c, #f87171)" },
-  soon: { bg: "light-dark(#fef3c7, rgb(245 158 11 / 0.15))", color: "light-dark(#b45309, #fbbf24)" },
-  normal: { bg: "rgb(145 158 171 / 0.16)", color: "var(--color-secondary)" },
+const DUE_COLORS: Record<string, Tone> = {
+  overdue: STATUS_TONE.error,
+  soon: STATUS_TONE.warning,
+  normal: STATUS_TONE.neutral,
 };
 
 function groupByColumn(columns: Column[], cards: Card[]) {
@@ -609,7 +610,7 @@ function CardFace({
                   fontSize: 11,
                   fontWeight: 700,
                   bgcolor: DUE_COLORS[tone].bg,
-                  color: DUE_COLORS[tone].color,
+                  color: DUE_COLORS[tone].text,
                 }}
               >
                 <CalendarMonthOutlined sx={{ fontSize: 13 }} />
