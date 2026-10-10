@@ -294,6 +294,8 @@ export function AppShell({
             px: { xs: 2, sm: 3, lg: 5 },
             pt: { xs: 1, lg: 2 },
             pb: { xs: 6, lg: 10 },
+            // Work surfaces like the kanban board opt out of the centered column.
+            "&:has([data-full-bleed])": { maxWidth: "none", pb: { xs: 2, lg: 3 } },
           }}
         >
           {children}

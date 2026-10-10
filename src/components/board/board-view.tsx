@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -142,6 +142,21 @@ export function BoardView({
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [openCardId, setOpenCardId] = useState<string | null>(null);
 
+  // Stretch the board down to the bottom of the window, so columns read as
+  // full-height lanes (and scroll their own cards) instead of stopping short.
+  const stripRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const strip = stripRef.current;
+    if (!strip) return;
+    const fit = () => {
+      const top = strip.getBoundingClientRect().top + window.scrollY;
+      strip.style.height = `${Math.max(420, window.innerHeight - top - 24)}px`;
+    };
+    fit();
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, []);
+
   // Resyncs local drag state with the server's data after every revalidation
   // (new card, moved-elsewhere update, etc.) — without this, anything that
   // isn't purely reflected in an existing card's own fields (i.e. a brand
@@ -263,12 +278,14 @@ export function BoardView({
         onDragEnd={onDragEnd}
       >
         <Box
+          ref={stripRef}
+          data-full-bleed
           sx={{
             display: "flex",
-            alignItems: "flex-start",
-            gap: 3,
+            alignItems: "stretch",
+            gap: 2,
             overflowX: "auto",
-            pb: 2,
+            pb: 1.5,
             scrollbarWidth: "thin",
             scrollbarColor: "rgb(145 158 171 / 0.4) transparent",
           }}
@@ -353,11 +370,14 @@ function BoardColumn({
 
   return (
     <Box
+      ref={setNodeRef}
       sx={{
         display: "flex",
         flexDirection: "column",
-        width: 336,
-        flexShrink: 0,
+        // Lanes share the full width; below 256px each, the board scrolls sideways.
+        flex: "1 0 256px",
+        minWidth: 256,
+        minHeight: 0,
         borderRadius: 2,
         bgcolor: "var(--color-muted)",
         p: 2,
@@ -433,7 +453,20 @@ function BoardColumn({
       )}
 
       <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
-        <Stack ref={setNodeRef} spacing={2} sx={{ minHeight: 48 }}>
+        <Stack
+          spacing={2}
+          sx={{
+            flex: "0 1 auto",
+            minHeight: 48,
+            overflowY: "auto",
+            // Room for card shadows inside the scroll area.
+            mx: -0.5,
+            px: 0.5,
+            py: 0.25,
+            scrollbarWidth: "thin",
+            scrollbarColor: "rgb(145 158 171 / 0.4) transparent",
+          }}
+        >
           {children}
         </Stack>
       </SortableContext>
@@ -443,7 +476,7 @@ function BoardColumn({
           onClick={() => setAdding(true)}
           startIcon={<Add />}
           color="inherit"
-          sx={{ mt: cardIds.length ? 2 : 0, justifyContent: "flex-start", color: "text.secondary", "&:hover": { bgcolor: "rgb(145 158 171 / 0.12)" } }}
+          sx={{ mt: 1.5, flexShrink: 0, justifyContent: "flex-start", color: "text.secondary", "&:hover": { bgcolor: "rgb(145 158 171 / 0.12)" } }}
         >
           Add task
         </Button>
