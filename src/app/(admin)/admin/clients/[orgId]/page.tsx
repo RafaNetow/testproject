@@ -9,27 +9,20 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import AccessTimeOutlined from "@mui/icons-material/AccessTimeOutlined";
 import Close from "@mui/icons-material/Close";
 import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
-import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
-import EditNoteOutlined from "@mui/icons-material/EditNoteOutlined";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import FolderOpenOutlined from "@mui/icons-material/FolderOpenOutlined";
-import ForumOutlined from "@mui/icons-material/ForumOutlined";
-import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
-import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
-import VideocamOutlined from "@mui/icons-material/VideocamOutlined";
-import ViewKanbanOutlined from "@mui/icons-material/ViewKanbanOutlined";
 import { createClient } from "@/lib/supabase/server";
 import { ConfirmButton } from "@/components/confirm-button";
 import { SectionHeader } from "@/components/shared/section-header";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { SelectField } from "@/components/shared/select-field";
-import { LinkChip } from "@/components/shared/link-chip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ClientSettingsDrawer } from "@/components/admin/client-settings-drawer";
 import { NewProjectPopover } from "@/components/admin/new-project-popover";
+import { PhaseEditor } from "@/components/admin/phase-editor";
+import { ProjectSectionChips } from "@/components/admin/project-section-chips";
+import { ProjectProgress } from "@/components/shared/project-progress";
 import { InviteForm } from "./invite-form";
 import { ResendInviteButton } from "./resend-invite-button";
 import {
@@ -44,17 +37,14 @@ import {
 const STATUS_OPTIONS = ["onboarding", "active", "at_risk", "offboarded"] as const;
 const PROJECT_STATUS_OPTIONS = ["active", "paused", "completed"] as const;
 
-const PROJECT_SECTIONS = [
-  { href: "board", label: "Board", icon: ViewKanbanOutlined },
-  { href: "deliverables", label: "Deliverables", icon: Inventory2Outlined },
-  { href: "decisions", label: "Decisions", icon: ForumOutlined },
-  { href: "files", label: "Files", icon: FolderOpenOutlined },
-  { href: "meetings", label: "Meetings", icon: VideocamOutlined },
-  { href: "updates", label: "Updates", icon: EditNoteOutlined },
-  { href: "hours", label: "Hours", icon: AccessTimeOutlined },
-  { href: "invoices", label: "Invoices", icon: ReceiptLongOutlined },
-  { href: "contracts", label: "Contracts", icon: DescriptionOutlined },
-];
+const accordionSx = { borderTop: 1, borderColor: "divider", bgcolor: "transparent", "&::before": { display: "none" } } as const;
+const accordionSummarySx = { px: 2.5, minHeight: 40, "& .MuiAccordionSummary-content": { my: 1 } } as const;
+const accordionLabelSx = { fontSize: 13, fontWeight: 600, color: "text.secondary" } as const;
+
+type PhaseRow = { id: string; name: string; position: number; progress_pct: number };
+function sortPhases(rows: PhaseRow[] | null | undefined) {
+  return [...(rows ?? [])].sort((a, b) => a.position - b.position);
+}
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ orgId: string }> }) {
   const { orgId } = await params;
@@ -76,7 +66,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ o
 
   const { data: projects } = await supabase
     .from("projects")
-    .select("id, name, status, progress_pct, start_date, engagement_note")
+    .select("id, name, status, progress_pct, start_date, engagement_note, project_phases(id, name, position, progress_pct)")
     .eq("org_id", orgId)
     .order("created_at", { ascending: false });
 
@@ -206,38 +196,35 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ o
             {projects.map((project) => {
               const updateThisProject = updateProject.bind(null, orgId, project.id);
               const deleteThisProject = deleteProject.bind(null, orgId, project.id);
+              const phases = sortPhases(project.project_phases);
               return (
                 <Paper key={project.id} variant="outlined" sx={{ overflow: "hidden", transition: "box-shadow 150ms", "&:hover": { boxShadow: 1 } }}>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5, px: 2.5, py: 2 }}>
-                    <Typography variant="h3" sx={{ fontSize: 16 }}>
-                      {project.name}
-                    </Typography>
-                    <StatusBadge status={project.status} />
-                    <Typography component="span" sx={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "text.muted" }}>
-                      {project.progress_pct}%
-                    </Typography>
+                  <Box sx={{ px: 2.5, pt: 2.5, pb: 2 }}>
+                    <ProjectProgress
+                      flat
+                      name={project.name}
+                      total={project.progress_pct}
+                      phases={phases}
+                      titleExtra={<StatusBadge status={project.status} />}
+                    />
                   </Box>
 
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75, borderTop: 1, borderColor: "divider", px: 2.5, py: 1.5 }}>
-                    {PROJECT_SECTIONS.map(({ href, label, icon: ItemIcon }) => (
-                      <LinkChip
-                        key={href}
-                       
-                        href={`/admin/clients/${orgId}/projects/${project.id}/${href}`}
-                        variant="outlined"
-                        icon={<ItemIcon sx={{ fontSize: 15 }} />}
-                        label={label}
-                        sx={{ fontSize: 12, "&:hover": { borderColor: "primary.main", color: "primary.main", "& .MuiChip-icon": { color: "primary.main" } } }}
-                      />
-                    ))}
+                    <ProjectSectionChips orgId={orgId} projectId={project.id} />
                   </Box>
 
-                  <Accordion disableGutters elevation={0} sx={{ borderTop: 1, borderColor: "divider", bgcolor: "transparent", "&::before": { display: "none" } }}>
-                    <AccordionSummary
-                      expandIcon={<ExpandMore sx={{ fontSize: 18 }} />}
-                      sx={{ px: 2.5, minHeight: 40, "& .MuiAccordionSummary-content": { my: 1 } }}
-                    >
-                      <Typography sx={{ fontSize: 12, fontWeight: 500, color: "text.muted" }}>Edit project</Typography>
+                  <Accordion disableGutters elevation={0} sx={accordionSx}>
+                    <AccordionSummary expandIcon={<ExpandMore sx={{ fontSize: 18 }} />} sx={accordionSummarySx}>
+                      <Typography sx={accordionLabelSx}>Progress &amp; stages</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ borderTop: 1, borderColor: "divider", p: 2.5 }}>
+                      <PhaseEditor projectId={project.id} phases={phases} />
+                    </AccordionDetails>
+                  </Accordion>
+
+                  <Accordion disableGutters elevation={0} sx={accordionSx}>
+                    <AccordionSummary expandIcon={<ExpandMore sx={{ fontSize: 18 }} />} sx={accordionSummarySx}>
+                      <Typography sx={accordionLabelSx}>Edit project</Typography>
                     </AccordionSummary>
                     <AccordionDetails sx={{ borderTop: 1, borderColor: "divider", p: 2.5 }}>
                       <Stack spacing={2.5}>
@@ -251,13 +238,6 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ o
                                 </option>
                               ))}
                             </SelectField>
-                            <TextField
-                              name="progress_pct"
-                              label="Progress %"
-                              type="number"
-                              defaultValue={project.progress_pct}
-                              slotProps={{ htmlInput: { min: 0, max: 100 } }}
-                            />
                             <TextField
                               name="start_date"
                               label="Start date"

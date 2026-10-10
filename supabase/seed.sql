@@ -62,7 +62,7 @@ update profiles set platform_role = 'axel_admin' where id = '00000000-0000-0000-
 
 insert into projects (id, org_id, name, status, progress_pct, start_date, engagement_note) values
   ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001',
-   'Bio-based adhesive bond failures', 'active', 40, current_date - 21,
+   'Bio-based adhesive bond failures', 'active', 61, current_date - 21,
    'Root-cause review of intermittent bond failures in the BA-200 adhesive line.');
 
 insert into board_columns (id, project_id, name, position) values
@@ -166,3 +166,11 @@ insert into onboarding_checklist_items (org_id, step_key, completed_at) values
 insert into prospects (company_name, contact_name, contact_email, stage, estimated_value_cents, notes) values
   ('Coastal Coatings A/S (demo)', 'Sofie Jensen', 'sofie@coastal.test', 'proposal', 4500000, 'Water-resistance inconsistency.'),
   ('BioFoam GmbH (demo)', 'Jonas Weber', 'jonas@biofoam.test', 'lead', null, null);
+
+-- Project stages (migration 0017). The trigger derives projects.progress_pct
+-- from these: (100 + 100 + 45 + 0) / 4 = 61%.
+insert into project_phases (project_id, name, position, progress_pct) values
+  ('20000000-0000-0000-0000-000000000001', 'Onboarding', 0, 100),
+  ('20000000-0000-0000-0000-000000000001', 'Preliminary experiments', 1, 100),
+  ('20000000-0000-0000-0000-000000000001', 'Root-cause analysis', 2, 45),
+  ('20000000-0000-0000-0000-000000000001', 'Final report', 3, 0);

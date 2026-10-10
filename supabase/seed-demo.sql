@@ -4,7 +4,7 @@
 -- A second project, so the project switcher and per-project views have something to switch to.
 insert into projects (id, org_id, name, status, progress_pct, start_date, engagement_note) values
   ('20000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001',
-   'Water-resistant coating: cure schedule', 'active', 15, current_date - 6,
+   'Water-resistant coating: cure schedule', 'active', 40, current_date - 6,
    'Why batch-to-batch water resistance varies on the CT-40 coating.');
 
 insert into board_columns (id, project_id, name, position) values
@@ -178,3 +178,10 @@ insert into notifications (recipient_id, actor_id, card_id, project_id, org_id, 
   ('00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a1', '40000000-0000-0000-0000-000000000006',
    '20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001',
    'Axel (demo admin) commented on "Confirm plasticiser supplier and lot numbers"', 'card', now() - interval '1 day', now() - interval '2 days');
+
+-- Project stages for the demo engagement: (100 + 60 + 0 + 0) / 4 = 40%.
+insert into project_phases (project_id, name, position, progress_pct) values
+  ('20000000-0000-0000-0000-000000000002', 'Onboarding', 0, 100),
+  ('20000000-0000-0000-0000-000000000002', 'Preliminary experiments', 1, 60),
+  ('20000000-0000-0000-0000-000000000002', 'Main experiments', 2, 0),
+  ('20000000-0000-0000-0000-000000000002', 'Final report', 3, 0);

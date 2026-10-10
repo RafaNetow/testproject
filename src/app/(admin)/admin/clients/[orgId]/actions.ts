@@ -220,6 +220,7 @@ export async function deleteOrganization(orgId: string) {
 }
 
 const DEFAULT_COLUMNS = ["To do", "In progress", "Waiting on you", "Done"];
+const DEFAULT_PHASES = ["Onboarding", "Preliminary experiments"];
 const DEFAULT_FOLDERS = [
   "Formulation Data",
   "Characterisation Results",
@@ -273,6 +274,13 @@ export async function createProject(orgId: string, formData: FormData) {
     throw new Error(`Project created, but couldn't set up its folders: ${foldersError.message}`);
   }
 
+  const { error: phasesError } = await supabase.from("project_phases").insert(
+    DEFAULT_PHASES.map((phaseName, i) => ({ project_id: project.id, name: phaseName, position: i }))
+  );
+  if (phasesError) {
+    throw new Error(`Project created, but couldn't set up its stages: ${phasesError.message}`);
+  }
+
   await recordActivity({ kind: "project", projectId: project.id, orgId, message: `started the project ${quoted(name)}` });
   revalidatePath(`/admin/clients/${orgId}`);
 }
@@ -282,7 +290,6 @@ export async function updateProject(orgId: string, projectId: string, formData: 
 
   const name = String(formData.get("name") ?? "").trim();
   const status = String(formData.get("status") ?? "active");
-  const progressPct = Number(formData.get("progress_pct") ?? 0);
   const startDate = String(formData.get("start_date") ?? "").trim();
   const engagementNote = String(formData.get("engagement_note") ?? "").trim();
   if (!name) {
@@ -295,7 +302,7 @@ export async function updateProject(orgId: string, projectId: string, formData: 
     .update({
       name,
       status,
-      progress_pct: Number.isFinite(progressPct) ? Math.min(100, Math.max(0, progressPct)) : 0,
+      // progress_pct is derived from the project's stages (see project_phases).
       start_date: startDate || null,
       engagement_note: engagementNote || null,
     })
@@ -310,7 +317,7 @@ export async function updateProject(orgId: string, projectId: string, formData: 
     message:
       status === "completed"
         ? `marked the project ${quoted(name)} as completed`
-        : `updated the project ${quoted(name)} (${Math.min(100, Math.max(0, Math.round(progressPct || 0)))}% done)`,
+        : `updated the project ${quoted(name)}`,
   });
   revalidatePath(`/admin/clients/${orgId}`);
 }

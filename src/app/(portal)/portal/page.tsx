@@ -9,7 +9,8 @@ import { DashboardHero } from "@/components/shared/dashboard-hero";
 import { SectionHeader } from "@/components/shared/section-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { StatTiles } from "@/components/shared/stat-tiles";
-import { ActivityFeed, type ActivityItem } from "@/components/shared/activity-feed";
+import { StatusBadge } from "@/components/shared/status-badge";
+import { ProjectProgress } from "@/components/shared/project-progress";
 
 export default async function PortalHome() {
   const { org, projects } = await getPortalProjectContext();
@@ -45,11 +46,7 @@ export default async function PortalHome() {
     { count: decisionCount },
     { count: fileCount },
     { data: nextMeeting },
-    { data: recentCards },
-    { data: recentDecisions },
-    { data: recentUpdates },
-    { data: recentMeetings },
-    { data: recentFiles },
+    { data: progressRows },
   ] = await Promise.all([
     supabase
       .from("board_cards")
@@ -73,74 +70,19 @@ export default async function PortalHome() {
       .limit(1)
       .maybeSingle(),
     supabase
-      .from("board_cards")
-      .select("id, title, created_at, project_id")
-      .in("project_id", projectIds)
-      .order("created_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("decisions")
-      .select("id, title, created_at, project_id")
-      .in("project_id", projectIds)
-      .order("created_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("weekly_updates")
-      .select("id, title, published_at, project_id")
-      .in("project_id", projectIds)
-      .order("published_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("meetings")
-      .select("id, title, created_at, project_id")
-      .in("project_id", projectIds)
-      .order("created_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("files")
-      .select("id, filename, created_at, project_id")
-      .in("project_id", projectIds)
-      .order("created_at", { ascending: false })
-      .limit(5),
+      .from("projects")
+      .select("id, name, status, progress_pct, project_phases(id, name, position, progress_pct)")
+      .in("id", projectIds)
+      .order("created_at", { ascending: false }),
   ]);
 
-  const projectPath = (projectId: string, section: string) =>
-    projects.length > 1 ? `/portal/${section}?project=${projectId}` : `/portal/${section}`;
-
-  const activity: ActivityItem[] = [
-    ...(recentCards ?? []).map((c) => ({
-      type: "card" as const,
-      label: `New board card: ${c.title}`,
-      at: c.created_at,
-      href: projectPath(c.project_id, "board"),
-    })),
-    ...(recentDecisions ?? []).map((d) => ({
-      type: "decision" as const,
-      label: `Decision logged: ${d.title}`,
-      at: d.created_at,
-      href: projectPath(d.project_id, "decisions"),
-    })),
-    ...(recentUpdates ?? []).map((u) => ({
-      type: "update" as const,
-      label: `Update published: ${u.title}`,
-      at: u.published_at,
-      href: projectPath(u.project_id, "updates"),
-    })),
-    ...(recentMeetings ?? []).map((m) => ({
-      type: "meeting" as const,
-      label: `Meeting scheduled: ${m.title}`,
-      at: m.created_at,
-      href: projectPath(m.project_id, "meetings"),
-    })),
-    ...(recentFiles ?? []).map((f) => ({
-      type: "file" as const,
-      label: `File uploaded: ${f.filename}`,
-      at: f.created_at,
-      href: projectPath(f.project_id, "files"),
-    })),
-  ]
-    .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
-    .slice(0, 8);
+  // Active engagements first; each with its stages in the admin's order.
+  const progress = (progressRows ?? [])
+    .map((p) => ({
+      ...p,
+      phases: [...(p.project_phases ?? [])].sort((a, b) => a.position - b.position),
+    }))
+    .sort((a, b) => Number(a.status === "completed") - Number(b.status === "completed"));
 
   const KPI_TILES = [
     { label: "Board items", value: cardCount ?? 0, icon: <ViewKanbanOutlined /> },
@@ -162,9 +104,19 @@ export default async function PortalHome() {
     <Stack spacing={5}>
       <DashboardHero name={org.name} subtitle="Here's where your engagement stands today." />
 
-      <StatTiles tiles={KPI_TILES} />
+      <Stack spacing={3}>
+        {progress.map((p) => (
+          <ProjectProgress
+            key={p.id}
+            name={p.name}
+            total={p.progress_pct}
+            phases={p.phases}
+            titleExtra={<StatusBadge status={p.status} />}
+          />
+        ))}
+      </Stack>
 
-      <ActivityFeed title="Recent activity" items={activity} emptyText="Nothing yet — check back soon." />
+      <StatTiles tiles={KPI_TILES} />
     </Stack>
   );
 }
