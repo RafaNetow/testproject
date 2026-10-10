@@ -1,6 +1,7 @@
 import { requireAxelAdmin, getSessionUser } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/shared/app-shell";
+import { notificationHref } from "@/lib/notification-links";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAxelAdmin();
@@ -13,18 +14,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         .select("id, message, card_id, project_id, org_id, kind, read_at, created_at")
         .eq("recipient_id", user.id)
         .order("created_at", { ascending: false })
-        .limit(20)
+        .limit(30)
     : { data: [] };
 
   const notifications = (rows ?? []).map((n) => ({
     id: n.id,
     message: n.message,
-    href:
-      n.org_id && n.project_id
-        ? `/admin/clients/${n.org_id}/projects/${n.project_id}/${
-            n.kind === "deliverable" ? "deliverables" : "board"
-          }`
-        : "/admin",
+    kind: n.kind,
+    href: notificationHref(n, "admin"),
     read: !!n.read_at,
     created_at: n.created_at,
   }));
@@ -35,6 +32,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       brandLabel="Alchemica"
       subtitle="Admin"
       userEmail={user?.email ?? ""}
+      userId={user?.id ?? ""}
       notifications={notifications}
     >
       {children}

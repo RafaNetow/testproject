@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAxelAdmin } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
+import { recordActivity, entityInfo, quoted } from "@/lib/activity";
 
 export async function createProspect(formData: FormData) {
   await requireAxelAdmin();
@@ -26,6 +27,7 @@ export async function createProspect(formData: FormData) {
   if (error) {
     throw new Error(`Couldn't add prospect: ${error.message}`);
   }
+  await recordActivity({ kind: "prospect", message: `added the prospect ${quoted(companyName)}`, adminsOnly: true });
   revalidatePath("/admin/prospects");
 }
 
@@ -38,16 +40,20 @@ export async function updateProspectStage(prospectId: string, formData: FormData
   if (error) {
     throw new Error(`Couldn't update prospect: ${error.message}`);
   }
+  const prospect = await entityInfo("prospects", prospectId, "company_name", false);
+  await recordActivity({ kind: "prospect", message: `moved ${quoted(prospect.name)} to ${stage}`, adminsOnly: true });
   revalidatePath("/admin/prospects");
 }
 
 export async function deleteProspect(prospectId: string) {
   await requireAxelAdmin();
+  const doomed = await entityInfo("prospects", prospectId, "company_name", false);
   const supabase = await createClient();
   const { error } = await supabase.from("prospects").delete().eq("id", prospectId);
   if (error) {
     throw new Error(`Couldn't delete prospect: ${error.message}`);
   }
+  await recordActivity({ kind: "prospect", message: `removed the prospect ${quoted(doomed.name)}`, adminsOnly: true });
   revalidatePath("/admin/prospects");
 }
 
@@ -82,6 +88,12 @@ export async function convertProspectToClient(prospectId: string) {
     throw new Error(`Client created, but couldn't update prospect stage: ${stageError.message}`);
   }
 
+  await recordActivity({
+    kind: "client",
+    orgId: org.id,
+    message: `won ${quoted(prospect.company_name)} and made them a client`,
+    adminsOnly: true,
+  });
   revalidatePath("/admin/prospects");
   revalidatePath("/admin/clients");
   redirect(`/admin/clients/${org.id}`);

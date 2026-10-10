@@ -32,6 +32,7 @@ type AppShellProps = {
   brandLabel: string;
   subtitle: string;
   userEmail: string;
+  userId: string;
   notifications: NotificationItem[];
   /** Counts shown beside a nav item, keyed by its href — e.g. what's waiting on the user. */
   badges?: Record<string, number>;
@@ -60,6 +61,7 @@ export function AppShell({
   brandLabel,
   subtitle,
   userEmail,
+  userId,
   notifications,
   badges,
   children,
@@ -277,7 +279,7 @@ export function AppShell({
           )}
 
           <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 1 }}>
-            <NotificationBell notifications={notifications} />
+            <NotificationBell notifications={notifications} surface={variant} userId={userId} />
             <AccountMenu email={userEmail} variant={variant} />
           </Box>
         </Box>

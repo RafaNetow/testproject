@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAxelAdmin, requireSessionUser } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
+import { recordActivity, entityInfo, quoted } from "@/lib/activity";
 
 function revalidateAll(paths: string[]) {
   for (const p of paths) revalidatePath(p);
@@ -34,6 +35,11 @@ export async function logHours(projectId: string, paths: string[], formData: For
   if (error) {
     throw new Error(`Couldn't log hours: ${error.message}`);
   }
+  await recordActivity({
+    kind: "hours",
+    projectId,
+    message: `logged ${hours}h${description ? ` — ${quoted(description)}` : category ? ` of ${category}` : ""}`,
+  });
   revalidateAll(paths);
 }
 
@@ -63,15 +69,19 @@ export async function updateHoursEntry(entryId: string, paths: string[], formDat
   if (error) {
     throw new Error(`Couldn't update entry: ${error.message}`);
   }
+  const entry = await entityInfo("hours_entries", entryId, "entry_date");
+  await recordActivity({ kind: "hours", projectId: entry.projectId, message: `updated a time entry (${hours}h on ${entryDate})` });
   revalidateAll(paths);
 }
 
 export async function deleteHoursEntry(entryId: string, paths: string[]) {
   await requireAxelAdmin();
+  const doomed = await entityInfo("hours_entries", entryId, "entry_date");
   const supabase = await createClient();
   const { error } = await supabase.from("hours_entries").delete().eq("id", entryId);
   if (error) {
     throw new Error(`Couldn't delete entry: ${error.message}`);
   }
+  await recordActivity({ kind: "hours", projectId: doomed.projectId, message: `deleted the time entry from ${doomed.name ?? "a past day"}` });
   revalidateAll(paths);
 }

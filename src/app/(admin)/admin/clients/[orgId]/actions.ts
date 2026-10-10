@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { Resend } from "resend";
 import { requireAxelAdmin } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
+import { recordActivity, entityInfo, quoted } from "@/lib/activity";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
@@ -95,6 +96,13 @@ export async function inviteMember(orgId: string, formData: FormData): Promise<I
     await supabase.from("org_memberships").insert({ org_id: orgId, invited_email: email, role });
   }
 
+  await recordActivity({
+    kind: "team",
+    orgId,
+    message: existing
+      ? `made ${email} ${role === "owner" ? "an owner" : "a collaborator"}`
+      : `invited ${email} to the workspace as ${role === "owner" ? "an owner" : "a collaborator"}`,
+  });
   revalidatePath(`/admin/clients/${orgId}`);
 
   const { emailSent, message } = await sendInviteEmail(org.name, email);
@@ -121,11 +129,13 @@ export async function resendInvite(orgId: string, email: string): Promise<Invite
 
 export async function removeMember(orgId: string, membershipId: string) {
   await requireAxelAdmin();
+  const leaving = await entityInfo("org_memberships", membershipId, "invited_email", false);
   const supabase = await createClient();
   const { error } = await supabase.from("org_memberships").delete().eq("id", membershipId);
   if (error) {
     throw new Error(`Couldn't remove member: ${error.message}`);
   }
+  await recordActivity({ kind: "team", orgId, message: `removed ${leaving.name ?? "a member"} from the workspace` });
   revalidatePath(`/admin/clients/${orgId}`);
 }
 
@@ -151,6 +161,13 @@ export async function updateOrganization(orgId: string, formData: FormData) {
   if (error) {
     throw new Error(`Couldn't save changes: ${error.message}`);
   }
+  // Client status (e.g. "at risk") is internal — only the team hears about it.
+  await recordActivity({
+    kind: "client",
+    orgId,
+    message: `updated ${quoted(name)} (status: ${status.replace("_", " ")})`,
+    adminsOnly: true,
+  });
   revalidatePath(`/admin/clients/${orgId}`);
   revalidatePath("/admin/clients");
 }
@@ -163,6 +180,7 @@ export async function updateOrganization(orgId: string, formData: FormData) {
  */
 export async function deleteOrganization(orgId: string) {
   await requireAxelAdmin();
+  const doomed = await entityInfo("organizations", orgId, "name", false);
   const supabase = await createClient();
 
   const { data: projects } = await supabase.from("projects").select("id").eq("org_id", orgId);
@@ -195,6 +213,8 @@ export async function deleteOrganization(orgId: string) {
   if (error) {
     throw new Error(`Couldn't delete client: ${error.message}`);
   }
+  // The client is gone, so this one goes out without an org attached.
+  await recordActivity({ kind: "client", message: `deleted the client ${quoted(doomed.name)}`, adminsOnly: true });
   revalidatePath("/admin/clients");
   redirect("/admin/clients");
 }
@@ -253,6 +273,7 @@ export async function createProject(orgId: string, formData: FormData) {
     throw new Error(`Project created, but couldn't set up its folders: ${foldersError.message}`);
   }
 
+  await recordActivity({ kind: "project", projectId: project.id, orgId, message: `started the project ${quoted(name)}` });
   revalidatePath(`/admin/clients/${orgId}`);
 }
 
@@ -282,6 +303,15 @@ export async function updateProject(orgId: string, projectId: string, formData: 
   if (error) {
     throw new Error(`Couldn't save project: ${error.message}`);
   }
+  await recordActivity({
+    kind: "project",
+    projectId,
+    orgId,
+    message:
+      status === "completed"
+        ? `marked the project ${quoted(name)} as completed`
+        : `updated the project ${quoted(name)} (${Math.min(100, Math.max(0, Math.round(progressPct || 0)))}% done)`,
+  });
   revalidatePath(`/admin/clients/${orgId}`);
 }
 
@@ -292,6 +322,7 @@ export async function updateProject(orgId: string, projectId: string, formData: 
  */
 export async function deleteProject(orgId: string, projectId: string) {
   await requireAxelAdmin();
+  const doomed = await entityInfo("projects", projectId, "name", false);
   const supabase = await createClient();
 
   const { data: files } = await supabase
@@ -319,5 +350,6 @@ export async function deleteProject(orgId: string, projectId: string) {
   if (error) {
     throw new Error(`Couldn't delete project: ${error.message}`);
   }
+  await recordActivity({ kind: "project", orgId, message: `deleted the project ${quoted(doomed.name)}` });
   revalidatePath(`/admin/clients/${orgId}`);
 }

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireSessionUser } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
+import { recordActivity, entityInfo, quoted } from "@/lib/activity";
 
 const BUCKET = "project-files";
 
@@ -67,6 +68,9 @@ export async function uploadAndAttachCardFile(
     return { success: false, message: `Uploaded, but couldn't attach it: ${attachError.message}` };
   }
 
+  const card = await entityInfo("board_cards", cardId, "title");
+  await recordActivity({ kind: "card", cardId, message: `attached ${quoted(file.name)} to ${quoted(card.name)}` });
+
   revalidateAll(paths);
   return { success: true, message: `"${file.name}" uploaded and attached.` };
 }
@@ -99,6 +103,9 @@ export async function createCard(
   if (error) {
     throw new Error(`Couldn't add card: ${error.message}`);
   }
+
+  const column = await entityInfo("board_columns", columnId, "name", false);
+  await recordActivity({ kind: "card", projectId, message: `added ${quoted(title)} to ${column.name ?? "the board"}` });
   revalidateAll(paths);
 }
 
@@ -116,6 +123,11 @@ export async function reorderCards(
   await requireSessionUser();
   const supabase = await createClient();
 
+  const { data: before } = await supabase
+    .from("board_cards")
+    .select("id, title, column_id, project_id")
+    .in("id", orderedCardIds);
+
   const results = await Promise.all(
     orderedCardIds.map((id, index) =>
       supabase
@@ -132,6 +144,14 @@ export async function reorderCards(
   if (failed?.error) {
     throw new Error(`Couldn't reorder cards: ${failed.error.message}`);
   }
+
+  const moved = (before ?? []).filter((c) => c.column_id !== columnId);
+  if (moved.length) {
+    const column = await entityInfo("board_columns", columnId, "name", false);
+    for (const card of moved) {
+      await recordActivity({ kind: "card", cardId: card.id, message: `moved ${quoted(card.title)} to ${column.name ?? "another column"}` });
+    }
+  }
   revalidateAll(paths);
 }
 
@@ -139,6 +159,9 @@ export async function updateCardTitle(cardId: string, paths: string[], formData:
   await requireSessionUser();
   const title = String(formData.get("title") ?? "").trim();
   if (!title) return;
+
+  const previous = await entityInfo("board_cards", cardId, "title");
+  if (previous.name === title) return;
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -148,6 +171,7 @@ export async function updateCardTitle(cardId: string, paths: string[], formData:
   if (error) {
     throw new Error(`Couldn't rename card: ${error.message}`);
   }
+  await recordActivity({ kind: "card", cardId, message: `renamed ${quoted(previous.name)} to ${quoted(title)}` });
   revalidateAll(paths);
 }
 
@@ -163,12 +187,23 @@ export async function updateCardDueDate(cardId: string, paths: string[], formDat
   if (error) {
     throw new Error(`Couldn't set due date: ${error.message}`);
   }
+  const card = await entityInfo("board_cards", cardId, "title");
+  await recordActivity({
+    kind: "card",
+    cardId,
+    message: dueDate
+      ? `set ${quoted(card.name)} due on ${new Date(`${dueDate}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`
+      : `removed the due date from ${quoted(card.name)}`,
+  });
   revalidateAll(paths);
 }
 
 export async function updateCardDescription(cardId: string, paths: string[], formData: FormData) {
   await requireSessionUser();
   const description = String(formData.get("description") ?? "").trim();
+
+  const previous = await entityInfo("board_cards", cardId, "description");
+  if ((previous.name ?? "") === description) return;
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -178,6 +213,8 @@ export async function updateCardDescription(cardId: string, paths: string[], for
   if (error) {
     throw new Error(`Couldn't save description: ${error.message}`);
   }
+  const card = await entityInfo("board_cards", cardId, "title");
+  await recordActivity({ kind: "card", cardId, message: `updated the description of ${quoted(card.name)}` });
   revalidateAll(paths);
 }
 
@@ -201,6 +238,16 @@ export async function toggleCardAssignee(
   if (error) {
     throw new Error(`Couldn't update assignee: ${error.message}`);
   }
+  const [card, person] = await Promise.all([
+    entityInfo("board_cards", cardId, "title"),
+    entityInfo("profiles", profileId, "full_name", false),
+  ]);
+  const who = person.name?.trim() || "someone";
+  await recordActivity({
+    kind: "card",
+    cardId,
+    message: isAssigned ? `unassigned ${who} from ${quoted(card.name)}` : `assigned ${who} to ${quoted(card.name)}`,
+  });
   revalidateAll(paths);
 }
 
@@ -225,6 +272,8 @@ export async function addCardTag(cardId: string, paths: string[], formData: Form
   if (error) {
     throw new Error(`Couldn't add tag: ${error.message}`);
   }
+  const titled = await entityInfo("board_cards", cardId, "title");
+  await recordActivity({ kind: "card", cardId, message: `labelled ${quoted(titled.name)} as ${tag}` });
   revalidateAll(paths);
 }
 
@@ -248,48 +297,9 @@ export async function removeCardTag(cardId: string, tag: string, paths: string[]
   if (error) {
     throw new Error(`Couldn't remove tag: ${error.message}`);
   }
+  const titled = await entityInfo("board_cards", cardId, "title");
+  await recordActivity({ kind: "card", cardId, message: `removed the ${tag} label from ${quoted(titled.name)}` });
   revalidateAll(paths);
-}
-
-/** Notifies everyone who'd want to know about new activity on a card — its
- * assignees and whoever created it — excluding the person who just acted.
- * Best-effort: a notification failing must never fail the comment itself. */
-async function notifyCardActivity(cardId: string, actorId: string, message: string) {
-  try {
-    const supabase = await createClient();
-    const { data: card } = await supabase
-      .from("board_cards")
-      .select("project_id, created_by, projects(org_id)")
-      .eq("id", cardId)
-      .maybeSingle();
-    if (!card) return;
-
-    const { data: assignees } = await supabase
-      .from("board_card_assignees")
-      .select("profile_id")
-      .eq("card_id", cardId);
-
-    const recipientIds = new Set<string>();
-    for (const a of assignees ?? []) recipientIds.add(a.profile_id);
-    if (card.created_by) recipientIds.add(card.created_by);
-    recipientIds.delete(actorId);
-    if (recipientIds.size === 0) return;
-
-    const orgId = (card.projects as unknown as { org_id: string } | null)?.org_id ?? null;
-
-    await supabase.from("notifications").insert(
-      Array.from(recipientIds).map((recipientId) => ({
-        recipient_id: recipientId,
-        actor_id: actorId,
-        card_id: cardId,
-        project_id: card.project_id,
-        org_id: orgId,
-        message,
-      }))
-    );
-  } catch (err) {
-    console.error("notifyCardActivity: failed", err);
-  }
 }
 
 export async function addCardComment(
@@ -310,16 +320,12 @@ export async function addCardComment(
     throw new Error(`Couldn't post comment: ${error.message}`);
   }
 
-  const [{ data: profile }, { data: card }] = await Promise.all([
-    supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
-    supabase.from("board_cards").select("title").eq("id", cardId).maybeSingle(),
-  ]);
-  const verb = parentCommentId ? "replied on" : "commented on";
-  await notifyCardActivity(
+  const card = await entityInfo("board_cards", cardId, "title");
+  await recordActivity({
+    kind: "card",
     cardId,
-    user.id,
-    `${profile?.full_name ?? "Someone"} ${verb} "${card?.title ?? "a card"}"`
-  );
+    message: `${parentCommentId ? "replied on" : "commented on"} ${quoted(card.name)}: ${quoted(body)}`,
+  });
 
   revalidateAll(paths);
 }
@@ -327,9 +333,18 @@ export async function addCardComment(
 export async function deleteCardComment(commentId: string, paths: string[]) {
   await requireSessionUser();
   const supabase = await createClient();
+  const { data: comment } = await supabase
+    .from("board_card_comments")
+    .select("card_id")
+    .eq("id", commentId)
+    .maybeSingle();
   const { error } = await supabase.from("board_card_comments").delete().eq("id", commentId);
   if (error) {
     throw new Error(`Couldn't delete comment: ${error.message}`);
+  }
+  if (comment?.card_id) {
+    const card = await entityInfo("board_cards", comment.card_id, "title");
+    await recordActivity({ kind: "card", cardId: comment.card_id, message: `deleted a comment on ${quoted(card.name)}` });
   }
   revalidateAll(paths);
 }
@@ -348,15 +363,26 @@ export async function addCardLink(cardId: string, paths: string[], formData: For
   if (error) {
     throw new Error(`Couldn't attach link: ${error.message}`);
   }
+  const card = await entityInfo("board_cards", cardId, "title");
+  await recordActivity({ kind: "card", cardId, message: `attached the link ${quoted(label || url)} to ${quoted(card.name)}` });
   revalidateAll(paths);
 }
 
 export async function deleteCardLink(linkId: string, paths: string[]) {
   await requireSessionUser();
   const supabase = await createClient();
+  const { data: link } = await supabase
+    .from("board_card_links")
+    .select("card_id, url, label")
+    .eq("id", linkId)
+    .maybeSingle();
   const { error } = await supabase.from("board_card_links").delete().eq("id", linkId);
   if (error) {
     throw new Error(`Couldn't remove link: ${error.message}`);
+  }
+  if (link?.card_id) {
+    const card = await entityInfo("board_cards", link.card_id, "title");
+    await recordActivity({ kind: "card", cardId: link.card_id, message: `removed the link ${quoted(link.label || link.url)} from ${quoted(card.name)}` });
   }
   revalidateAll(paths);
 }
@@ -370,6 +396,11 @@ export async function attachCardFile(cardId: string, fileId: string, paths: stri
   if (error) {
     throw new Error(`Couldn't attach file: ${error.message}`);
   }
+  const [card, file] = await Promise.all([
+    entityInfo("board_cards", cardId, "title"),
+    entityInfo("files", fileId, "filename"),
+  ]);
+  await recordActivity({ kind: "card", cardId, message: `attached ${quoted(file.name)} to ${quoted(card.name)}` });
   revalidateAll(paths);
 }
 
@@ -384,15 +415,22 @@ export async function detachCardFile(cardId: string, fileId: string, paths: stri
   if (error) {
     throw new Error(`Couldn't remove attachment: ${error.message}`);
   }
+  const [card, file] = await Promise.all([
+    entityInfo("board_cards", cardId, "title"),
+    entityInfo("files", fileId, "filename"),
+  ]);
+  await recordActivity({ kind: "card", cardId, message: `removed ${quoted(file.name)} from ${quoted(card.name)}` });
   revalidateAll(paths);
 }
 
 export async function deleteCard(cardId: string, paths: string[]) {
   await requireSessionUser();
+  const card = await entityInfo("board_cards", cardId, "title");
   const supabase = await createClient();
   const { error } = await supabase.from("board_cards").delete().eq("id", cardId);
   if (error) {
     throw new Error(`Couldn't delete card: ${error.message}`);
   }
+  await recordActivity({ kind: "card", projectId: card.projectId, message: `deleted the card ${quoted(card.name)}` });
   revalidateAll(paths);
 }

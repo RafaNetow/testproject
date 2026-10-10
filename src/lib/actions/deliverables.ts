@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAxelAdmin, requireSessionUser } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
 import { notifyAxel } from "@/lib/notify-axel";
+import { recordActivity, entityInfo, quoted } from "@/lib/activity";
 import { isDeliverableStatus, type DeliverableStatus } from "@/lib/deliverables";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
@@ -62,33 +63,17 @@ function parseFields(formData: FormData) {
   return { title, description: description || null, dueDate: dueDate || null, status };
 }
 
-/** Tells every accepted member of the client's workspace that something is ready for them. */
-async function notifyClientMembers(
-  supabase: Supabase,
-  orgId: string,
-  projectId: string,
-  actorId: string,
-  title: string
-) {
-  const { data: members } = await supabase
-    .from("org_memberships")
-    .select("user_id")
-    .eq("org_id", orgId)
-    .not("user_id", "is", null)
-    .not("accepted_at", "is", null);
+const STATUS_PHRASES: Record<DeliverableStatus, (title: string) => string> = {
+  draft: (t) => `moved ${t} back to draft`,
+  in_progress: (t) => `started work on ${t}`,
+  in_review: (t) => `sent ${t} for review`,
+  changes_requested: (t) => `marked ${t} as needing changes`,
+  approved: (t) => `marked ${t} as approved`,
+};
 
-  const rows = (members ?? []).map((m) => ({
-    recipient_id: m.user_id as string,
-    actor_id: actorId,
-    project_id: projectId,
-    org_id: orgId,
-    message: `Ready for your review: "${title}"`,
-    kind: "deliverable",
-  }));
-  if (rows.length) {
-    const { error } = await supabase.from("notifications").insert(rows);
-    if (error) console.error("notifyClientMembers: failed", error);
-  }
+/** Drafts are invisible to the client (RLS), so they only hear once a deliverable leaves draft. */
+async function announceDeliverable(projectId: string, message: string, visibleToClient: boolean) {
+  await recordActivity({ kind: "deliverable", projectId, message, adminsOnly: !visibleToClient });
 }
 
 export async function createDeliverable(projectId: string, formData: FormData) {
@@ -110,9 +95,13 @@ export async function createDeliverable(projectId: string, formData: FormData) {
   });
   if (error) throw new Error(`Couldn't create the deliverable: ${error.message}`);
 
-  if (fields.status === "in_review") {
-    await notifyClientMembers(supabase, orgId, projectId, user.id, fields.title);
-  }
+  await announceDeliverable(
+    projectId,
+    fields.status === "in_review"
+      ? `sent ${quoted(fields.title)} for review`
+      : `added the deliverable ${quoted(fields.title)}`,
+    fields.status !== "draft"
+  );
   revalidateDeliverables(orgId, projectId);
 }
 
@@ -151,9 +140,11 @@ export async function updateDeliverable(deliverableId: string, formData: FormDat
   const { error } = await supabase.from("deliverables").update(update).eq("id", deliverableId);
   if (error) throw new Error(`Couldn't save the deliverable: ${error.message}`);
 
-  if (statusChanged && fields.status === "in_review") {
-    await notifyClientMembers(supabase, orgId, current.project_id, user.id, fields.title);
-  }
+  await announceDeliverable(
+    current.project_id,
+    statusChanged ? STATUS_PHRASES[fields.status](quoted(fields.title)) : `updated the deliverable ${quoted(fields.title)}`,
+    fields.status !== "draft" || current.status !== "draft"
+  );
   revalidateDeliverables(orgId, current.project_id);
 }
 
@@ -165,6 +156,7 @@ export async function deleteDeliverable(deliverableId: string) {
 
   const { error } = await supabase.from("deliverables").delete().eq("id", deliverableId);
   if (error) throw new Error(`Couldn't delete the deliverable: ${error.message}`);
+  await announceDeliverable(current.project_id, `deleted the deliverable ${quoted(current.title)}`, current.status !== "draft");
   revalidateDeliverables(orgId, current.project_id);
 }
 
@@ -191,6 +183,12 @@ export async function attachDeliverableFile(deliverableId: string, formData: For
     .from("deliverable_files")
     .upsert({ deliverable_id: deliverableId, file_id: fileId }, { onConflict: "deliverable_id,file_id" });
   if (error) throw new Error(`Couldn't attach the file: ${error.message}`);
+  const attached = await entityInfo("files", fileId, "filename");
+  await announceDeliverable(
+    current.project_id,
+    `attached ${quoted(attached.name)} to ${quoted(current.title)}`,
+    current.status !== "draft"
+  );
   revalidateDeliverables(orgId, current.project_id);
 }
 
@@ -199,6 +197,7 @@ export async function detachDeliverableFile(deliverableId: string, fileId: strin
   const supabase = await createClient();
   const current = await getDeliverable(supabase, deliverableId);
   const orgId = await getProjectOrg(supabase, current.project_id);
+  const detached = await entityInfo("files", fileId, "filename");
 
   const { error } = await supabase
     .from("deliverable_files")
@@ -206,6 +205,11 @@ export async function detachDeliverableFile(deliverableId: string, fileId: strin
     .eq("deliverable_id", deliverableId)
     .eq("file_id", fileId);
   if (error) throw new Error(`Couldn't remove the file: ${error.message}`);
+  await announceDeliverable(
+    current.project_id,
+    `removed ${quoted(detached.name)} from ${quoted(current.title)}`,
+    current.status !== "draft"
+  );
   revalidateDeliverables(orgId, current.project_id);
 }
 

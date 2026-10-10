@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireSessionUser, isAxelAdmin } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
+import { recordActivity, entityInfo, quoted } from "@/lib/activity";
 import { notifyAxel } from "@/lib/notify-axel";
 
 function revalidateAll(paths: string[]) {
@@ -51,6 +52,8 @@ export async function logDecision(projectId: string, paths: string[], formData: 
     }
   }
 
+  await recordActivity({ kind: "decision", projectId, message: `logged the decision ${quoted(title)}` });
+
   if (!(await isAxelAdmin())) {
     const { data: project } = await supabase
       .from("projects")
@@ -69,10 +72,12 @@ export async function logDecision(projectId: string, paths: string[], formData: 
 
 export async function deleteDecision(decisionId: string, paths: string[]) {
   await requireSessionUser();
+  const doomed = await entityInfo("decisions", decisionId, "title");
   const supabase = await createClient();
   const { error } = await supabase.from("decisions").delete().eq("id", decisionId);
   if (error) {
     throw new Error(`Couldn't delete decision: ${error.message}`);
   }
+  await recordActivity({ kind: "decision", projectId: doomed.projectId, message: `deleted the decision ${quoted(doomed.name)}` });
   revalidateAll(paths);
 }

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireSessionUser, requireAxelAdmin, isAxelAdmin } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
+import { recordActivity, entityInfo, quoted } from "@/lib/activity";
 import { notifyAxel } from "@/lib/notify-axel";
 
 const BUCKET = "project-files";
@@ -53,6 +54,8 @@ export async function uploadFile(
     return { success: false, message: `Couldn't save file record: ${insertError.message}` };
   }
 
+  await recordActivity({ kind: "file", projectId, message: `uploaded ${quoted(file.name)}` });
+
   if (!(await isAxelAdmin())) {
     const { data: project } = await supabase
       .from("projects")
@@ -77,16 +80,20 @@ export async function renameFile(fileId: string, paths: string[], formData: Form
     throw new Error("File name is required.");
   }
 
+  const previous = await entityInfo("files", fileId, "filename");
+  if (previous.name === filename) return;
   const supabase = await createClient();
   const { error } = await supabase.from("files").update({ filename }).eq("id", fileId);
   if (error) {
     throw new Error(`Couldn't rename file: ${error.message}`);
   }
+  await recordActivity({ kind: "file", projectId: previous.projectId, message: `renamed ${quoted(previous.name)} to ${quoted(filename)}` });
   revalidateAll(paths);
 }
 
 export async function deleteFile(fileId: string, storagePath: string, paths: string[]) {
   await requireAxelAdmin();
+  const doomed = await entityInfo("files", fileId, "filename");
   const supabase = await createClient();
 
   const { error: removeError } = await supabase.storage.from(BUCKET).remove([storagePath]);
@@ -99,6 +106,7 @@ export async function deleteFile(fileId: string, storagePath: string, paths: str
     throw new Error(`Couldn't delete file record: ${error.message}`);
   }
 
+  await recordActivity({ kind: "file", projectId: doomed.projectId, message: `deleted ${quoted(doomed.name)}` });
   revalidateAll(paths);
 }
 
@@ -113,6 +121,15 @@ export async function moveFile(fileId: string, paths: string[], formData: FormDa
   if (error) {
     throw new Error(`Couldn't move file: ${error.message}`);
   }
+  const [file, folder] = await Promise.all([
+    entityInfo("files", fileId, "filename"),
+    folderId ? entityInfo("folders", folderId, "name") : Promise.resolve({ projectId: null, name: null }),
+  ]);
+  await recordActivity({
+    kind: "file",
+    projectId: file.projectId,
+    message: `moved ${quoted(file.name)} to ${folder.name ? quoted(folder.name) : "the top level"}`,
+  });
   revalidateAll(paths);
 }
 
@@ -137,6 +154,7 @@ export async function createFolder(
   if (error) {
     throw new Error(`Couldn't create folder: ${error.message}`);
   }
+  await recordActivity({ kind: "file", projectId, message: `created the folder ${quoted(name)}` });
   revalidateAll(paths);
 }
 
@@ -147,21 +165,26 @@ export async function renameFolder(folderId: string, paths: string[], formData: 
     throw new Error("Folder name is required.");
   }
 
+  const previous = await entityInfo("folders", folderId, "name");
+  if (previous.name === name) return;
   const supabase = await createClient();
   const { error } = await supabase.from("folders").update({ name }).eq("id", folderId);
   if (error) {
     throw new Error(`Couldn't rename folder: ${error.message}`);
   }
+  await recordActivity({ kind: "file", projectId: previous.projectId, message: `renamed the folder ${quoted(previous.name)} to ${quoted(name)}` });
   revalidateAll(paths);
 }
 
 /** Deleting a folder cascades to its subfolders; files inside move to the top level. */
 export async function deleteFolder(folderId: string, paths: string[]) {
   await requireAxelAdmin();
+  const doomed = await entityInfo("folders", folderId, "name");
   const supabase = await createClient();
   const { error } = await supabase.from("folders").delete().eq("id", folderId);
   if (error) {
     throw new Error(`Couldn't delete folder: ${error.message}`);
   }
+  await recordActivity({ kind: "file", projectId: doomed.projectId, message: `deleted the folder ${quoted(doomed.name)}` });
   revalidateAll(paths);
 }

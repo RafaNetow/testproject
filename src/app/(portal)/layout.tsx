@@ -1,6 +1,7 @@
 import { requireSessionUser } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/shared/app-shell";
+import { notificationHref } from "@/lib/notification-links";
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const user = await requireSessionUser();
@@ -12,7 +13,7 @@ export default async function PortalLayout({ children }: { children: React.React
       .select("id, message, card_id, project_id, org_id, kind, read_at, created_at")
       .eq("recipient_id", user.id)
       .order("created_at", { ascending: false })
-      .limit(20),
+      .limit(30),
     supabase
       .from("org_memberships")
       .select("role")
@@ -36,11 +37,8 @@ export default async function PortalLayout({ children }: { children: React.React
   const notifications = (rows ?? []).map((n) => ({
     id: n.id,
     message: n.message,
-    href: !n.project_id
-      ? "/portal"
-      : n.kind === "deliverable"
-        ? `/portal/deliverables?project=${n.project_id}`
-        : `/portal/board?project=${n.project_id}`,
+    kind: n.kind,
+    href: notificationHref(n, "portal"),
     read: !!n.read_at,
     created_at: n.created_at,
   }));
@@ -51,6 +49,7 @@ export default async function PortalLayout({ children }: { children: React.React
       brandLabel="Alchemica"
       subtitle="Client Portal"
       userEmail={user.email ?? ""}
+      userId={user.id}
       notifications={notifications}
       badges={{ "/portal/deliverables": awaitingReview ?? 0 }}
     >

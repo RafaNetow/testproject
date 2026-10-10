@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAxelAdmin } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
+import { recordActivity, entityInfo } from "@/lib/activity";
 
 const BUCKET = "org-documents";
 
@@ -104,6 +105,16 @@ export async function createInvoiceWithLineItems(
     }
   }
 
+  await recordActivity({
+    kind: "invoice",
+    projectId,
+    orgId,
+    message:
+      input.status === "draft"
+        ? `drafted invoice ${invoiceNumber}`
+        : `issued invoice ${invoiceNumber} for ${new Intl.NumberFormat("en-GB", { style: "currency", currency: input.currency }).format(total / 100)}`,
+    adminsOnly: input.status === "draft",
+  });
   revalidateAll(paths);
   return { success: true, message: input.status === "draft" ? "Saved as draft." : "Invoice sent." };
 }
@@ -117,6 +128,14 @@ export async function updateInvoiceStatus(invoiceId: string, paths: string[], fo
   if (error) {
     throw new Error(`Couldn't update invoice: ${error.message}`);
   }
+  const invoice = await entityInfo("invoices", invoiceId, "invoice_number");
+  const words: Record<string, string> = { draft: "a draft", sent: "sent", partially_signed: "partially signed", signed: "signed", paid: "paid", overdue: "overdue", cancelled: "cancelled" };
+  await recordActivity({
+    kind: "invoice",
+    projectId: invoice.projectId,
+    message: status === "sent" ? `sent invoice ${invoice.name}` : `marked invoice ${invoice.name} as ${words[status] ?? status}`,
+    adminsOnly: status === "draft",
+  });
   revalidateAll(paths);
 }
 
@@ -126,6 +145,10 @@ export async function deleteInvoice(
   paths: string[]
 ) {
   await requireAxelAdmin();
+  const [doomed, doomedStatus] = await Promise.all([
+    entityInfo("invoices", invoiceId, "invoice_number"),
+    entityInfo("invoices", invoiceId, "status"),
+  ]);
   const supabase = await createClient();
 
   if (pdfStoragePath) {
@@ -139,5 +162,11 @@ export async function deleteInvoice(
   if (error) {
     throw new Error(`Couldn't delete invoice: ${error.message}`);
   }
+  await recordActivity({
+    kind: "invoice",
+    projectId: doomed.projectId,
+    message: `deleted invoice ${doomed.name ?? ""}`.trim(),
+    adminsOnly: doomedStatus.name === "draft",
+  });
   revalidateAll(paths);
 }

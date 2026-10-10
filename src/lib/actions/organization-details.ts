@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireSessionUser } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
+import { recordActivity } from "@/lib/activity";
 
 /**
  * Lets a client's own "owner" role update their org's CVR number and
@@ -27,5 +28,6 @@ export async function updateOrgDetails(orgId: string, formData: FormData) {
   if (error) {
     throw new Error(`Couldn't save company details: ${error.message}`);
   }
+  await recordActivity({ kind: "team", orgId, message: "updated the company's billing details" });
   revalidatePath("/portal/team");
 }

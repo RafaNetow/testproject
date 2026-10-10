@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAxelAdmin } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
+import { recordActivity, entityInfo, quoted } from "@/lib/activity";
 import { createEnvelope, distributeEnvelope } from "@/lib/documenso";
 
 const BUCKET = "org-documents";
@@ -51,6 +52,13 @@ export async function createContract(
     if (signedPdfPath) await supabase.storage.from(BUCKET).remove([signedPdfPath]);
     throw new Error(`Couldn't create contract: ${error.message}`);
   }
+  await recordActivity({
+    kind: "contract",
+    projectId,
+    orgId,
+    message: signedPdfPath ? `added the signed contract ${quoted(title)}` : `drafted the contract ${quoted(title)}`,
+    adminsOnly: !signedPdfPath,
+  });
   revalidateAll(paths);
 }
 
@@ -70,6 +78,14 @@ export async function updateContractStatus(
   if (error) {
     throw new Error(`Couldn't update contract: ${error.message}`);
   }
+  const contract = await entityInfo("contracts", contractId, "title");
+  const words: Record<string, string> = { draft: "a draft", sent: "sent", partially_signed: "partially signed", signed: "signed", paid: "paid", overdue: "overdue", cancelled: "cancelled" };
+  await recordActivity({
+    kind: "contract",
+    projectId: contract.projectId,
+    message: `marked the contract ${quoted(contract.name)} as ${words[signingStatus] ?? signingStatus}`,
+    adminsOnly: signingStatus === "draft",
+  });
   revalidateAll(paths);
 }
 
@@ -151,6 +167,13 @@ export async function sendContractForSignature(
       message: `Sent, but couldn't save the tracking info: ${error.message}`,
     };
   }
+  const sentContract = await entityInfo("contracts", contractId, "title");
+  await recordActivity({
+    kind: "contract",
+    projectId: sentContract.projectId,
+    orgId,
+    message: `sent ${quoted(contract.title)} to ${recipientName} for signature`,
+  });
   revalidateAll(paths);
   return { success: true, message: `Sent to ${recipientEmail} for signature.` };
 }
@@ -161,6 +184,10 @@ export async function deleteContract(
   paths: string[]
 ) {
   await requireAxelAdmin();
+  const [doomed, doomedStatus] = await Promise.all([
+    entityInfo("contracts", contractId, "title"),
+    entityInfo("contracts", contractId, "signing_status"),
+  ]);
   const supabase = await createClient();
 
   if (signedPdfPath) {
@@ -174,5 +201,11 @@ export async function deleteContract(
   if (error) {
     throw new Error(`Couldn't delete contract: ${error.message}`);
   }
+  await recordActivity({
+    kind: "contract",
+    projectId: doomed.projectId,
+    message: `deleted the contract ${quoted(doomed.name)}`,
+    adminsOnly: doomedStatus.name === "draft",
+  });
   revalidateAll(paths);
 }
