@@ -12,9 +12,9 @@
   --color-primary: #0f172a;
   --color-primary-foreground: #ffffff;
   --color-secondary: #334155;
-  /* Brand primary: petrol blue — lab glassware and materials rather than
-     generic SaaS blue. */
-  --color-accent: #0f5e6e;
+  /* Brand primary: verdigris — the patina of copper, a classic alchemical
+     pigment. Green-teal rather than generic SaaS blue. */
+  --color-accent: #2f7d6d;
   --color-accent-foreground: #ffffff;
   --color-muted: #eef1f5;
   --color-muted-foreground: #5b6675;
@@ -29,20 +29,24 @@
    * come from the Okabe–Ito palette — the colour-blind-safe set used for
    * scientific figures — so meaning never rests on red vs green alone.
    * Status colours are for state only, never decoration.
+   *
+   * One deliberate deviation: success is a yellower leaf green instead of
+   * Okabe–Ito's bluish green, which sits too close to the verdigris brand.
+   * Status labels also carry an icon, so state never rests on colour alone.
    */
-  --color-success: #009e73;
+  --color-success: #3f9b3a;
   --color-warning: #e69f00;
   --color-error: #d55e00;
   --color-info: #0072b2;
 
   --cat-1: #0072b2; /* blue */
   --cat-2: #e69f00; /* orange */
-  --cat-3: #009e73; /* bluish green */
+  --cat-3: #6b7280; /* neutral (bluish green moved to the end: too close to the brand) */
   --cat-4: #cc79a7; /* reddish purple */
   --cat-5: #56b4e9; /* sky blue */
   --cat-6: #d55e00; /* vermillion */
   --cat-7: #f0e442; /* yellow */
-  --cat-8: #6b7280; /* neutral */
+  --cat-8: #009e73; /* bluish green */
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -93,18 +97,18 @@
     --color-primary: #ffffff;
     --color-primary-foreground: #1c252e;
     --color-secondary: #919eab;
-    --color-accent: #5fb8c8;
-    --color-accent-foreground: #03191e;
+    --color-accent: #5fbfa9;
+    --color-accent-foreground: #04201a;
     --color-muted: #28323d;
     --color-muted-foreground: #637381;
     --color-border: rgb(145 158 171 / 0.2);
     --color-card: #1c252e;
-    --color-ring: #5fb8c8;
+    --color-ring: #5fbfa9;
     --color-destructive: var(--color-error);
     --color-destructive-foreground: #2a0a0a;
 
     /* Same hues, lifted for contrast on dark surfaces. */
-    --color-success: #2fbf92;
+    --color-success: #6cc463;
     --color-warning: #f0b43c;
     --color-error: #ef7a3a;
     --color-info: #3a9ad9;

@@ -67,8 +67,8 @@ const KIND_ICONS: Record<string, { icon: SvgIconComponent; tone: Tone }> = {
   invoice: { icon: ReceiptLongOutlined, tone: STATUS_TONE.success },
   file: { icon: FolderOpenOutlined, tone: category(0) },
   meeting: { icon: VideocamOutlined, tone: category(4) },
-  decision: { icon: ForumOutlined, tone: category(2) },
-  hours: { icon: AccessTimeOutlined, tone: category(3) },
+  decision: { icon: ForumOutlined, tone: category(3) },
+  hours: { icon: AccessTimeOutlined, tone: STATUS_TONE.neutral },
   team: { icon: GroupsOutlined, tone: category(3) },
   prospect: { icon: TrackChangesOutlined, tone: STATUS_TONE.neutral },
 };

@@ -67,7 +67,7 @@ function fileType(filename: string, mime: string | null) {
   const ext = filename.includes(".") ? filename.split(".").pop()!.toLowerCase() : "";
   if (ext === "pdf" || mime === "application/pdf") return { label: "PDF", tone: STATUS_TONE.error };
   if (mime?.startsWith("image/") || ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext))
-    return { label: "IMG", tone: category(2) };
+    return { label: "IMG", tone: category(4) };
   if (["xls", "xlsx", "csv"].includes(ext)) return { label: ext === "csv" ? "CSV" : "XLS", tone: STATUS_TONE.success };
   if (["doc", "docx", "txt", "md", "rtf"].includes(ext))
     return { label: ext === "txt" || ext === "md" ? "TXT" : "DOC", tone: STATUS_TONE.info };
