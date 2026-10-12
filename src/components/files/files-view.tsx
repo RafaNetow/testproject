@@ -25,12 +25,14 @@ import FolderOutlined from "@mui/icons-material/FolderOutlined";
 import NavigateNext from "@mui/icons-material/NavigateNext";
 import NoteAddOutlined from "@mui/icons-material/NoteAddOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
-import { STATUS_TONE, category } from "@/lib/palette";
+import { STATUS_TONE, category, categorical, type Tone } from "@/lib/palette";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { UploadForm } from "./upload-form";
 import { FilePreviewDialog } from "./file-preview-dialog";
 import { RenameButton } from "./rename-button";
-import { createFolder, deleteFolder, deleteFile, moveFile, renameFolder, renameFile } from "@/lib/actions/files";
+import { createFolder, deleteFolder, deleteFile, moveFile, renameFolder, renameFile, setFileTechnique } from "@/lib/actions/files";
+import { FILE_LABELS } from "@/lib/techniques";
+import { LinkBox } from "@/components/shared/link-box";
 
 /** Hidden from sight, still read by screen readers. */
 const visuallyHidden = { position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" } as const;
@@ -46,6 +48,7 @@ type FileRow = {
   folder_id: string | null;
   mime_type: string | null;
   url: string | null;
+  technique: string | null;
 };
 
 function formatSize(bytes: number) {
@@ -175,6 +178,7 @@ export function FilesView({
   folders,
   files,
   currentFolderId,
+  technique,
   basePath,
   extraQuery,
   revalidatePaths,
@@ -184,6 +188,8 @@ export function FilesView({
   folders: FolderRow[];
   files: FileRow[];
   currentFolderId: string | null;
+  /** Active technique filter (?technique=), or null for all. */
+  technique?: string | null;
   basePath: string;
   extraQuery?: string;
   revalidatePaths: string[];
@@ -200,6 +206,11 @@ export function FilesView({
 
   const subfolders = folders.filter((f) => (f.parent_folder_id ?? null) === currentFolderId);
   const filesHere = files.filter((f) => (f.folder_id ?? null) === currentFolderId);
+  // Only offer filters for labels that actually occur here, in the canonical order.
+  const labelsHere = FILE_LABELS.filter((label) => filesHere.some((f) => f.technique === label));
+  const activeTechnique = technique && labelsHere.includes(technique) ? technique : null;
+  const visibleFiles = activeTechnique ? filesHere.filter((f) => f.technique === activeTechnique) : filesHere;
+  const techniqueOptions = [{ value: "", label: "No label" }, ...FILE_LABELS.map((l) => ({ value: l, label: l }))];
   const createInThisFolder = createFolder.bind(null, projectId, currentFolderId, revalidatePaths);
 
   const moveOptions = [
@@ -391,7 +402,21 @@ export function FilesView({
         <UploadForm projectId={projectId} folderId={currentFolderId} revalidatePaths={revalidatePaths} />
 
         <section>
-          <SectionTitle title="Files" count={filesHere.length} />
+          <SectionTitle title="Files" count={visibleFiles.length} />
+          {labelsHere.length > 0 && (
+            <Box component="nav" aria-label="Filter by technique" sx={{ mb: 2, display: "flex", flexWrap: "wrap", gap: 1 }}>
+              <FilterChip href={techniqueHref(basePath, extraQuery, currentFolderId, null)} active={!activeTechnique} label="All" />
+              {labelsHere.map((label) => (
+                <FilterChip
+                  key={label}
+                  href={techniqueHref(basePath, extraQuery, currentFolderId, label)}
+                  active={activeTechnique === label}
+                  label={label}
+                  tone={categorical(label)}
+                />
+              ))}
+            </Box>
+          )}
           {!filesHere.length ? (
             <Paper
               variant="outlined"
@@ -409,6 +434,7 @@ export function FilesView({
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ pl: 2.5 }}>Name</TableCell>
+                    <TableCell>Technique</TableCell>
                     <TableCell>Modified</TableCell>
                     {canManage && <TableCell>Folder</TableCell>}
                     <TableCell align="right" sx={{ pr: 2 }}>
@@ -419,7 +445,7 @@ export function FilesView({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filesHere.map((f) => {
+                  {visibleFiles.map((f) => {
                     const deleteThis = deleteFile.bind(null, f.id, f.storage_path, revalidatePaths);
                     const moveThis = moveFile.bind(null, f.id, revalidatePaths);
                     const renameThis = renameFile.bind(null, f.id, revalidatePaths);
@@ -455,6 +481,21 @@ export function FilesView({
                               </Typography>
                             </Box>
                           </Box>
+                        </TableCell>
+                        <TableCell sx={{ width: canManage ? 150 : undefined }}>
+                          {canManage ? (
+                            <form action={setFileTechnique.bind(null, f.id, revalidatePaths)}>
+                              <AutoSubmitSelect
+                                name="technique"
+                                defaultValue={f.technique ?? ""}
+                                options={techniqueOptions}
+                                ariaLabel={`Technique for ${f.filename}`}
+                                sx={{ minWidth: 0, width: "100%" }}
+                              />
+                            </form>
+                          ) : (
+                            <TechniqueLabel label={f.technique} />
+                          )}
                         </TableCell>
                         <TableCell sx={{ whiteSpace: "nowrap", color: "text.secondary" }}>
                           {new Date(f.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
@@ -548,5 +589,67 @@ function SectionTitle({ title, count }: { title: string; count: number }) {
         {count}
       </Box>
     </Box>
+  );
+}
+
+function techniqueHref(basePath: string, extraQuery: string | undefined, folderId: string | null, technique: string | null) {
+  const params = new URLSearchParams(extraQuery);
+  if (folderId) params.set("folder", folderId);
+  if (technique) params.set("technique", technique);
+  const qs = params.toString();
+  return qs ? `${basePath}?${qs}` : basePath;
+}
+
+/** The technique / document-kind label, in its stable category colour. */
+function TechniqueLabel({ label }: { label: string | null }) {
+  if (!label) return <Typography sx={{ fontSize: 13, color: "text.muted" }}>—</Typography>;
+  const tone = categorical(label);
+  return (
+    <Box
+      component="span"
+      sx={{
+        display: "inline-flex",
+        alignItems: "center",
+        height: 24,
+        px: 1,
+        borderRadius: 0.75,
+        bgcolor: tone.bg,
+        color: tone.text,
+        fontSize: 12,
+        fontWeight: 700,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {label}
+    </Box>
+  );
+}
+
+function FilterChip({ href, label, active, tone }: { href: string; label: string; active: boolean; tone?: Tone }) {
+  return (
+    <LinkBox
+      href={href}
+      aria-current={active ? "true" : undefined}
+      sx={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 0.75,
+        height: 30,
+        px: 1.5,
+        borderRadius: 999,
+        border: "1px solid",
+        borderColor: active ? "text.primary" : "rgb(145 158 171 / 0.32)",
+        bgcolor: active ? "text.primary" : "transparent",
+        color: active ? "background.paper" : "text.secondary",
+        fontSize: 13,
+        fontWeight: 600,
+        textDecoration: "none",
+        transition: "background-color 150ms, border-color 150ms",
+        "&:hover": { borderColor: "text.primary" },
+      }}
+    >
+      {tone && <Box component="span" aria-hidden sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: tone.solid }} />}
+      {label}
+    </LinkBox>
   );
 }

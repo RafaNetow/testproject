@@ -12,9 +12,9 @@ const BUCKET = "project-files";
 export default async function FilesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ project?: string; folder?: string }>;
+  searchParams: Promise<{ project?: string; folder?: string; technique?: string }>;
 }) {
-  const { project: projectParam, folder } = await searchParams;
+  const { project: projectParam, folder, technique } = await searchParams;
   const { projects, project } = await getPortalProjectContext(projectParam);
   const currentFolderId = folder ?? null;
 
@@ -38,7 +38,7 @@ export default async function FilesPage({
 
   const { data: files } = await supabase
     .from("files")
-    .select("id, filename, size_bytes, version_tag, created_at, storage_path, folder_id, mime_type")
+    .select("id, filename, size_bytes, version_tag, created_at, storage_path, folder_id, mime_type, technique")
     .eq("project_id", project.id)
     .order("created_at", { ascending: false });
 
@@ -68,6 +68,7 @@ export default async function FilesPage({
         folders={folders ?? []}
         files={filesWithUrls}
         currentFolderId={currentFolderId}
+        technique={technique ?? null}
         basePath="/portal/files"
         extraQuery={`project=${project.id}`}
         revalidatePaths={["/portal/files"]}

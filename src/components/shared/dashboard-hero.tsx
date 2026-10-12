@@ -8,23 +8,16 @@ import { figureSx } from "@/lib/palette";
 
 const noSubscription = () => () => {};
 
-function greetingNow() {
-  const hour = new Date().getHours();
-  return hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-}
-
 function dateLabelNow() {
-  return new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+  return new Date().toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 }
 
 /**
- * The dashboard's welcome card. Greeting and date come from the visitor's own
- * clock: the server renders a neutral placeholder (it doesn't know the
- * visitor's time of day) and the client snapshot replaces it after hydration
- * without a mismatch.
+ * The dashboard's opening card: where the engagement stands, not a greeting.
+ * Content comes from the server; only the date uses the visitor's own clock
+ * (rendered empty on the server, filled in after hydration, no mismatch).
  */
-export function DashboardHero({ name, subtitle }: { name?: string; subtitle: string }) {
-  const greeting = useSyncExternalStore(noSubscription, greetingNow, () => "Welcome back");
+export function DashboardHero({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle: string }) {
   const dateLabel = useSyncExternalStore(noSubscription, dateLabelNow, () => "");
 
   return (
@@ -55,12 +48,14 @@ export function DashboardHero({ name, subtitle }: { name?: string; subtitle: str
         <MolecularAccent particleCount={36} opacity={0.9} />
       </Box>
       <Box sx={{ position: "relative", zIndex: 1, maxWidth: 520 }}>
-        <Typography sx={{ ...figureSx, fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "primary.main", minHeight: "1.5em" }}>
-          {dateLabel}
+        <Typography sx={{ ...figureSx, fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "primary.main" }}>
+          {eyebrow}
+          <Box component="span" sx={{ color: "text.muted", fontWeight: 500 }}>
+            {dateLabel ? ` · ${dateLabel}` : ""}
+          </Box>
         </Typography>
         <Typography variant="h1" sx={{ mt: 1, fontSize: { xs: 24, sm: 30 } }}>
-          {greeting}
-          {name ? `, ${name}` : ""}
+          {title}
         </Typography>
         <Typography sx={{ mt: 1.5, fontSize: 15, lineHeight: 1.6, color: "text.secondary" }}>{subtitle}</Typography>
       </Box>

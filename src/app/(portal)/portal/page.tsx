@@ -12,6 +12,11 @@ import { StatTiles } from "@/components/shared/stat-tiles";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { ProjectProgress } from "@/components/shared/project-progress";
 
+/** Request time; kept out of the component body so render stays pure. */
+function currentTime() {
+  return Date.now();
+}
+
 export default async function PortalHome() {
   const { org, projects } = await getPortalProjectContext();
 
@@ -47,6 +52,7 @@ export default async function PortalHome() {
     { count: fileCount },
     { data: nextMeeting },
     { data: progressRows },
+    { data: deliverableRows },
   ] = await Promise.all([
     supabase
       .from("board_cards")
@@ -71,9 +77,15 @@ export default async function PortalHome() {
       .maybeSingle(),
     supabase
       .from("projects")
-      .select("id, name, status, progress_pct, project_phases(id, name, position, progress_pct)")
+      .select("id, name, status, progress_pct, start_date, project_phases(id, name, position, progress_pct)")
       .in("id", projectIds)
       .order("created_at", { ascending: false }),
+    // RLS already hides drafts from the client.
+    supabase
+      .from("deliverables")
+      .select("title, status, due_date")
+      .in("project_id", projectIds)
+      .order("due_date", { ascending: true, nullsFirst: false }),
   ]);
 
   // Active engagements first; each with its stages in the admin's order.
@@ -83,6 +95,30 @@ export default async function PortalHome() {
       phases: [...(p.project_phases ?? [])].sort((a, b) => a.position - b.position),
     }))
     .sort((a, b) => Number(a.status === "completed") - Number(b.status === "completed"));
+
+  // The opening card: where the main engagement stands and what's next.
+  const main = progress[0];
+  const currentStage = main?.phases.find((p) => p.progress_pct < 100);
+  const engagementDay = main?.start_date
+    ? Math.max(1, Math.floor((currentTime() - new Date(`${main.start_date}T00:00:00`).getTime()) / 86_400_000) + 1)
+    : null;
+  const awaitingReview = (deliverableRows ?? []).filter((d) => d.status === "in_review").length;
+  const nextDeliverable = (deliverableRows ?? []).find((d) => d.due_date && d.status !== "approved");
+  const shortDate = (iso: string) =>
+    new Date(iso.length === 10 ? `${iso}T00:00:00` : iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+
+  const hero = {
+    eyebrow: engagementDay ? `Day ${engagementDay} of your engagement` : (main?.name ?? org.name),
+    title: currentStage ? `Now: ${currentStage.name}` : main?.phases.length ? "All stages complete" : (main?.name ?? org.name),
+    subtitle:
+      awaitingReview > 0
+        ? `${awaitingReview} ${awaitingReview === 1 ? "deliverable is" : "deliverables are"} waiting for your review.`
+        : nextDeliverable
+          ? `Next deliverable: "${nextDeliverable.title}" · due ${shortDate(nextDeliverable.due_date!)}`
+          : nextMeeting
+            ? `Next meeting: ${nextMeeting.title} · ${shortDate(nextMeeting.scheduled_at)}`
+            : "Your engagement is on track.",
+  };
 
   const KPI_TILES = [
     { label: "Board items", value: cardCount ?? 0, icon: <ViewKanbanOutlined /> },
@@ -102,7 +138,7 @@ export default async function PortalHome() {
 
   return (
     <Stack spacing={5}>
-      <DashboardHero name={org.name} subtitle="Here's where your engagement stands today." />
+      <DashboardHero eyebrow={hero.eyebrow} title={hero.title} subtitle={hero.subtitle} />
 
       <Stack spacing={3}>
         {progress.map((p) => (

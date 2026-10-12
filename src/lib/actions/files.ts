@@ -5,6 +5,7 @@ import { requireSessionUser, requireAxelAdmin, isAxelAdmin } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
 import { recordActivity, entityInfo, quoted } from "@/lib/activity";
 import { notifyAxel } from "@/lib/notify-axel";
+import { detectTechnique, isFileLabel } from "@/lib/techniques";
 
 const BUCKET = "project-files";
 
@@ -48,6 +49,7 @@ export async function uploadFile(
     size_bytes: file.size,
     mime_type: file.type || null,
     uploaded_by: user.id,
+    technique: detectTechnique(file.name),
   });
   if (insertError) {
     await supabase.storage.from(BUCKET).remove([storagePath]);
@@ -107,6 +109,26 @@ export async function deleteFile(fileId: string, storagePath: string, paths: str
   }
 
   await recordActivity({ kind: "file", projectId: doomed.projectId, message: `deleted ${quoted(doomed.name)}` });
+  revalidateAll(paths);
+}
+
+/** Corrects a file's technique / document-kind label (empty clears it). */
+export async function setFileTechnique(fileId: string, paths: string[], formData: FormData) {
+  await requireAxelAdmin();
+  const raw = String(formData.get("technique") ?? "").trim();
+  if (raw && !isFileLabel(raw)) throw new Error("That label isn't one of the known techniques.");
+  const technique = raw || null;
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("files").update({ technique }).eq("id", fileId);
+  if (error) throw new Error(`Couldn't update the label: ${error.message}`);
+
+  const file = await entityInfo("files", fileId, "filename");
+  await recordActivity({
+    kind: "file",
+    projectId: file.projectId,
+    message: technique ? `tagged ${quoted(file.name)} as ${technique}` : `removed the label from ${quoted(file.name)}`,
+  });
   revalidateAll(paths);
 }
 

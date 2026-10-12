@@ -6,7 +6,6 @@ import CalendarMonthOutlined from "@mui/icons-material/CalendarMonthOutlined";
 import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
 import TrackChangesOutlined from "@mui/icons-material/TrackChangesOutlined";
 import WorkOutlineOutlined from "@mui/icons-material/WorkOutlineOutlined";
-import { getSessionUser } from "@/lib/dal";
 import { LinkBox } from "@/components/shared/link-box";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardHero } from "@/components/shared/dashboard-hero";
@@ -26,7 +25,6 @@ type WithProject = {
 };
 
 export default async function AdminDashboard() {
-  const user = await getSessionUser();
   const supabase = await createClient();
 
   const [
@@ -38,6 +36,9 @@ export default async function AdminDashboard() {
     { data: recentUpdates },
     { data: recentMeetings },
     { data: recentFiles },
+    { count: activeEngagements },
+    { count: awaitingClients },
+    { data: nextMeeting },
   ] = await Promise.all([
     supabase.from("organizations").select("id", { count: "exact", head: true }),
     supabase.from("projects").select("id", { count: "exact", head: true }),
@@ -75,7 +76,28 @@ export default async function AdminDashboard() {
       )
       .order("created_at", { ascending: false })
       .limit(5),
+    supabase.from("projects").select("id", { count: "exact", head: true }).eq("status", "active"),
+    supabase.from("deliverables").select("id", { count: "exact", head: true }).eq("status", "in_review"),
+    supabase
+      .from("meetings")
+      .select("title, scheduled_at, projects(organizations(name))")
+      .eq("status", "upcoming")
+      .gte("scheduled_at", new Date().toISOString())
+      .order("scheduled_at", { ascending: true })
+      .limit(1)
+      .maybeSingle(),
   ]);
+
+  const meetingClient = (nextMeeting?.projects as unknown as { organizations: { name: string } | null } | null)?.organizations?.name;
+  const hero = {
+    eyebrow: `${activeEngagements ?? 0} active ${activeEngagements === 1 ? "engagement" : "engagements"}`,
+    title: awaitingClients
+      ? `${awaitingClients} ${awaitingClients === 1 ? "deliverable" : "deliverables"} waiting on clients`
+      : "Nothing waiting on clients",
+    subtitle: nextMeeting
+      ? `Next meeting: ${nextMeeting.title}${meetingClient ? ` with ${meetingClient}` : ""} · ${new Date(nextMeeting.scheduled_at).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`
+      : "No meetings scheduled.",
+  };
 
   const sectionHref = (row: WithProject, section: string) =>
     row.projects
@@ -146,10 +168,7 @@ export default async function AdminDashboard() {
 
   return (
     <Stack spacing={5}>
-      <DashboardHero
-        name={user?.email ? user.email.split("@")[0] : undefined}
-        subtitle="Here's what needs your attention across every client."
-      />
+      <DashboardHero eyebrow={hero.eyebrow} title={hero.title} subtitle={hero.subtitle} />
 
       <StatTiles
         columns={3}

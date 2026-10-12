@@ -2,6 +2,8 @@
 // attaches them to deliverables and a board card. Run by `npm run db:start` and
 // `npm run db:reset` after seed.sql; safe to run again (files already present
 // are skipped). Storage needs actual blobs, which SQL can't create.
+// Same detector the app uses on upload (Node runs the .ts file directly).
+import { detectTechnique } from "../src/lib/techniques.ts";
 import { execSync } from "node:child_process";
 import { createClient } from "@supabase/supabase-js";
 
@@ -292,6 +294,7 @@ for (const f of FILES) {
       size_bytes: f.body.length,
       mime_type: f.mime,
       uploaded_by: f.by,
+      technique: detectTechnique(f.name),
     })
     .select("id")
     .single();

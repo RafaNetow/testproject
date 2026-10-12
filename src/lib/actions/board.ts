@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireSessionUser } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
 import { recordActivity, entityInfo, quoted } from "@/lib/activity";
+import { detectTechnique } from "@/lib/techniques";
 
 const BUCKET = "project-files";
 
@@ -53,6 +54,7 @@ export async function uploadAndAttachCardFile(
       size_bytes: file.size,
       mime_type: file.type || null,
       uploaded_by: user.id,
+      technique: detectTechnique(file.name),
     })
     .select("id")
     .single();

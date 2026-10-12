@@ -8,10 +8,10 @@ export default async function AdminProjectFilesPage({
   searchParams,
 }: {
   params: Promise<{ orgId: string; projectId: string }>;
-  searchParams: Promise<{ folder?: string }>;
+  searchParams: Promise<{ folder?: string; technique?: string }>;
 }) {
   const { orgId, projectId } = await params;
-  const { folder } = await searchParams;
+  const { folder, technique } = await searchParams;
   const currentFolderId = folder ?? null;
   const supabase = await createClient();
 
@@ -22,7 +22,7 @@ export default async function AdminProjectFilesPage({
 
   const { data: files } = await supabase
     .from("files")
-    .select("id, filename, size_bytes, version_tag, created_at, storage_path, folder_id, mime_type")
+    .select("id, filename, size_bytes, version_tag, created_at, storage_path, folder_id, mime_type, technique")
     .eq("project_id", projectId)
     .order("created_at", { ascending: false });
 
@@ -39,6 +39,7 @@ export default async function AdminProjectFilesPage({
       folders={folders ?? []}
       files={filesWithUrls}
       currentFolderId={currentFolderId}
+      technique={technique ?? null}
       basePath={`/admin/clients/${orgId}/projects/${projectId}/files`}
       revalidatePaths={[`/admin/clients/${orgId}/projects/${projectId}/files`]}
       canManage
