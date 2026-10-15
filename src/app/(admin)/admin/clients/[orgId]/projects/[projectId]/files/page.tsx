@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { FilesView } from "@/components/files/files-view";
+import type { DataRequestRow } from "@/components/files/data-requests";
 
 const BUCKET = "project-files";
 
@@ -26,6 +27,12 @@ export default async function AdminProjectFilesPage({
     .eq("project_id", projectId)
     .order("created_at", { ascending: false });
 
+  const { data: requests } = await supabase
+    .from("data_requests")
+    .select("id, title, details, technique, folder_id, due_date, status, file_id")
+    .eq("project_id", projectId)
+    .order("created_at", { ascending: true });
+
   const filesWithUrls = await Promise.all(
     (files ?? []).map(async (f) => {
       const { data } = await supabase.storage.from(BUCKET).createSignedUrl(f.storage_path, 3600);
@@ -40,6 +47,7 @@ export default async function AdminProjectFilesPage({
       files={filesWithUrls}
       currentFolderId={currentFolderId}
       technique={technique ?? null}
+      requests={(requests ?? []) as DataRequestRow[]}
       basePath={`/admin/clients/${orgId}/projects/${projectId}/files`}
       revalidatePaths={[`/admin/clients/${orgId}/projects/${projectId}/files`]}
       canManage

@@ -185,3 +185,15 @@ insert into project_phases (project_id, name, position, progress_pct) values
   ('20000000-0000-0000-0000-000000000002', 'Preliminary experiments', 1, 60),
   ('20000000-0000-0000-0000-000000000002', 'Main experiments', 2, 0),
   ('20000000-0000-0000-0000-000000000002', 'Final report', 3, 0);
+
+-- Data requests (migration 0019): what Alchemica still needs from the client.
+insert into data_requests (project_id, title, details, technique, due_date, status, received_at, requested_by) values
+  ('20000000-0000-0000-0000-000000000002', 'Cure-oven logs for runs 11–20',
+   'Temperature and dwell time per run, as exported from the oven controller.', 'Process log', current_date + 4, 'requested', null,
+   '00000000-0000-0000-0000-0000000000a1'),
+  ('20000000-0000-0000-0000-000000000002', 'Water-uptake results for panels A–F',
+   'The gravimetric results after 24 h immersion, one row per panel.', null, current_date + 9, 'requested', null,
+   '00000000-0000-0000-0000-0000000000a1'),
+  ('20000000-0000-0000-0000-000000000001', 'FTIR spectra for batches 7, 9 and 12',
+   'Raw .csv exports, one file per batch.', 'FTIR', current_date - 6, 'received', now() - interval '5 days',
+   '00000000-0000-0000-0000-0000000000a1');

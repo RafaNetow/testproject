@@ -32,6 +32,7 @@ import { FilePreviewDialog } from "./file-preview-dialog";
 import { RenameButton } from "./rename-button";
 import { createFolder, deleteFolder, deleteFile, moveFile, renameFolder, renameFile, setFileTechnique } from "@/lib/actions/files";
 import { FILE_LABELS } from "@/lib/techniques";
+import { DataRequests, type DataRequestRow } from "./data-requests";
 import { LinkBox } from "@/components/shared/link-box";
 
 /** Hidden from sight, still read by screen readers. */
@@ -179,6 +180,7 @@ export function FilesView({
   files,
   currentFolderId,
   technique,
+  requests = [],
   basePath,
   extraQuery,
   revalidatePaths,
@@ -190,6 +192,8 @@ export function FilesView({
   currentFolderId: string | null;
   /** Active technique filter (?technique=), or null for all. */
   technique?: string | null;
+  /** Data Alchemica has asked the client for (shown above the files). */
+  requests?: DataRequestRow[];
   basePath: string;
   extraQuery?: string;
   revalidatePaths: string[];
@@ -280,6 +284,15 @@ export function FilesView({
       </Paper>
 
       <Stack spacing={4} sx={{ minWidth: 0 }}>
+        <DataRequests
+          projectId={projectId}
+          requests={requests}
+          files={Object.fromEntries(files.map((f) => [f.id, { filename: f.filename, url: f.url }]))}
+          folders={folders.map((f) => ({ id: f.id, name: f.name }))}
+          canManage={canManage}
+          revalidatePaths={revalidatePaths}
+        />
+
         <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
           <Breadcrumbs separator={<NavigateNext sx={{ fontSize: 16 }} />} aria-label="Folder path" sx={{ fontSize: 14 }}>
             <MuiLink

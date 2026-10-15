@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getPortalProjectContext } from "@/lib/portal-context";
 import { FilesView } from "@/components/files/files-view";
+import type { DataRequestRow } from "@/components/files/data-requests";
 import { ProjectSwitcher } from "@/components/board/project-switcher";
 import { SectionHeader } from "@/components/shared/section-header";
 import { isAxelAdmin } from "@/lib/dal";
@@ -42,6 +43,12 @@ export default async function FilesPage({
     .eq("project_id", project.id)
     .order("created_at", { ascending: false });
 
+  const { data: requests } = await supabase
+    .from("data_requests")
+    .select("id, title, details, technique, folder_id, due_date, status, file_id")
+    .eq("project_id", project.id)
+    .order("created_at", { ascending: true });
+
   const filesWithUrls = await Promise.all(
     (files ?? []).map(async (f) => {
       const { data } = await supabase.storage.from(BUCKET).createSignedUrl(f.storage_path, 3600);
@@ -69,6 +76,7 @@ export default async function FilesPage({
         files={filesWithUrls}
         currentFolderId={currentFolderId}
         technique={technique ?? null}
+        requests={(requests ?? []) as DataRequestRow[]}
         basePath="/portal/files"
         extraQuery={`project=${project.id}`}
         revalidatePaths={["/portal/files"]}
