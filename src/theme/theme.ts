@@ -63,7 +63,7 @@ export const theme = createTheme({
     },
     // Status colours from the Okabe–Ito standard (globals.css, src/lib/palette.ts).
     success: { main: v("color-success"), contrastText: "#ffffff" },
-    warning: { main: v("color-warning"), contrastText: "#1c252e" },
+    warning: { main: v("color-warning"), contrastText: "#17201e" },
     info: { main: v("color-info"), contrastText: "#ffffff" },
     text: {
       primary: v("color-primary"),
@@ -248,7 +248,8 @@ export const theme = createTheme({
     },
     MuiTooltip: {
       styleOverrides: {
-        tooltip: { fontSize: 12, backgroundColor: "#1c252e", borderRadius: 6 },
+        tooltip: { fontSize: 12, backgroundColor: "var(--inverse-surface, #17201e)", color: "var(--inverse-foreground, #ffffff)", borderRadius: 6 },
+        arrow: { color: "var(--inverse-surface, #17201e)" },
       },
     },
   },

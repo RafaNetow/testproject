@@ -65,45 +65,45 @@ export function renderDigest(d: DigestData): { subject: string; html: string; te
     : `Your week with Alchemica: ${summary[0] ?? "what's next"}`;
 
   const section = (title: string, body: string) =>
-    `<tr><td style="padding:24px 32px 0"><h2 style="margin:0 0 12px;font:700 16px/1.4 Arial,sans-serif;color:#1c252e">${title}</h2>${body}</td></tr>`;
+    `<tr><td style="padding:24px 32px 0"><h2 style="margin:0 0 12px;font:700 16px/1.4 Arial,sans-serif;color:#17201e">${title}</h2>${body}</td></tr>`;
 
   const waitingHtml = d.waiting.length
     ? d.waiting
         .map(
           (w) =>
-            `<p style="margin:0 0 10px;font:14px/1.5 Arial,sans-serif;color:#1c252e">${VERB[w.kind]} <a href="${esc(absolute(w.href))}" style="color:${BRAND};font-weight:700">“${esc(w.title)}”</a>${w.due ? ` <span style="color:#637381">· due ${esc(dateLabel(w.due))}</span>` : ""}</p>`
+            `<p style="margin:0 0 10px;font:14px/1.5 Arial,sans-serif;color:#17201e">${VERB[w.kind]} <a href="${esc(absolute(w.href))}" style="color:${BRAND};font-weight:700">“${esc(w.title)}”</a>${w.due ? ` <span style="color:#627069">· due ${esc(dateLabel(w.due))}</span>` : ""}</p>`
         )
         .join("")
-    : `<p style="margin:0;font:14px/1.5 Arial,sans-serif;color:#637381">Nothing is waiting on you this week.</p>`;
+    : `<p style="margin:0;font:14px/1.5 Arial,sans-serif;color:#627069">Nothing is waiting on you this week.</p>`;
 
   const projectsHtml = d.projects
     .map(
       (p) =>
-        `<p style="margin:0 0 10px;font:14px/1.5 Arial,sans-serif;color:#1c252e"><strong>${esc(p.name)}</strong> — ${p.progress}% complete${p.stage ? `, now in <em>${esc(p.stage)}</em>` : ""}</p>`
+        `<p style="margin:0 0 10px;font:14px/1.5 Arial,sans-serif;color:#17201e"><strong>${esc(p.name)}</strong> — ${p.progress}% complete${p.stage ? `, now in <em>${esc(p.stage)}</em>` : ""}</p>`
     )
     .join("");
 
   const activityHtml = d.activity.length
-    ? `<p style="margin:0 0 10px;font:14px/1.5 Arial,sans-serif;color:#637381">${esc(summary.join(" · "))}</p>` +
+    ? `<p style="margin:0 0 10px;font:14px/1.5 Arial,sans-serif;color:#627069">${esc(summary.join(" · "))}</p>` +
       d.activity
         .slice(0, 5)
-        .map((a) => `<p style="margin:0 0 6px;font:14px/1.5 Arial,sans-serif;color:#1c252e">• ${esc(a.message)}</p>`)
+        .map((a) => `<p style="margin:0 0 6px;font:14px/1.5 Arial,sans-serif;color:#17201e">• ${esc(a.message)}</p>`)
         .join("")
     : "";
 
-  const html = `<!doctype html><html><body style="margin:0;background:#f4f6f8">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f8;padding:24px 0"><tr><td align="center">
+  const html = `<!doctype html><html><body style="margin:0;background:#f2f5f4">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2f5f4;padding:24px 0"><tr><td align="center">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px">
 <tr><td style="padding:28px 32px 0">
 <p style="margin:0;font:700 12px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:${BRAND}">Alchemica · weekly summary</p>
-<h1 style="margin:10px 0 0;font:700 22px/1.3 Arial,sans-serif;color:#1c252e">Hi ${esc(d.firstName)}, here's your week with ${esc(d.orgName)}'s engagement</h1>
+<h1 style="margin:10px 0 0;font:700 22px/1.3 Arial,sans-serif;color:#17201e">Hi ${esc(d.firstName)}, here's your week with ${esc(d.orgName)}'s engagement</h1>
 </td></tr>
 ${section(`Waiting on you${d.waiting.length ? ` (${d.waiting.length})` : ""}`, waitingHtml)}
 ${d.projects.length ? section("Where things stand", projectsHtml) : ""}
-${d.nextMeeting ? section("Next meeting", `<p style="margin:0;font:14px/1.5 Arial,sans-serif;color:#1c252e">${esc(d.nextMeeting.title)} · ${esc(dateLabel(d.nextMeeting.scheduled_at))}</p>`) : ""}
+${d.nextMeeting ? section("Next meeting", `<p style="margin:0;font:14px/1.5 Arial,sans-serif;color:#17201e">${esc(d.nextMeeting.title)} · ${esc(dateLabel(d.nextMeeting.scheduled_at))}</p>`) : ""}
 ${activityHtml ? section("This week", activityHtml) : ""}
 <tr><td style="padding:28px 32px 32px"><a href="${SITE_URL}/portal" style="display:inline-block;background:${BRAND};color:#ffffff;text-decoration:none;font:700 14px/1 Arial,sans-serif;padding:12px 20px;border-radius:8px">Open your portal</a>
-<p style="margin:20px 0 0;font:12px/1.5 Arial,sans-serif;color:#637381">You get this every Monday. Turn it off any time under Team in your portal.</p></td></tr>
+<p style="margin:20px 0 0;font:12px/1.5 Arial,sans-serif;color:#627069">You get this every Monday. Turn it off any time under Team in your portal.</p></td></tr>
 </table></td></tr></table></body></html>`;
 
   const text = [

@@ -92,8 +92,10 @@ export type IconComponent = ComponentType<IconProps>;
 const FONT_SIZE = { inherit: "inherit", small: "1.25rem", medium: "1.5rem", large: "2.1875rem" } as const;
 
 function icon(Glyph: ComponentType<PhosphorProps>, weight: IconWeight = "light"): IconComponent {
-  const Icon = forwardRef<SVGSVGElement, IconProps>(function Icon(
-    { sx, fontSize = "medium", titleAccess, color, ...rest },
+  const Icon = forwardRef<SVGSVGElement, IconProps & { ownerState?: unknown }>(function Icon(
+    // MUI slots (Tabs scroll buttons, Select) pass their ownerState; it must not reach the <svg>.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    { sx, fontSize = "medium", titleAccess, color, ownerState, ...rest },
     ref
   ) {
     return (

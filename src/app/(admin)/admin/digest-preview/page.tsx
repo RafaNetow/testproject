@@ -77,7 +77,7 @@ export default async function DigestPreviewPage({ searchParams }: { searchParams
             <Typography sx={{ mt: 0.5, fontSize: 15, fontWeight: 700 }}>{email.subject}</Typography>
           </Box>
           {/* The email carries its own light background; match it rather than the portal theme. */}
-          <Box component="iframe" title="Digest email preview" srcDoc={email.html} sx={{ display: "block", width: "100%", height: 900, border: 0, bgcolor: "#f4f6f8" }} />
+          <Box component="iframe" title="Digest email preview" srcDoc={email.html} sx={{ display: "block", width: "100%", height: 900, border: 0, bgcolor: "#f2f5f4" }} />
         </Paper>
       )}
     </Stack>
