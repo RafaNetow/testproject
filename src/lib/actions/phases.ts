@@ -15,7 +15,7 @@ type Phase = {
   end_date: string | null;
 };
 
-const DATE_RE = /^d{4}-d{2}-d{2}$/;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 /** "" clears the date; anything else must be YYYY-MM-DD. */
 function readDate(formData: FormData, key: string) {

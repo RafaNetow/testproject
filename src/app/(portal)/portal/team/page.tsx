@@ -15,6 +15,7 @@ import { getPortalProjectContext } from "@/lib/portal-context";
 import { updateOrgDetails } from "@/lib/actions/organization-details";
 import { SectionHeader } from "@/components/shared/section-header";
 import { EmptyState } from "@/components/shared/empty-state";
+import { DigestToggle } from "@/components/shared/digest-toggle";
 
 export default async function TeamPage() {
   const { org, role } = await getPortalProjectContext();
@@ -37,6 +38,13 @@ export default async function TeamPage() {
     .eq("org_id", org.id)
     .not("accepted_at", "is", null)
     .order("role");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = user
+    ? await supabase.from("profiles").select("weekly_digest").eq("id", user.id).maybeSingle()
+    : { data: null };
 
   const updateThisOrg = updateOrgDetails.bind(null, org.id);
 
@@ -116,6 +124,16 @@ export default async function TeamPage() {
           </List>
         </Paper>
       )}
+
+      <Paper variant="outlined" sx={{ p: 3 }}>
+        <Typography variant="h2" sx={{ fontSize: 18 }}>
+          Email updates
+        </Typography>
+        <Typography sx={{ mt: 0.75, mb: 1.5, fontSize: 14, color: "text.secondary" }}>
+          A short Monday summary: what&apos;s waiting on you, where each project stands, and what happened last week.
+        </Typography>
+        <DigestToggle enabled={profile?.weekly_digest ?? true} />
+      </Paper>
     </Stack>
   );
 }
