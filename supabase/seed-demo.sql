@@ -197,3 +197,10 @@ insert into data_requests (project_id, title, details, technique, due_date, stat
   ('20000000-0000-0000-0000-000000000001', 'FTIR spectra for batches 7, 9 and 12',
    'Raw .csv exports, one file per batch.', 'FTIR', current_date - 6, 'received', now() - interval '5 days',
    '00000000-0000-0000-0000-0000000000a1');
+
+-- Stage dates (migration 0020), relative to the project's start.
+update project_phases ph
+set start_date = p.start_date + d.s, end_date = p.start_date + d.e
+from projects p,
+  (values ('Onboarding', 0, 3), ('Preliminary experiments', 4, 17), ('Main experiments', 18, 38), ('Final report', 39, 45)) as d (name, s, e)
+where ph.project_id = p.id and p.id = '20000000-0000-0000-0000-000000000002' and ph.name = d.name;

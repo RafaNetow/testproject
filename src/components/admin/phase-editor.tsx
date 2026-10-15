@@ -54,7 +54,7 @@ export function PhaseEditor({ projectId, phases }: { projectId: string; phases: 
       {phases.map((phase, i) => (
         // Keyed on the saved values so a row resets to the server's state after each save.
         <PhaseRow
-          key={`${phase.id}:${phase.name}:${phase.progress_pct}`}
+          key={`${phase.id}:${phase.name}:${phase.progress_pct}:${phase.start_date ?? ""}:${phase.end_date ?? ""}`}
           phase={phase}
           index={i}
           isFirst={i === 0}
@@ -104,7 +104,7 @@ function PhaseRow({
   isFirst: boolean;
   isLast: boolean;
   disabled: boolean;
-  onSave: (fields: { name?: string; progress_pct?: number }) => void;
+  onSave: (fields: { name?: string; progress_pct?: number; start_date?: string; end_date?: string }) => void;
   onMove: (direction: "up" | "down") => void;
 }) {
   const [pct, setPct] = useState(phase.progress_pct);
@@ -183,7 +183,25 @@ function PhaseRow({
         />
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: { xs: "flex-end", md: "flex-start" } }}>
+      {/* Dates put the stage on the client's timeline; leave empty to keep it off. */}
+      <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5, gridColumn: { md: "2 / 4" } }}>
+        {(["start_date", "end_date"] as const).map((key) => (
+          <TextField
+            key={key}
+            type="date"
+            label={key === "start_date" ? "Starts" : "Ends"}
+            defaultValue={phase[key] ?? ""}
+            fullWidth={false}
+            onBlur={(e) => {
+              if (e.target.value !== (phase[key] ?? "")) onSave({ [key]: e.target.value });
+            }}
+            slotProps={{ inputLabel: { shrink: true }, htmlInput: { "aria-label": `${phase.name} ${key === "start_date" ? "start" : "end"} date` } }}
+            sx={{ width: 170 }}
+          />
+        ))}
+      </Box>
+
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: { xs: "flex-end", md: "flex-start" }, gridRow: { md: "1" }, gridColumn: { md: "4" } }}>
         <Tooltip title="Move up">
           <span>
             <IconButton size="small" aria-label={`Move ${phase.name} up`} disabled={isFirst || disabled} onClick={() => onMove("up")}>

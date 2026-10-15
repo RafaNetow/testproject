@@ -12,8 +12,15 @@ import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Check from "@mui/icons-material/Check";
 import { STATUS_TONE, figureSx } from "@/lib/palette";
+import { ProjectTimeline, type TimelineMarker } from "./project-timeline";
 
-export type ProgressPhase = { id: string; name: string; progress_pct: number };
+export type ProgressPhase = {
+  id: string;
+  name: string;
+  progress_pct: number;
+  start_date?: string | null;
+  end_date?: string | null;
+};
 
 const DONE = STATUS_TONE.success;
 
@@ -29,6 +36,8 @@ export function ProjectProgress({
   phases,
   flat,
   titleExtra,
+  markers = [],
+  today,
 }: {
   name: string;
   /** Shown beside the project name — e.g. its status label. */
@@ -37,6 +46,10 @@ export function ProjectProgress({
   phases: ProgressPhase[];
   /** Drop the card chrome when it sits inside another card. */
   flat?: boolean;
+  /** Upcoming meetings and deliverable due dates, drawn on the timeline. */
+  markers?: TimelineMarker[];
+  /** YYYY-MM-DD from the server; enables the timeline's "today" marker. */
+  today?: string;
 }) {
   const narrow = useMediaQuery("(max-width: 767px)", { noSsr: false });
   const currentIndex = phases.findIndex((p) => p.progress_pct < 100);
@@ -106,6 +119,15 @@ export function ProjectProgress({
             );
           })}
         </Stepper>
+      )}
+
+      {today && phases.some((p) => p.start_date && p.end_date) && (
+        <Box sx={{ mt: 3.5, pt: 3, borderTop: "1px dashed var(--border-dashed)" }}>
+          <Typography component="h3" sx={{ mb: 1.5, fontSize: 13, fontWeight: 700, color: "text.secondary" }}>
+            Timeline
+          </Typography>
+          <ProjectTimeline phases={phases} markers={markers} today={today} narrow={narrow} />
+        </Box>
       )}
     </>
   );

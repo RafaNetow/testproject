@@ -174,3 +174,10 @@ insert into project_phases (project_id, name, position, progress_pct) values
   ('20000000-0000-0000-0000-000000000001', 'Preliminary experiments', 1, 100),
   ('20000000-0000-0000-0000-000000000001', 'Root-cause analysis', 2, 45),
   ('20000000-0000-0000-0000-000000000001', 'Final report', 3, 0);
+
+-- Stage dates (migration 0020), relative to the project's start.
+update project_phases ph
+set start_date = p.start_date + d.s, end_date = p.start_date + d.e
+from projects p,
+  (values ('Onboarding', 0, 6), ('Preliminary experiments', 7, 20), ('Root-cause analysis', 21, 34), ('Final report', 35, 42)) as d (name, s, e)
+where ph.project_id = p.id and p.id = '20000000-0000-0000-0000-000000000001' and ph.name = d.name;

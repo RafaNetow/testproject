@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { StatTiles } from "@/components/shared/stat-tiles";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { ProjectProgress } from "@/components/shared/project-progress";
+import type { TimelineMarker } from "@/components/shared/project-timeline";
 import { WaitingOnYou } from "@/components/shared/waiting-on-you";
 import { loadWaiting } from "@/lib/waiting";
 
@@ -55,6 +56,7 @@ export default async function PortalHome() {
     { data: nextMeeting },
     { data: progressRows },
     { data: deliverableRows },
+    { data: upcomingMeetings },
   ] = await Promise.all([
     supabase
       .from("board_cards")
@@ -79,16 +81,33 @@ export default async function PortalHome() {
       .maybeSingle(),
     supabase
       .from("projects")
-      .select("id, name, status, progress_pct, start_date, project_phases(id, name, position, progress_pct)")
+      .select("id, name, status, progress_pct, start_date, project_phases(id, name, position, progress_pct, start_date, end_date)")
       .in("id", projectIds)
       .order("created_at", { ascending: false }),
     // RLS already hides drafts from the client.
     supabase
       .from("deliverables")
-      .select("title, status, due_date")
+      .select("title, status, due_date, project_id")
       .in("project_id", projectIds)
       .order("due_date", { ascending: true, nullsFirst: false }),
+    supabase
+      .from("meetings")
+      .select("title, scheduled_at, project_id")
+      .in("project_id", projectIds)
+      .eq("status", "upcoming")
+      .gte("scheduled_at", new Date().toISOString()),
   ]);
+
+  const today = new Date(currentTime()).toISOString().slice(0, 10);
+  // Upcoming meetings and open deliverables, drawn on each project's timeline.
+  const markersFor = (projectId: string): TimelineMarker[] => [
+    ...(upcomingMeetings ?? [])
+      .filter((m) => m.project_id === projectId)
+      .map((m) => ({ date: m.scheduled_at.slice(0, 10), label: m.title, kind: "meeting" as const })),
+    ...(deliverableRows ?? [])
+      .filter((d) => d.project_id === projectId && d.due_date && d.status !== "approved")
+      .map((d) => ({ date: d.due_date!, label: d.title, kind: "deliverable" as const })),
+  ];
 
   // Active engagements first; each with its stages in the admin's order.
   const progress = (progressRows ?? [])
@@ -142,7 +161,7 @@ export default async function PortalHome() {
     <Stack spacing={5}>
       <DashboardHero eyebrow={hero.eyebrow} title={hero.title} subtitle={hero.subtitle} />
 
-      <WaitingOnYou items={waiting} showProject={projects.length > 1} today={new Date(currentTime()).toISOString().slice(0, 10)} />
+      <WaitingOnYou items={waiting} showProject={projects.length > 1} today={today} />
 
       <Stack spacing={3}>
         {progress.map((p) => (
@@ -152,6 +171,8 @@ export default async function PortalHome() {
             total={p.progress_pct}
             phases={p.phases}
             titleExtra={<StatusBadge status={p.status} />}
+            markers={markersFor(p.id)}
+            today={today}
           />
         ))}
       </Stack>

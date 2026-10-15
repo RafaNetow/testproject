@@ -23,6 +23,7 @@ import { NewProjectPopover } from "@/components/admin/new-project-popover";
 import { PhaseEditor } from "@/components/admin/phase-editor";
 import { ProjectSectionChips } from "@/components/admin/project-section-chips";
 import { ProjectProgress } from "@/components/shared/project-progress";
+import type { TimelineMarker } from "@/components/shared/project-timeline";
 import { InviteForm } from "./invite-form";
 import { ResendInviteButton } from "./resend-invite-button";
 import {
@@ -41,7 +42,19 @@ const accordionSx = { borderTop: 1, borderColor: "divider", bgcolor: "transparen
 const accordionSummarySx = { px: 2.5, minHeight: 40, "& .MuiAccordionSummary-content": { my: 1 } } as const;
 const accordionLabelSx = { fontSize: 13, fontWeight: 600, color: "text.secondary" } as const;
 
-type PhaseRow = { id: string; name: string; position: number; progress_pct: number };
+type PhaseRow = {
+  id: string;
+  name: string;
+  position: number;
+  progress_pct: number;
+  start_date: string | null;
+  end_date: string | null;
+};
+
+/** Request time; kept out of the component body so render stays pure. */
+function currentTime() {
+  return Date.now();
+}
 function sortPhases(rows: PhaseRow[] | null | undefined) {
   return [...(rows ?? [])].sort((a, b) => a.position - b.position);
 }
@@ -66,9 +79,36 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ o
 
   const { data: projects } = await supabase
     .from("projects")
-    .select("id, name, status, progress_pct, start_date, engagement_note, project_phases(id, name, position, progress_pct)")
+    .select("id, name, status, progress_pct, start_date, engagement_note, project_phases(id, name, position, progress_pct, start_date, end_date)")
     .eq("org_id", orgId)
     .order("created_at", { ascending: false });
+
+  const projectIds = (projects ?? []).map((p) => p.id);
+  const [{ data: upcomingMeetings }, { data: openDeliverables }] = projectIds.length
+    ? await Promise.all([
+        supabase
+          .from("meetings")
+          .select("title, scheduled_at, project_id")
+          .in("project_id", projectIds)
+          .eq("status", "upcoming")
+          .gte("scheduled_at", new Date().toISOString()),
+        supabase
+          .from("deliverables")
+          .select("title, due_date, project_id")
+          .in("project_id", projectIds)
+          .neq("status", "approved")
+          .not("due_date", "is", null),
+      ])
+    : [{ data: [] }, { data: [] }];
+  const today = new Date(currentTime()).toISOString().slice(0, 10);
+  const markersFor = (projectId: string): TimelineMarker[] => [
+    ...(upcomingMeetings ?? [])
+      .filter((m) => m.project_id === projectId)
+      .map((m) => ({ date: m.scheduled_at.slice(0, 10), label: m.title, kind: "meeting" as const })),
+    ...(openDeliverables ?? [])
+      .filter((d) => d.project_id === projectId)
+      .map((d) => ({ date: d.due_date as string, label: d.title, kind: "deliverable" as const })),
+  ];
 
   const updateThisOrg = updateOrganization.bind(null, orgId);
   const deleteThisOrg = deleteOrganization.bind(null, orgId);
@@ -206,6 +246,8 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ o
                       total={project.progress_pct}
                       phases={phases}
                       titleExtra={<StatusBadge status={project.status} />}
+                      markers={markersFor(project.id)}
+                      today={today}
                     />
                   </Box>
 
