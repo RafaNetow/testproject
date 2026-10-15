@@ -12,9 +12,9 @@ const BUCKET = "project-files";
 export default async function BoardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ project?: string }>;
+  searchParams: Promise<{ project?: string; card?: string }>;
 }) {
-  const { project: projectParam } = await searchParams;
+  const { project: projectParam, card: cardParam } = await searchParams;
   const { org, projects, project } = await getPortalProjectContext(projectParam);
 
   if (!project) {
@@ -130,6 +130,7 @@ export default async function BoardPage({
         currentUserId={user?.id ?? ""}
         revalidatePaths={["/portal/board"]}
         canDelete={canDelete}
+        initialCardId={cardParam ?? null}
       />
     </Stack>
   );

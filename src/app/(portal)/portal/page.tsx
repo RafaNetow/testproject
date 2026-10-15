@@ -11,6 +11,8 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { StatTiles } from "@/components/shared/stat-tiles";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { ProjectProgress } from "@/components/shared/project-progress";
+import { WaitingOnYou } from "@/components/shared/waiting-on-you";
+import { loadWaiting } from "@/lib/waiting";
 
 /** Request time; kept out of the component body so render stays pure. */
 function currentTime() {
@@ -102,7 +104,7 @@ export default async function PortalHome() {
   const engagementDay = main?.start_date
     ? Math.max(1, Math.floor((currentTime() - new Date(`${main.start_date}T00:00:00`).getTime()) / 86_400_000) + 1)
     : null;
-  const awaitingReview = (deliverableRows ?? []).filter((d) => d.status === "in_review").length;
+  const waiting = await loadWaiting(supabase, { orgId: org.id, projects });
   const nextDeliverable = (deliverableRows ?? []).find((d) => d.due_date && d.status !== "approved");
   const shortDate = (iso: string) =>
     new Date(iso.length === 10 ? `${iso}T00:00:00` : iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
@@ -111,8 +113,8 @@ export default async function PortalHome() {
     eyebrow: engagementDay ? `Day ${engagementDay} of your engagement` : (main?.name ?? org.name),
     title: currentStage ? `Now: ${currentStage.name}` : main?.phases.length ? "All stages complete" : (main?.name ?? org.name),
     subtitle:
-      awaitingReview > 0
-        ? `${awaitingReview} ${awaitingReview === 1 ? "deliverable is" : "deliverables are"} waiting for your review.`
+      waiting.length > 0
+        ? `${waiting.length} ${waiting.length === 1 ? "thing is" : "things are"} waiting on you — see the list below.`
         : nextDeliverable
           ? `Next deliverable: "${nextDeliverable.title}" · due ${shortDate(nextDeliverable.due_date!)}`
           : nextMeeting
@@ -139,6 +141,8 @@ export default async function PortalHome() {
   return (
     <Stack spacing={5}>
       <DashboardHero eyebrow={hero.eyebrow} title={hero.title} subtitle={hero.subtitle} />
+
+      <WaitingOnYou items={waiting} showProject={projects.length > 1} today={new Date(currentTime()).toISOString().slice(0, 10)} />
 
       <Stack spacing={3}>
         {progress.map((p) => (

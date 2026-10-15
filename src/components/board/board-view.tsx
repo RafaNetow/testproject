@@ -121,6 +121,7 @@ export function BoardView({
   currentUserId,
   revalidatePaths,
   canDelete,
+  initialCardId,
 }: {
   projectId: string;
   filesBaseUrl: string;
@@ -136,12 +137,16 @@ export function BoardView({
   currentUserId: string;
   revalidatePaths: string[];
   canDelete: boolean;
+  /** Opens this card's panel on load — deep links like ?card=<id> from "Waiting on you". */
+  initialCardId?: string | null;
 }) {
   const [columnCardIds, setColumnCardIds] = useState<Record<string, string[]>>(() =>
     groupByColumn(columns, cards)
   );
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
-  const [openCardId, setOpenCardId] = useState<string | null>(null);
+  const [openCardId, setOpenCardId] = useState<string | null>(() =>
+    initialCardId && cards.some((c) => c.id === initialCardId) ? initialCardId : null
+  );
 
   // Stretch the board down to the bottom of the window, so columns read as
   // full-height lanes (and scroll their own cards) instead of stopping short.
