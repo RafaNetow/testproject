@@ -23,7 +23,7 @@ export function ClientSettingsDrawer({ children }: { children: ReactNode }) {
         onClick={() => setOpen(true)}
         title="Client settings"
         aria-label="Open client settings"
-        sx={{ border: "1px solid rgb(145 158 171 / 0.32)", borderRadius: 2 }}
+        sx={{ border: "1px solid var(--border-outline)", borderRadius: 2 }}
       >
         <SettingsOutlined sx={{ fontSize: 18 }} />
       </IconButton>

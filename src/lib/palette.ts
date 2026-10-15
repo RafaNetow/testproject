@@ -30,7 +30,7 @@ export function tone(cssVar: string): Tone {
 }
 
 const NEUTRAL: Tone = {
-  bg: "rgb(145 158 171 / 0.16)",
+  bg: "var(--fill-neutral, rgb(145 158 171 / 0.16))",
   text: "var(--color-secondary)",
   solid: "var(--color-muted-foreground)",
 };

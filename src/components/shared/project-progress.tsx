@@ -89,7 +89,7 @@ export function ProjectProgress({
           mt: 2,
           height: 8,
           borderRadius: 999,
-          bgcolor: "rgb(145 158 171 / 0.16)",
+          bgcolor: "var(--fill-neutral)",
           "& .MuiLinearProgress-bar": { borderRadius: 999, bgcolor: complete ? DONE.solid : "primary.main" },
         }}
       />
@@ -99,7 +99,7 @@ export function ProjectProgress({
           activeStep={activeStep}
           orientation={narrow ? "vertical" : "horizontal"}
           alternativeLabel={!narrow}
-          sx={{ mt: 3.5, "& .MuiStepConnector-line": { borderColor: "rgb(145 158 171 / 0.32)" } }}
+          sx={{ mt: 3.5, "& .MuiStepConnector-line": { borderColor: "var(--border-outline)" } }}
         >
           {phases.map((phase, i) => {
             const done = phase.progress_pct >= 100;
@@ -117,7 +117,7 @@ export function ProjectProgress({
                     <LinearProgress
                       variant="determinate"
                       value={phase.progress_pct}
-                      sx={{ mt: 0.75, mx: narrow ? 0 : "auto", width: narrow ? 120 : "60%", height: 4, borderRadius: 999, bgcolor: "rgb(145 158 171 / 0.16)", "& .MuiLinearProgress-bar": { borderRadius: 999 } }}
+                      sx={{ mt: 0.75, mx: narrow ? 0 : "auto", width: narrow ? 120 : "60%", height: 4, borderRadius: 999, bgcolor: "var(--fill-neutral)", "& .MuiLinearProgress-bar": { borderRadius: 999 } }}
                     />
                   )}
                 </StepLabel>
@@ -173,10 +173,10 @@ function PhaseIcon({ completed: done, active: current, icon }: StepIconProps) {
         fontSize: 13,
         fontWeight: 700,
         ...(done
-          ? { bgcolor: DONE.solid, color: "#fff" }
+          ? { bgcolor: DONE.solid, color: "var(--color-success-foreground)" }
           : current
             ? { bgcolor: "primary.main", color: "primary.contrastText", boxShadow: "0 0 0 4px color-mix(in srgb, var(--color-accent) 20%, transparent)" }
-            : { bgcolor: "rgb(145 158 171 / 0.16)", color: "text.secondary" }),
+            : { bgcolor: "var(--fill-neutral)", color: "text.secondary" }),
       }}
     >
       {done ? <Check sx={{ fontSize: 16 }} /> : icon}

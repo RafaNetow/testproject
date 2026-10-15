@@ -318,7 +318,7 @@ export function BoardView({
             overflowX: "auto",
             pb: 1.5,
             scrollbarWidth: "thin",
-            scrollbarColor: "rgb(145 158 171 / 0.4) transparent",
+            scrollbarColor: "var(--border-control) transparent",
           }}
         >
           {columns.map((col) => {
@@ -426,7 +426,7 @@ function BoardColumn({
             height: 24,
             px: 0.75,
             borderRadius: "50%",
-            bgcolor: "rgb(145 158 171 / 0.16)",
+            bgcolor: "var(--fill-neutral)",
             color: "text.secondary",
             fontSize: 12,
             fontWeight: 700,
@@ -495,7 +495,7 @@ function BoardColumn({
             px: 0.5,
             py: 0.25,
             scrollbarWidth: "thin",
-            scrollbarColor: "rgb(145 158 171 / 0.4) transparent",
+            scrollbarColor: "var(--border-control) transparent",
           }}
         >
           {children}
@@ -507,7 +507,7 @@ function BoardColumn({
           onClick={() => setAdding(true)}
           startIcon={<Add />}
           color="inherit"
-          sx={{ mt: 1.5, flexShrink: 0, justifyContent: "flex-start", color: "text.secondary", "&:hover": { bgcolor: "rgb(145 158 171 / 0.12)" } }}
+          sx={{ mt: 1.5, flexShrink: 0, justifyContent: "flex-start", color: "text.secondary", "&:hover": { bgcolor: "var(--fill-hover)" } }}
         >
           Add task
         </Button>
@@ -573,7 +573,7 @@ function SortableCard({
 }
 
 /** Minimal's kanban card shadow — lighter than the dashboard card shadow. */
-const CARD_SHADOW = "0 1px 2px 0 rgb(145 158 171 / 0.16)";
+const CARD_SHADOW = "var(--shadow-kanban)";
 
 const metaSx = { display: "flex", alignItems: "center", gap: 0.25, fontSize: 12, color: "text.muted" } as const;
 

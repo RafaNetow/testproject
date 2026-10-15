@@ -72,7 +72,7 @@ export function ProjectTimeline({
                   height: 10,
                   flexShrink: 0,
                   borderRadius: "50%",
-                  bgcolor: state === "done" ? STATUS_TONE.success.solid : state === "current" ? "primary.main" : "rgb(145 158 171 / 0.4)",
+                  bgcolor: state === "done" ? STATUS_TONE.success.solid : state === "current" ? "primary.main" : "var(--border-control)",
                 }}
               />
               <Typography sx={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: state === "current" ? 700 : 500 }} noWrap>
@@ -129,7 +129,7 @@ export function ProjectTimeline({
               <Typography noWrap sx={{ width: LABEL_W, flexShrink: 0, pr: 2, fontSize: 13, fontWeight: state === "current" ? 700 : 500, color: state === "upcoming" ? "text.secondary" : "text.primary" }}>
                 {p.name}
               </Typography>
-              <Box sx={{ position: "relative", flex: 1, height: 26, borderRadius: 1, bgcolor: "rgb(145 158 171 / 0.08)" }}>
+              <Box sx={{ position: "relative", flex: 1, height: 26, borderRadius: 1, bgcolor: "var(--fill-track)" }}>
                 <Tooltip title={`${p.name}: ${short(start)} – ${short(end - DAY)} · ${p.progress_pct}%`} arrow>
                   <Box
                     sx={{
@@ -146,7 +146,7 @@ export function ProjectTimeline({
                           ? STATUS_TONE.success.solid
                           : state === "current"
                             ? "color-mix(in srgb, var(--color-accent) 22%, transparent)"
-                            : "rgb(145 158 171 / 0.28)",
+                            : "var(--border-outline)",
                     }}
                   >
                     {state === "current" && (

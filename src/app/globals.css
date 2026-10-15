@@ -87,6 +87,19 @@
   --shadow-card: 0 0 2px 0 rgb(145 158 171 / 0.2), 0 12px 24px -4px rgb(145 158 171 / 0.12);
   --shadow-dropdown: 0 0 2px 0 rgb(145 158 171 / 0.24), -20px 20px 40px -4px rgb(145 158 171 / 0.24);
   --border-dashed: rgb(145 158 171 / 0.24);
+
+  /* Neutral fills and lines, all from one grey so light and dark stay in step. */
+  --grey-channel: 145 158 171;
+  --fill-track: rgb(var(--grey-channel) / 0.08);
+  --fill-hover: rgb(var(--grey-channel) / 0.12);
+  --fill-neutral: rgb(var(--grey-channel) / 0.16);
+  --border-outline: rgb(var(--grey-channel) / 0.32);
+  --border-control: rgb(var(--grey-channel) / 0.4);
+  --shadow-kanban: 0 1px 2px 0 rgb(var(--grey-channel) / 0.16);
+  /* Text/icons on a solid success fill, and the inverted surface used by toasts. */
+  --color-success-foreground: #ffffff;
+  --inverse-surface: #1c252e;
+  --inverse-foreground: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -116,6 +129,10 @@
 
     --shadow-card: 0 0 2px 0 rgb(0 0 0 / 0.2), 0 12px 24px -4px rgb(0 0 0 / 0.12);
     --shadow-dropdown: 0 0 2px 0 rgb(0 0 0 / 0.24), -20px 20px 40px -4px rgb(0 0 0 / 0.24);
+    --shadow-kanban: 0 1px 2px 0 rgb(0 0 0 / 0.24);
+    --color-success-foreground: #0b2a09;
+    --inverse-surface: #f4f6f8;
+    --inverse-foreground: #1c252e;
   }
 }
 

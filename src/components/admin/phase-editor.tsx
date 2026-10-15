@@ -135,7 +135,7 @@ function PhaseRow({
           width: 28,
           height: 28,
           borderRadius: "50%",
-          bgcolor: "rgb(145 158 171 / 0.16)",
+          bgcolor: "var(--fill-neutral)",
           fontSize: 13,
           fontWeight: 700,
           color: "text.secondary",

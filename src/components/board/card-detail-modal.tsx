@@ -294,7 +294,7 @@ function CardDetailBody({
             height: 30,
             px: 1.5,
             borderRadius: 1,
-            border: "1px solid rgb(145 158 171 / 0.32)",
+            border: "1px solid var(--border-outline)",
             fontSize: 13,
             fontWeight: 700,
           }}
@@ -376,7 +376,7 @@ function CardDetailBody({
                         width: 36,
                         height: 36,
                         border: "1px dashed",
-                        borderColor: "rgb(145 158 171 / 0.4)",
+                        borderColor: "var(--border-control)",
                         bgcolor: "var(--color-muted)",
                         color: "text.secondary",
                         "&:hover": { borderColor: "primary.main", color: "primary.main" },
@@ -458,7 +458,7 @@ function CardDetailBody({
                         px: 1,
                         fontSize: 12,
                         border: "1px dashed",
-                        borderColor: "rgb(145 158 171 / 0.4)",
+                        borderColor: "var(--border-control)",
                         color: "text.secondary",
                         "&:hover": { borderColor: "primary.main", color: "primary.main" },
                       }}

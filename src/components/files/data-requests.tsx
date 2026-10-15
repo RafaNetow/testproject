@@ -91,7 +91,7 @@ export function DataRequests({
             mt: 1.5,
             height: 6,
             borderRadius: 999,
-            bgcolor: "rgb(145 158 171 / 0.16)",
+            bgcolor: "var(--fill-neutral)",
             "& .MuiLinearProgress-bar": { borderRadius: 999, bgcolor: pct === 100 ? STATUS_TONE.success.solid : "primary.main" },
           }}
         />

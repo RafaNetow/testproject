@@ -109,7 +109,7 @@ export const theme = createTheme({
         root: { borderRadius: 8, paddingInline: 16 },
         sizeSmall: { paddingInline: 10 },
         sizeLarge: { paddingBlock: 11, paddingInline: 22, fontSize: 15 },
-        outlined: { borderColor: "rgb(145 158 171 / 0.32)" },
+        outlined: { borderColor: "var(--border-outline, rgb(145 158 171 / 0.32))" },
       },
     },
     MuiIconButton: {
@@ -157,7 +157,7 @@ export const theme = createTheme({
         root: {
           borderRadius: 8,
           backgroundColor: "transparent",
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgb(145 158 171 / 0.2)" },
+          "& .MuiOutlinedInput-notchedOutline": { borderColor: "var(--color-border, rgb(145 158 171 / 0.2))" },
           "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: v("color-primary") },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: v("color-primary"), borderWidth: 2 },
         },

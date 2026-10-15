@@ -333,8 +333,9 @@ export function NotificationBell({
           sx={{
             width: "100%",
             maxWidth: 420,
-            bgcolor: "#1c252e",
-            color: "#fff",
+            bgcolor: "var(--inverse-surface)",
+            color: "var(--inverse-foreground)",
+            "& .MuiAlert-icon, & .MuiAlert-action": { color: "inherit" },
             boxShadow: "var(--shadow-dropdown)",
           }}
         >
