@@ -204,3 +204,18 @@ set start_date = p.start_date + d.s, end_date = p.start_date + d.e
 from projects p,
   (values ('Onboarding', 0, 3), ('Preliminary experiments', 4, 17), ('Main experiments', 18, 38), ('Final report', 39, 45)) as d (name, s, e)
 where ph.project_id = p.id and p.id = '20000000-0000-0000-0000-000000000002' and ph.name = d.name;
+
+-- Messages (migration 0022): a short client ↔ Alchemica thread.
+insert into messages (project_id, author_id, body, created_at) values
+  ('20000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000c1',
+   'Hi Axel — quick question before Thursday: should we pause the line trials until the revised cure schedule is ready?', now() - interval '2 days 3 hours'),
+  ('20000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000a1',
+   E'Good question. Keep running, but log oven temperature every 10 minutes for runs 11–20.\nThe NMR points to under-cure, so those logs will confirm it before we change anything.', now() - interval '2 days 1 hour'),
+  ('20000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000c1',
+   'Agreed — we will keep the line running and send the logs by Friday.', now() - interval '1 day 20 hours'),
+  ('20000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000a1',
+   'Thanks Maja. I have added a data request for the logs in Files so you can upload them straight into the right folder.', now() - interval '3 hours');
+
+insert into message_reads (project_id, user_id, last_read_at) values
+  ('20000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000a1', now() - interval '1 day 18 hours'),
+  ('20000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000c1', now() - interval '1 day 19 hours');

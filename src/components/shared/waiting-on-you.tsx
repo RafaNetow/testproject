@@ -4,13 +4,14 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import { STATUS_TONE, figureSx, type Tone } from "@/lib/palette";
 import type { WaitingItem, WaitingKind } from "@/lib/waiting";
-import { CloudUploadOutlined, DrawOutlined, HelpOutlineOutlined, SummarizeOutlined, TaskAltOutlined, type IconComponent } from "@/components/icons";
+import { ChatOutlined, CloudUploadOutlined, DrawOutlined, HelpOutlineOutlined, SummarizeOutlined, TaskAltOutlined, type IconComponent } from "@/components/icons";
 
 const KIND: Record<WaitingKind, { icon: IconComponent; tone: Tone; verb: string; action: string }> = {
   review: { icon: SummarizeOutlined, tone: STATUS_TONE.warning, verb: "Review the deliverable", action: "Review" },
   sign: { icon: DrawOutlined, tone: STATUS_TONE.warning, verb: "Sign", action: "Sign" },
   upload: { icon: CloudUploadOutlined, tone: STATUS_TONE.primary, verb: "Send us", action: "Upload" },
   answer: { icon: HelpOutlineOutlined, tone: STATUS_TONE.info, verb: "We need your input on", action: "Answer" },
+  reply: { icon: ChatOutlined, tone: STATUS_TONE.primary, verb: "Read", action: "Open" },
 };
 
 function dueLabel(due: string) {

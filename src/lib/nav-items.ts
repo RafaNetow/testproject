@@ -1,4 +1,4 @@
-import { Business, BusinessOutlined, CalendarMonth, CalendarMonthOutlined, Dashboard, DashboardOutlined, Dataset, DatasetOutlined, Description, DescriptionOutlined, EventNote, EventNoteOutlined, Groups, GroupsOutlined, Hub, HubOutlined, MenuBook, MenuBookOutlined, ReceiptLong, ReceiptLongOutlined, ScatterPlot, ScatterPlotOutlined, Science, ScienceOutlined, Summarize, SummarizeOutlined, Timeline, TimelineOutlined, Timer, TimerOutlined, TrackChanges, TrackChangesOutlined, type IconComponent } from "@/components/icons";
+import { Business, BusinessOutlined, CalendarMonth, CalendarMonthOutlined, Dashboard, DashboardOutlined, Dataset, DatasetOutlined, Description, DescriptionOutlined, EventNote, EventNoteOutlined, Groups, GroupsOutlined, Hub, HubOutlined, MenuBook, MenuBookOutlined, ReceiptLong, ReceiptLongOutlined, ScatterPlot, ScatterPlotOutlined, Science, ScienceOutlined, Summarize, SummarizeOutlined, Timeline, TimelineOutlined, Timer, TimerOutlined, TrackChanges, TrackChangesOutlined, type IconComponent, Chat, ChatOutlined, Inbox, InboxOutlined } from "@/components/icons";
 
 export type NavItem = {
   label: string;
@@ -10,6 +10,7 @@ export type NavItem = {
 
 export const PORTAL_NAV: NavItem[] = [
   { label: "Executive Summary", href: "/portal", icon: HubOutlined, activeIcon: Hub },
+  { label: "Messages", href: "/portal/messages", icon: ChatOutlined, activeIcon: Chat },
   { label: "Board", href: "/portal/board", icon: ScienceOutlined, activeIcon: Science },
   { label: "Deliverables", href: "/portal/deliverables", icon: SummarizeOutlined, activeIcon: Summarize },
   { label: "Files", href: "/portal/files", icon: DatasetOutlined, activeIcon: Dataset },
@@ -24,6 +25,7 @@ export const PORTAL_NAV: NavItem[] = [
 
 export const ADMIN_NAV: NavItem[] = [
   { label: "Dashboard", href: "/admin", icon: DashboardOutlined, activeIcon: Dashboard },
+  { label: "Inbox", href: "/admin/messages", icon: InboxOutlined, activeIcon: Inbox },
   { label: "Clients", href: "/admin/clients", icon: BusinessOutlined, activeIcon: Business },
   { label: "Reports", href: "/admin/reports", icon: ScatterPlotOutlined, activeIcon: ScatterPlot },
   { label: "Calendar", href: "/admin/calendar", icon: CalendarMonthOutlined, activeIcon: CalendarMonth },

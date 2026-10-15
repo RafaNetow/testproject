@@ -2,6 +2,7 @@ import { requireSessionUser } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/shared/app-shell";
 import { notificationHref } from "@/lib/notification-links";
+import { loadUnread } from "@/lib/messages";
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const user = await requireSessionUser();
@@ -34,6 +35,10 @@ export default async function PortalLayout({ children }: { children: React.React
           .eq("status", "in_review")
       : { count: 0 };
 
+  // Unread messages across the client's projects (RLS limits this to their org).
+  const unread = await loadUnread(supabase, user.id);
+  const unreadMessages = Object.values(unread).reduce((a, b) => a + b, 0);
+
   const notifications = (rows ?? []).map((n) => ({
     id: n.id,
     message: n.message,
@@ -51,7 +56,7 @@ export default async function PortalLayout({ children }: { children: React.React
       userEmail={user.email ?? ""}
       userId={user.id}
       notifications={notifications}
-      badges={{ "/portal/deliverables": awaitingReview ?? 0 }}
+      badges={{ "/portal/deliverables": awaitingReview ?? 0, "/portal/messages": unreadMessages }}
     >
       {children}
     </AppShell>

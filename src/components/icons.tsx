@@ -30,6 +30,8 @@ import {
   ChartLine,
   ChartScatter,
   ChatCircle,
+  ChatCircleText,
+  Tray,
   ChatsCircle,
   Check as PhCheck,
   CheckCircle,
@@ -39,6 +41,7 @@ import {
   CloudArrowUp,
   Copy,
   Database,
+  DotsThreeVertical,
   DownloadSimple,
   Eye,
   FilePlus,
@@ -126,6 +129,7 @@ export const Close = icon(X);
 export const Check = icon(PhCheck);
 export const DoneAll = icon(Checks);
 export const Menu = icon(List);
+export const MoreVert = icon(DotsThreeVertical);
 export const Search = icon(MagnifyingGlass);
 export const ExpandMore = icon(CaretDown);
 export const NavigateNext = icon(CaretRight);
@@ -179,6 +183,10 @@ export const BuildOutlined = icon(Wrench);
 export const WorkOutlineOutlined = icon(Briefcase);
 
 // Sidebar sections: outlined at rest, filled for the current page.
+export const ChatOutlined = icon(ChatCircleText);
+export const Chat = icon(ChatCircleText, "fill");
+export const InboxOutlined = icon(Tray);
+export const Inbox = icon(Tray, "fill");
 export const BusinessOutlined = icon(Buildings);
 export const Business = icon(Buildings, "fill");
 export const CalendarMonthOutlined = icon(CalendarBlank);

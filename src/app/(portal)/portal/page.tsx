@@ -10,6 +10,7 @@ import { ProjectProgress } from "@/components/shared/project-progress";
 import type { TimelineMarker } from "@/components/shared/project-timeline";
 import { WaitingOnYou } from "@/components/shared/waiting-on-you";
 import { loadWaiting } from "@/lib/waiting";
+import { requireSessionUser } from "@/lib/dal";
 import { FolderOpenOutlined, ForumOutlined, VideocamOutlined, ViewKanbanOutlined } from "@/components/icons";
 
 /** Request time; kept out of the component body so render stays pure. */
@@ -120,7 +121,8 @@ export default async function PortalHome() {
   const engagementDay = main?.start_date
     ? Math.max(1, Math.floor((currentTime() - new Date(`${main.start_date}T00:00:00`).getTime()) / 86_400_000) + 1)
     : null;
-  const waiting = await loadWaiting(supabase, { orgId: org.id, projects });
+  const user = await requireSessionUser();
+  const waiting = await loadWaiting(supabase, { orgId: org.id, projects, userId: user.id });
   const nextDeliverable = (deliverableRows ?? []).find((d) => d.due_date && d.status !== "approved");
   const shortDate = (iso: string) =>
     new Date(iso.length === 10 ? `${iso}T00:00:00` : iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });

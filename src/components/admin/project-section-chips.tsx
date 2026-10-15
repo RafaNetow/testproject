@@ -7,11 +7,12 @@ import Chip from "@mui/material/Chip";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import { ExpandMore, AccessTimeOutlined, DescriptionOutlined, EditNoteOutlined, FolderOpenOutlined, ForumOutlined, Inventory2Outlined, ReceiptLongOutlined, VideocamOutlined, ViewKanbanOutlined } from "@/components/icons";
+import { ExpandMore, AccessTimeOutlined, DescriptionOutlined, EditNoteOutlined, FolderOpenOutlined, ForumOutlined, Inventory2Outlined, ReceiptLongOutlined, VideocamOutlined, ViewKanbanOutlined, ChatOutlined } from "@/components/icons";
 
 /** The day-to-day sections stay visible; the rest sit under "More". */
 const PRIMARY_SECTIONS = [
   { href: "board", label: "Board", icon: ViewKanbanOutlined },
+  { href: "messages", label: "Messages", icon: ChatOutlined },
   { href: "files", label: "Files", icon: FolderOpenOutlined },
   { href: "deliverables", label: "Deliverables", icon: Inventory2Outlined },
   { href: "updates", label: "Updates", icon: EditNoteOutlined },

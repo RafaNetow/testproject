@@ -25,7 +25,7 @@ import {
   notificationHref,
   type NotificationRow,
 } from "@/lib/notification-links";
-import { AccessTime, AccessTimeOutlined, BusinessOutlined, DescriptionOutlined, DoneAll, EditNoteOutlined, FolderOpenOutlined, ForumOutlined, GroupsOutlined, Inventory2Outlined, NotificationsNoneOutlined, ReceiptLongOutlined, TrackChangesOutlined, VideocamOutlined, ViewKanbanOutlined, WorkOutlineOutlined, type IconComponent } from "@/components/icons";
+import { AccessTime, AccessTimeOutlined, BusinessOutlined, DescriptionOutlined, DoneAll, EditNoteOutlined, FolderOpenOutlined, ForumOutlined, GroupsOutlined, Inventory2Outlined, NotificationsNoneOutlined, ReceiptLongOutlined, TrackChangesOutlined, VideocamOutlined, ViewKanbanOutlined, WorkOutlineOutlined, type IconComponent, ChatOutlined } from "@/components/icons";
 
 export type NotificationItem = {
   id: string;
@@ -55,6 +55,7 @@ const KIND_ICONS: Record<string, { icon: IconComponent; tone: Tone }> = {
   hours: { icon: AccessTimeOutlined, tone: STATUS_TONE.neutral },
   team: { icon: GroupsOutlined, tone: category(3) },
   prospect: { icon: TrackChangesOutlined, tone: STATUS_TONE.neutral },
+  message: { icon: ChatOutlined, tone: STATUS_TONE.primary },
 };
 
 /**

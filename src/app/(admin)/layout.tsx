@@ -2,6 +2,7 @@ import { requireAxelAdmin, getSessionUser } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/shared/app-shell";
 import { notificationHref } from "@/lib/notification-links";
+import { loadUnread } from "@/lib/messages";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAxelAdmin();
@@ -16,6 +17,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         .order("created_at", { ascending: false })
         .limit(30)
     : { data: [] };
+
+  const unread = user ? await loadUnread(supabase, user.id) : {};
+  const unreadMessages = Object.values(unread).reduce((a, b) => a + b, 0);
 
   const notifications = (rows ?? []).map((n) => ({
     id: n.id,
@@ -34,6 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       userEmail={user?.email ?? ""}
       userId={user?.id ?? ""}
       notifications={notifications}
+      badges={{ "/admin/messages": unreadMessages }}
     >
       {children}
     </AppShell>

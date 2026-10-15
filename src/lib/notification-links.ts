@@ -11,7 +11,8 @@ export type NotificationKind =
   | "team"
   | "project"
   | "client"
-  | "prospect";
+  | "prospect"
+  | "message";
 
 export type NotificationRow = {
   id: string;
@@ -34,6 +35,7 @@ const SECTION: Partial<Record<NotificationKind, string>> = {
   hours: "hours",
   invoice: "invoices",
   contract: "contracts",
+  message: "messages",
 };
 
 /** Where clicking a notification takes the reader, per surface. */

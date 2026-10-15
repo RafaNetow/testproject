@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
 
 const STORAGE_KEY = "alchemica-cookie-notice-dismissed";
 const CHANGE_EVENT = "alchemica-cookie-notice-change";
@@ -30,6 +31,9 @@ export function CookieNotice() {
   // Server render assumes "dismissed" so the notice never flashes in and out
   // during hydration; the client snapshot then shows it if it's still needed.
   const dismissed = useSyncExternalStore(subscribe, isDismissed, () => true);
+  // Everyone signing in has already seen it on the public site or /login; inside
+  // the portal and admin it would only cover controls such as the chat composer.
+  const inApp = /^\/(portal|admin)(\/|$)/.test(usePathname() ?? "");
 
   function dismiss() {
     dismissedInMemory = true;
@@ -41,7 +45,7 @@ export function CookieNotice() {
     window.dispatchEvent(new Event(CHANGE_EVENT));
   }
 
-  if (dismissed) return null;
+  if (dismissed || inApp) return null;
 
   return (
     <div

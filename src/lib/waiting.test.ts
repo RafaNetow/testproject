@@ -38,3 +38,10 @@ describe("sortWaiting", () => {
     expect(input.map((i) => i.title)).toEqual(["b", "a"]);
   });
 });
+
+describe("sortWaiting with messages", () => {
+  it("lists unread messages before undated tasks", () => {
+    const sorted = sortWaiting([item({ title: "Card", kind: "answer" }), item({ title: "2 new messages", kind: "reply" })]);
+    expect(sorted[0].kind).toBe("reply");
+  });
+});

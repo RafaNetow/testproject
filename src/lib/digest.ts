@@ -27,6 +27,7 @@ const KIND_LABELS: Record<string, [string, string]> = {
   contract: ["contract update", "contract updates"],
   project: ["project update", "project updates"],
   team: ["team change", "team changes"],
+  message: ["message", "messages"],
 };
 
 /** "3 board updates · 1 decision logged" — most frequent first. */
@@ -56,6 +57,7 @@ const VERB: Record<WaitingItem["kind"], string> = {
   sign: "Sign",
   upload: "Send us",
   answer: "We need your input on",
+  reply: "Read",
 };
 
 export function renderDigest(d: DigestData): { subject: string; html: string; text: string } {
@@ -156,7 +158,7 @@ export async function buildDigest(admin: SupabaseClient, profileId: string, now 
       .eq("recipient_id", profileId)
       .gte("created_at", since)
       .order("created_at", { ascending: false }),
-    loadWaiting(admin, { orgId: membership.org_id, projects: projects.map((p) => ({ id: p.id, name: p.name })) }),
+    loadWaiting(admin, { orgId: membership.org_id, projects: projects.map((p) => ({ id: p.id, name: p.name })), userId: profileId }),
     projectIds.length
       ? admin
           .from("meetings")
