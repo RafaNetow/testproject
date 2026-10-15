@@ -76,9 +76,10 @@
 
   --color-primary: #1c252e;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #637381;
+  /* Both text greys pass WCAG AA (4.5:1) on white and on the muted fill. */
+  --color-secondary: #4f5d6b;
   --color-muted: #f4f6f8;
-  --color-muted-foreground: #919eab;
+  --color-muted-foreground: #66727f;
   --color-border: rgb(145 158 171 / 0.2);
   --color-card: #ffffff;
   --color-destructive: var(--color-error);
@@ -96,11 +97,11 @@
 
     --color-primary: #ffffff;
     --color-primary-foreground: #1c252e;
-    --color-secondary: #919eab;
+    --color-secondary: #b0bac4;
     --color-accent: #5fbfa9;
     --color-accent-foreground: #04201a;
     --color-muted: #28323d;
-    --color-muted-foreground: #637381;
+    --color-muted-foreground: #919eab;
     --color-border: rgb(145 158 171 / 0.2);
     --color-card: #1c252e;
     --color-ring: #5fbfa9;

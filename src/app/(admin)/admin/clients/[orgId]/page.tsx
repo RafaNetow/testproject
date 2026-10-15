@@ -248,6 +248,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ o
                       titleExtra={<StatusBadge status={project.status} />}
                       markers={markersFor(project.id)}
                       today={today}
+                      collapseTimeline
                     />
                   </Box>
 

@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   DndContext,
   DragOverlay,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   KeyboardSensor,
   closestCorners,
   useSensor,
@@ -13,6 +14,7 @@ import {
   type DragStartEvent,
   type DragOverEvent,
   type DragEndEvent,
+  type Announcements,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -198,10 +200,32 @@ export function BoardView({
     return map;
   }, [cardFiles]);
 
+  // Touch drags start after a short press so a swipe still scrolls the board;
+  // on the keyboard, Space picks a card up and Enter opens it.
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+      keyboardCodes: { start: ["Space"], cancel: ["Escape"], end: ["Space", "Enter"] },
+    })
   );
+
+  // Screen readers hear card and column names, not ids.
+  const nameOf = (id: string | number) => {
+    const key = String(id);
+    return cardById.get(key)?.title ?? columns.find((c) => c.id === key)?.name ?? "the board";
+  };
+  const placeOf = (id: string | number) => {
+    const col = columns.find((c) => c.id === findColumnOf(String(id)));
+    return col ? `in ${col.name}` : "";
+  };
+  const announcements: Announcements = {
+    onDragStart: ({ active }) => `Picked up ${nameOf(active.id)}. Use the arrow keys to move it, Space to drop, Escape to cancel.`,
+    onDragOver: ({ active, over }) => (over ? `${nameOf(active.id)} is now ${placeOf(over.id)}.` : undefined),
+    onDragEnd: ({ active, over }) => (over ? `Dropped ${nameOf(active.id)} ${placeOf(over.id)}.` : `Dropped ${nameOf(active.id)}.`),
+    onDragCancel: ({ active }) => `Cancelled. ${nameOf(active.id)} went back to where it was.`,
+  };
 
   function findColumnOf(id: string): string | undefined {
     if (columnCardIds[id]) return id;
@@ -279,6 +303,7 @@ export function BoardView({
         id={`board-${projectId}`}
         sensors={sensors}
         collisionDetection={closestCorners}
+        accessibility={{ announcements }}
         onDragStart={onDragStart}
         onDragOver={onDragOver}
         onDragEnd={onDragEnd}
@@ -515,7 +540,26 @@ function SortableCard({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <Box
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      aria-label={`${card.title} — press Enter to open, Space to move`}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" && !isDragging) {
+          e.preventDefault();
+          onOpen();
+          return;
+        }
+        listeners?.onKeyDown?.(e);
+      }}
+      sx={{
+        borderRadius: 1.5,
+        outline: "none",
+        "&:focus-visible": { boxShadow: (t) => `0 0 0 2px ${t.palette.primary.main}` },
+      }}
+    >
       <CardFace
         card={card}
         assigneeIds={assigneeIds}
@@ -524,7 +568,7 @@ function SortableCard({
         attachmentCount={attachmentCount}
         onClick={onOpen}
       />
-    </div>
+    </Box>
   );
 }
 

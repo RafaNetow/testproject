@@ -32,6 +32,7 @@ import { FilePreviewDialog } from "./file-preview-dialog";
 import { RenameButton } from "./rename-button";
 import { createFolder, deleteFolder, deleteFile, moveFile, renameFolder, renameFile, setFileTechnique } from "@/lib/actions/files";
 import { FILE_LABELS } from "@/lib/techniques";
+import { TechniqueLabel } from "@/components/shared/technique-label";
 import { DataRequests, type DataRequestRow } from "./data-requests";
 import { LinkBox } from "@/components/shared/link-box";
 
@@ -611,31 +612,6 @@ function techniqueHref(basePath: string, extraQuery: string | undefined, folderI
   if (technique) params.set("technique", technique);
   const qs = params.toString();
   return qs ? `${basePath}?${qs}` : basePath;
-}
-
-/** The technique / document-kind label, in its stable category colour. */
-function TechniqueLabel({ label }: { label: string | null }) {
-  if (!label) return <Typography sx={{ fontSize: 13, color: "text.muted" }}>—</Typography>;
-  const tone = categorical(label);
-  return (
-    <Box
-      component="span"
-      sx={{
-        display: "inline-flex",
-        alignItems: "center",
-        height: 24,
-        px: 1,
-        borderRadius: 0.75,
-        bgcolor: tone.bg,
-        color: tone.text,
-        fontSize: 12,
-        fontWeight: 700,
-        whiteSpace: "nowrap",
-      }}
-    >
-      {label}
-    </Box>
-  );
 }
 
 function FilterChip({ href, label, active, tone }: { href: string; label: string; active: boolean; tone?: Tone }) {

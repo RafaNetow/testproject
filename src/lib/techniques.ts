@@ -40,3 +40,21 @@ export function detectTechnique(filename: string): FileLabel | null {
 export function isFileLabel(value: string): value is FileLabel {
   return FILE_LABELS.includes(value);
 }
+
+/** One plain sentence per label, for clients who don't read spectra. */
+export const LABEL_HINTS: Record<FileLabel, string> = {
+  NMR: "Nuclear magnetic resonance — confirms a molecule's structure.",
+  FTIR: "Infrared spectroscopy — shows which chemical groups are present.",
+  DSC: "Heat-flow measurement — melting, curing and softening temperatures.",
+  TGA: "Weighs a sample while heating it — thermal stability and composition.",
+  "GC-MS": "Separates and identifies volatile compounds, such as solvents or odours.",
+  HPLC: "Separates and measures the components of a liquid mixture.",
+  XRD: "X-ray diffraction — reveals whether and how a material is crystalline.",
+  SEM: "Electron-microscope images of the surface, at very high magnification.",
+  DMA: "Measures stiffness and damping as the temperature changes.",
+  Rheology: "How the material flows, thickens or deforms under force.",
+  Formulation: "Recipes: which ingredients, and how much of each.",
+  "Process log": "Records of how each batch was made — temperatures, times, conditions.",
+  Report: "Written findings and conclusions.",
+  Literature: "Published papers and references behind the work.",
+};

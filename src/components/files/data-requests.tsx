@@ -17,8 +17,9 @@ import ScheduleOutlined from "@mui/icons-material/ScheduleOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
 import { FileInput } from "@/components/shared/file-input";
 import { SelectField } from "@/components/shared/select-field";
-import { STATUS_TONE, categorical, figureSx } from "@/lib/palette";
+import { STATUS_TONE, figureSx } from "@/lib/palette";
 import { FILE_LABELS } from "@/lib/techniques";
+import { TechniqueLabel } from "@/components/shared/technique-label";
 import {
   createDataRequest,
   deleteDataRequest,
@@ -189,7 +190,8 @@ function RequestRow({
       component="li"
       sx={{
         display: "flex",
-        flexWrap: { xs: "wrap", md: "nowrap" },
+        // Wraps on the card's own width (the folder tree narrows it), not the viewport's.
+        flexWrap: "wrap",
         alignItems: "center",
         gap: 2,
         p: 2,
@@ -201,17 +203,10 @@ function RequestRow({
       <Box aria-hidden sx={{ display: "grid", placeItems: "center", width: 36, height: 36, flexShrink: 0, borderRadius: "50%", bgcolor: tone.bg, color: tone.text }}>
         <Icon sx={{ fontSize: 20 }} />
       </Box>
-      <Box sx={{ minWidth: 0, flex: 1 }}>
+      <Box sx={{ minWidth: 0, flex: "1 1 220px" }}>
         <Typography sx={{ fontSize: 14, fontWeight: 600 }}>{request.title}</Typography>
         <Box sx={{ mt: 0.5, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1, fontSize: 12, color: "text.secondary" }}>
-          {request.technique && (
-            <Box
-              component="span"
-              sx={{ px: 0.75, height: 20, display: "inline-flex", alignItems: "center", borderRadius: 0.75, bgcolor: categorical(request.technique).bg, color: categorical(request.technique).text, fontWeight: 700 }}
-            >
-              {request.technique}
-            </Box>
-          )}
+          {request.technique && <TechniqueLabel label={request.technique} size="sm" />}
           <span>{done ? "Received" : request.due_date ? `Needed by ${shortDate(request.due_date)}` : "Waiting for upload"}</span>
           {done && file && (
             <MuiLink href={file.url ?? undefined} target="_blank" rel="noreferrer" sx={{ fontWeight: 600 }}>
@@ -227,7 +222,7 @@ function RequestRow({
         )}
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0, ml: { xs: "52px", md: 0 } }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0, flexWrap: "wrap", justifyContent: "flex-end", ml: "auto" }}>
         {!done && (
           <Box component="form" action={formAction} sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
             <FileInput key={state?.message ?? "initial"} name="file" label="Upload" required size="small" />

@@ -30,6 +30,21 @@ const STATUS_TONES: Record<string, Tone> = {
   cancelled: "error",
 };
 
+/** Readable names for the raw database states; anything else is sentence-cased. */
+const STATUS_LABELS: Record<string, string> = {
+  at_risk: "Needs attention",
+  offboarded: "Closed",
+  in_progress: "In progress",
+  in_review: "Ready for review",
+  changes_requested: "Changes requested",
+  partially_signed: "Partly signed",
+  past: "Done",
+};
+
+function readable(status: string) {
+  const text = status.replaceAll("_", " ");
+  return STATUS_LABELS[status] ?? text.charAt(0).toUpperCase() + text.slice(1);
+}
 
 /** The "soft label" used by Minimal-style dashboards for every status. */
 /** An icon per tone, so state never rests on colour alone (green vs vermillion is the colour-blind pair). */
@@ -70,11 +85,10 @@ export function StatusBadge({
         fontWeight: 700,
         lineHeight: 1,
         whiteSpace: "nowrap",
-        textTransform: "capitalize",
       }}
     >
       {Icon && <Icon aria-hidden sx={{ fontSize: 14 }} />}
-      {(label ?? status).replaceAll("_", " ")}
+      {label ?? readable(status)}
     </Box>
   );
 }
