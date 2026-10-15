@@ -11,10 +11,9 @@ import StepLabel from "@mui/material/StepLabel";
 import Stepper from "@mui/material/Stepper";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import Check from "@mui/icons-material/Check";
-import ExpandMore from "@mui/icons-material/ExpandMore";
 import { STATUS_TONE, figureSx } from "@/lib/palette";
 import { ProjectTimeline, type TimelineMarker } from "./project-timeline";
+import { Check, ExpandMore } from "@/components/icons";
 
 export type ProgressPhase = {
   id: string;

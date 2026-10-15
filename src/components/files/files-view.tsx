@@ -17,13 +17,6 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
-import CreateNewFolderOutlined from "@mui/icons-material/CreateNewFolderOutlined";
-import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
-import Download from "@mui/icons-material/Download";
-import Folder from "@mui/icons-material/Folder";
-import FolderOutlined from "@mui/icons-material/FolderOutlined";
-import NavigateNext from "@mui/icons-material/NavigateNext";
-import NoteAddOutlined from "@mui/icons-material/NoteAddOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
 import { STATUS_TONE, category, categorical, type Tone } from "@/lib/palette";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
@@ -35,6 +28,7 @@ import { FILE_LABELS } from "@/lib/techniques";
 import { TechniqueLabel } from "@/components/shared/technique-label";
 import { DataRequests, type DataRequestRow } from "./data-requests";
 import { LinkBox } from "@/components/shared/link-box";
+import { DeleteOutlined, Download, Folder, FolderOutlined, NavigateNext, NoteAddOutlined } from "@/components/icons";
 
 /** Hidden from sight, still read by screen readers. */
 const visuallyHidden = { position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" } as const;
@@ -325,7 +319,7 @@ export function FilesView({
                 sx={{ width: { xs: 160, sm: 220 } }}
                 slotProps={{ htmlInput: { "aria-label": "New folder name" } }}
               />
-              <Button type="submit" variant="contained" startIcon={<CreateNewFolderOutlined />}>
+              <Button type="submit" variant="contained">
                 New folder
               </Button>
             </Box>

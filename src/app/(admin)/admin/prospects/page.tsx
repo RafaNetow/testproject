@@ -4,9 +4,6 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import Add from "@mui/icons-material/Add";
-import ArrowForward from "@mui/icons-material/ArrowForward";
-import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import { createClient } from "@/lib/supabase/server";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
@@ -17,6 +14,7 @@ import {
   deleteProspect,
   convertProspectToClient,
 } from "@/lib/actions/prospects";
+import { Add, ArrowForward, DeleteOutlined } from "@/components/icons";
 
 const STAGES = [
   { value: "lead", label: "Lead" },

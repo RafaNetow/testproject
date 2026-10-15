@@ -1,7 +1,9 @@
 "use client";
 
 import NextLink from "next/link";
+import { createElement } from "react";
 import { createTheme } from "@mui/material/styles";
+import { ArrowBack, CheckCircleOutlined, Close, ErrorOutlined, ExpandMore, InfoOutlined, NavigateNext, ScheduleOutlined } from "@/components/icons";
 
 declare module "@mui/material/styles" {
   interface TypeText {
@@ -174,6 +176,27 @@ export const theme = createTheme({
     MuiChip: {
       styleOverrides: { root: { fontWeight: 500, borderRadius: 8 } },
     },
+    // MUI's built-in glyphs follow the portal's Phosphor set.
+    MuiSelect: {
+      defaultProps: { IconComponent: ExpandMore },
+      styleOverrides: { icon: { fontSize: 18, right: 12 } },
+    },
+    MuiAutocomplete: {
+      defaultProps: {
+        popupIcon: createElement(ExpandMore, { sx: { fontSize: 18 } }),
+        clearIcon: createElement(Close, { sx: { fontSize: 16 } }),
+      },
+    },
+    MuiAlert: {
+      defaultProps: {
+        iconMapping: {
+          success: createElement(CheckCircleOutlined, { fontSize: "inherit" }),
+          info: createElement(InfoOutlined, { fontSize: "inherit" }),
+          warning: createElement(ScheduleOutlined, { fontSize: "inherit" }),
+          error: createElement(ErrorOutlined, { fontSize: "inherit" }),
+        },
+      },
+    },
     MuiDialog: {
       styleOverrides: { paper: { borderRadius: 16, boxShadow: v("shadow-dropdown") } },
     },
@@ -195,6 +218,7 @@ export const theme = createTheme({
       },
     },
     MuiTabs: {
+      defaultProps: { slots: { startScrollButtonIcon: ArrowBack, endScrollButtonIcon: NavigateNext } },
       styleOverrides: {
         indicator: { backgroundColor: v("color-primary"), height: 2 },
         list: { gap: 32 },

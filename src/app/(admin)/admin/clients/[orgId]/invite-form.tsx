@@ -5,7 +5,6 @@ import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import Send from "@mui/icons-material/Send";
 import { SelectField } from "@/components/shared/select-field";
 import { inviteMember, type InviteResult } from "./actions";
 
@@ -22,7 +21,7 @@ export function InviteForm({ orgId }: { orgId: string }) {
         <option value="owner">Owner</option>
         <option value="collaborator">Collaborator</option>
       </SelectField>
-      <Button type="submit" variant="contained" startIcon={<Send />} disabled={isPending}>
+      <Button type="submit" variant="contained" disabled={isPending}>
         {isPending ? "Sending…" : "Send invite"}
       </Button>
 

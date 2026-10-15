@@ -10,13 +10,10 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import Add from "@mui/icons-material/Add";
-import ArrowDownward from "@mui/icons-material/ArrowDownward";
-import ArrowUpward from "@mui/icons-material/ArrowUpward";
-import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
 import { addPhase, deletePhase, movePhase, updatePhase } from "@/lib/actions/phases";
 import type { ProgressPhase } from "@/components/shared/project-progress";
+import { Add, ArrowDownward, ArrowUpward, DeleteOutlined } from "@/components/icons";
 
 /**
  * Admin editor for a project's stages: rename, set each stage's percentage
@@ -167,7 +164,7 @@ function PhaseRow({
           aria-label={`${phase.name} progress`}
           valueLabelDisplay="auto"
           valueLabelFormat={(v) => `${v}%`}
-          sx={{ flex: 1, color: pct >= 100 ? "success.main" : "primary.main" }}
+          sx={{ flex: 1, color: pct >= 100 ? "text.secondary" : "primary.main" }}
         />
         <TextField
           type="number"

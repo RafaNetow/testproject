@@ -1,43 +1,11 @@
-import type { SvgIconComponent } from "@mui/icons-material";
-import Business from "@mui/icons-material/Business";
-import BusinessOutlined from "@mui/icons-material/BusinessOutlined";
-import CalendarMonth from "@mui/icons-material/CalendarMonth";
-import CalendarMonthOutlined from "@mui/icons-material/CalendarMonthOutlined";
-import Dashboard from "@mui/icons-material/Dashboard";
-import DashboardOutlined from "@mui/icons-material/DashboardOutlined";
-import Dataset from "@mui/icons-material/Dataset";
-import DatasetOutlined from "@mui/icons-material/DatasetOutlined";
-import Description from "@mui/icons-material/Description";
-import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
-import EventNote from "@mui/icons-material/EventNote";
-import EventNoteOutlined from "@mui/icons-material/EventNoteOutlined";
-import Groups from "@mui/icons-material/Groups";
-import GroupsOutlined from "@mui/icons-material/GroupsOutlined";
-import Hub from "@mui/icons-material/Hub";
-import HubOutlined from "@mui/icons-material/HubOutlined";
-import MenuBook from "@mui/icons-material/MenuBook";
-import MenuBookOutlined from "@mui/icons-material/MenuBookOutlined";
-import ReceiptLong from "@mui/icons-material/ReceiptLong";
-import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
-import ScatterPlot from "@mui/icons-material/ScatterPlot";
-import ScatterPlotOutlined from "@mui/icons-material/ScatterPlotOutlined";
-import Science from "@mui/icons-material/Science";
-import ScienceOutlined from "@mui/icons-material/ScienceOutlined";
-import Summarize from "@mui/icons-material/Summarize";
-import SummarizeOutlined from "@mui/icons-material/SummarizeOutlined";
-import Timeline from "@mui/icons-material/Timeline";
-import TimelineOutlined from "@mui/icons-material/TimelineOutlined";
-import Timer from "@mui/icons-material/Timer";
-import TimerOutlined from "@mui/icons-material/TimerOutlined";
-import TrackChanges from "@mui/icons-material/TrackChanges";
-import TrackChangesOutlined from "@mui/icons-material/TrackChangesOutlined";
+import { Business, BusinessOutlined, CalendarMonth, CalendarMonthOutlined, Dashboard, DashboardOutlined, Dataset, DatasetOutlined, Description, DescriptionOutlined, EventNote, EventNoteOutlined, Groups, GroupsOutlined, Hub, HubOutlined, MenuBook, MenuBookOutlined, ReceiptLong, ReceiptLongOutlined, ScatterPlot, ScatterPlotOutlined, Science, ScienceOutlined, Summarize, SummarizeOutlined, Timeline, TimelineOutlined, Timer, TimerOutlined, TrackChanges, TrackChangesOutlined, type IconComponent } from "@/components/icons";
 
 export type NavItem = {
   label: string;
   href: string;
-  icon: SvgIconComponent;
+  icon: IconComponent;
   /** Filled variant shown when the item is the current page. */
-  activeIcon: SvgIconComponent;
+  activeIcon: IconComponent;
 };
 
 export const PORTAL_NAV: NavItem[] = [

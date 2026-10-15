@@ -201,7 +201,7 @@ export function ProjectTimeline({
                   height: 12,
                   transform: "translateX(-50%) rotate(45deg)",
                   borderRadius: "2px",
-                  bgcolor: m.kind === "meeting" ? "var(--cat-5)" : STATUS_TONE.warning.solid,
+                  bgcolor: m.kind === "meeting" ? "var(--color-accent)" : "var(--color-secondary)",
                   cursor: "help",
                   "&:focus-visible": { outline: "2px solid var(--color-accent)", outlineOffset: 2 },
                 }}

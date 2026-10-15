@@ -1,7 +1,7 @@
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import BuildOutlined from "@mui/icons-material/BuildOutlined";
+import { BuildOutlined } from "@/components/icons";
 
 export function ComingSoon({ title }: { title: string }) {
   return (

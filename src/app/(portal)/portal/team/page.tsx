@@ -9,13 +9,13 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import GroupsOutlined from "@mui/icons-material/GroupsOutlined";
 import { createClient } from "@/lib/supabase/server";
 import { getPortalProjectContext } from "@/lib/portal-context";
 import { updateOrgDetails } from "@/lib/actions/organization-details";
 import { SectionHeader } from "@/components/shared/section-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DigestToggle } from "@/components/shared/digest-toggle";
+import { GroupsOutlined } from "@/components/icons";
 
 export default async function TeamPage() {
   const { org, role } = await getPortalProjectContext();

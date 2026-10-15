@@ -17,23 +17,6 @@ import Portal from "@mui/material/Portal";
 import Snackbar from "@mui/material/Snackbar";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import AccessTime from "@mui/icons-material/AccessTime";
-import AccessTimeOutlined from "@mui/icons-material/AccessTimeOutlined";
-import BusinessOutlined from "@mui/icons-material/BusinessOutlined";
-import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
-import DoneAll from "@mui/icons-material/DoneAll";
-import EditNoteOutlined from "@mui/icons-material/EditNoteOutlined";
-import FolderOpenOutlined from "@mui/icons-material/FolderOpenOutlined";
-import ForumOutlined from "@mui/icons-material/ForumOutlined";
-import GroupsOutlined from "@mui/icons-material/GroupsOutlined";
-import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
-import NotificationsNoneOutlined from "@mui/icons-material/NotificationsNoneOutlined";
-import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
-import TrackChangesOutlined from "@mui/icons-material/TrackChangesOutlined";
-import VideocamOutlined from "@mui/icons-material/VideocamOutlined";
-import ViewKanbanOutlined from "@mui/icons-material/ViewKanbanOutlined";
-import WorkOutlineOutlined from "@mui/icons-material/WorkOutlineOutlined";
-import type { SvgIconComponent } from "@mui/icons-material";
 import { createClient } from "@/lib/supabase/client";
 import { STATUS_TONE, category, type Tone } from "@/lib/palette";
 import { timeAgo } from "@/lib/time-ago";
@@ -42,6 +25,7 @@ import {
   notificationHref,
   type NotificationRow,
 } from "@/lib/notification-links";
+import { AccessTime, AccessTimeOutlined, BusinessOutlined, DescriptionOutlined, DoneAll, EditNoteOutlined, FolderOpenOutlined, ForumOutlined, GroupsOutlined, Inventory2Outlined, NotificationsNoneOutlined, ReceiptLongOutlined, TrackChangesOutlined, VideocamOutlined, ViewKanbanOutlined, WorkOutlineOutlined, type IconComponent } from "@/components/icons";
 
 export type NotificationItem = {
   id: string;
@@ -57,7 +41,7 @@ export type NotificationItem = {
  * engagement's own work in the brand primary, money in success, things that
  * may need the reader's attention in warning, the rest in category colours.
  */
-const KIND_ICONS: Record<string, { icon: SvgIconComponent; tone: Tone }> = {
+const KIND_ICONS: Record<string, { icon: IconComponent; tone: Tone }> = {
   card: { icon: ViewKanbanOutlined, tone: STATUS_TONE.primary },
   update: { icon: EditNoteOutlined, tone: STATUS_TONE.primary },
   project: { icon: WorkOutlineOutlined, tone: STATUS_TONE.primary },

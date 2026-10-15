@@ -10,10 +10,6 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import Add from "@mui/icons-material/Add";
-import CheckCircleOutlined from "@mui/icons-material/CheckCircleOutlined";
-import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
-import ScheduleOutlined from "@mui/icons-material/ScheduleOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
 import { FileInput } from "@/components/shared/file-input";
 import { SelectField } from "@/components/shared/select-field";
@@ -27,6 +23,7 @@ import {
   setDataRequestReceived,
   type FulfillResult,
 } from "@/lib/actions/data-requests";
+import { Add, CheckCircleOutlined, DeleteOutlined, ScheduleOutlined } from "@/components/icons";
 
 export type DataRequestRow = {
   id: string;

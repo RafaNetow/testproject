@@ -5,11 +5,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import ViewKanbanOutlined from "@mui/icons-material/ViewKanbanOutlined";
-import ForumOutlined from "@mui/icons-material/ForumOutlined";
-import EditNoteOutlined from "@mui/icons-material/EditNoteOutlined";
-import VideocamOutlined from "@mui/icons-material/VideocamOutlined";
-import FolderOpenOutlined from "@mui/icons-material/FolderOpenOutlined";
+import { ViewKanbanOutlined, ForumOutlined, EditNoteOutlined, VideocamOutlined, FolderOpenOutlined } from "@/components/icons";
 
 export type ActivityItem = {
   type: "card" | "decision" | "update" | "meeting" | "file";

@@ -1,10 +1,6 @@
 import Box from "@mui/material/Box";
-import CheckCircleOutlined from "@mui/icons-material/CheckCircleOutlined";
-import ErrorOutlined from "@mui/icons-material/ErrorOutlined";
-import InfoOutlined from "@mui/icons-material/InfoOutlined";
-import ScheduleOutlined from "@mui/icons-material/ScheduleOutlined";
-import type { SvgIconComponent } from "@mui/icons-material";
 import { STATUS_TONE } from "@/lib/palette";
+import { CheckCircleOutlined, ErrorOutlined, InfoOutlined, ScheduleOutlined, type IconComponent } from "@/components/icons";
 
 type Tone = "success" | "info" | "warning" | "error" | "neutral";
 
@@ -48,7 +44,7 @@ function readable(status: string) {
 
 /** The "soft label" used by Minimal-style dashboards for every status. */
 /** An icon per tone, so state never rests on colour alone (green vs vermillion is the colour-blind pair). */
-const TONE_ICONS: Partial<Record<Tone, SvgIconComponent>> = {
+const TONE_ICONS: Partial<Record<Tone, IconComponent>> = {
   success: CheckCircleOutlined,
   warning: ScheduleOutlined,
   error: ErrorOutlined,

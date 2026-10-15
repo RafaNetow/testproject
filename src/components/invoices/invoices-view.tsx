@@ -6,11 +6,6 @@ import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import AttachFile from "@mui/icons-material/AttachFile";
-import ContentCopy from "@mui/icons-material/ContentCopy";
-import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
-import Download from "@mui/icons-material/Download";
-import ExpandMore from "@mui/icons-material/ExpandMore";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -19,6 +14,7 @@ import { updateInvoiceStatus, deleteInvoice } from "@/lib/actions/invoices";
 import { deriveInvoiceStatus } from "@/lib/invoice-status";
 import { InvoiceBuilder, type DuplicateFrom, type UnbilledHoursEntry } from "./invoice-builder";
 import { InvoicePreview, type PreviewLineItem, type VatTreatment } from "./invoice-preview";
+import { AttachFile, ContentCopy, DeleteOutlined, Download, ExpandMore } from "@/components/icons";
 
 type Invoice = {
   id: string;

@@ -5,9 +5,9 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
 import { logDecision, deleteDecision } from "@/lib/actions/decisions";
+import { DeleteOutlined } from "@/components/icons";
 
 type Decision = {
   id: string;

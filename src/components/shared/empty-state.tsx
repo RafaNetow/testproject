@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import ScienceOutlined from "@mui/icons-material/ScienceOutlined";
 import { STATUS_TONE } from "@/lib/palette";
+import { ScienceOutlined } from "@/components/icons";
 
 /** Placeholder card for "nothing here yet" states, with a flask by default. */
 export function EmptyState({ title, children, icon }: { title: ReactNode; children?: ReactNode; icon?: ReactNode }) {

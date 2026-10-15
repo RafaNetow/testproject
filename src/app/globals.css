@@ -130,7 +130,7 @@
     --shadow-card: 0 0 2px 0 rgb(0 0 0 / 0.2), 0 12px 24px -4px rgb(0 0 0 / 0.12);
     --shadow-dropdown: 0 0 2px 0 rgb(0 0 0 / 0.24), -20px 20px 40px -4px rgb(0 0 0 / 0.24);
     --shadow-kanban: 0 1px 2px 0 rgb(0 0 0 / 0.24);
-    --color-success-foreground: #0b2a09;
+    --color-success-foreground: #1c252e;
     --inverse-surface: #f4f6f8;
     --inverse-foreground: #1c252e;
   }

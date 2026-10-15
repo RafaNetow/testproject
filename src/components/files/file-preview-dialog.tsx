@@ -6,8 +6,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
-import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
-import Close from "@mui/icons-material/Close";
+import { VisibilityOutlined, Close } from "@/components/icons";
 
 export function FilePreviewDialog({
   filename,

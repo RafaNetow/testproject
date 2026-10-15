@@ -4,15 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
-import ViewKanbanOutlined from "@mui/icons-material/ViewKanbanOutlined";
-import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
-import ForumOutlined from "@mui/icons-material/ForumOutlined";
-import FolderOpenOutlined from "@mui/icons-material/FolderOpenOutlined";
-import VideocamOutlined from "@mui/icons-material/VideocamOutlined";
-import EditNoteOutlined from "@mui/icons-material/EditNoteOutlined";
-import AccessTimeOutlined from "@mui/icons-material/AccessTimeOutlined";
-import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
-import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
+import { ViewKanbanOutlined, Inventory2Outlined, ForumOutlined, FolderOpenOutlined, VideocamOutlined, EditNoteOutlined, AccessTimeOutlined, ReceiptLongOutlined, DescriptionOutlined } from "@/components/icons";
 
 const SECTIONS = [
   { href: "board", label: "Board", icon: ViewKanbanOutlined },

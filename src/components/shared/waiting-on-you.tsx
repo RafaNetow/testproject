@@ -2,16 +2,11 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import CloudUploadOutlined from "@mui/icons-material/CloudUploadOutlined";
-import DrawOutlined from "@mui/icons-material/DrawOutlined";
-import HelpOutlineOutlined from "@mui/icons-material/HelpOutlineOutlined";
-import SummarizeOutlined from "@mui/icons-material/SummarizeOutlined";
-import TaskAltOutlined from "@mui/icons-material/TaskAltOutlined";
-import type { SvgIconComponent } from "@mui/icons-material";
 import { STATUS_TONE, figureSx, type Tone } from "@/lib/palette";
 import type { WaitingItem, WaitingKind } from "@/lib/waiting";
+import { CloudUploadOutlined, DrawOutlined, HelpOutlineOutlined, SummarizeOutlined, TaskAltOutlined, type IconComponent } from "@/components/icons";
 
-const KIND: Record<WaitingKind, { icon: SvgIconComponent; tone: Tone; verb: string; action: string }> = {
+const KIND: Record<WaitingKind, { icon: IconComponent; tone: Tone; verb: string; action: string }> = {
   review: { icon: SummarizeOutlined, tone: STATUS_TONE.warning, verb: "Review the deliverable", action: "Review" },
   sign: { icon: DrawOutlined, tone: STATUS_TONE.warning, verb: "Sign", action: "Sign" },
   upload: { icon: CloudUploadOutlined, tone: STATUS_TONE.primary, verb: "Send us", action: "Upload" },

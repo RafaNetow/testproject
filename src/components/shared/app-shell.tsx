@@ -16,13 +16,11 @@ import ListSubheader from "@mui/material/ListSubheader";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
-import MenuIcon from "@mui/icons-material/Menu";
-import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
-import HomeOutlined from "@mui/icons-material/HomeOutlined";
 import { useSignOut } from "@/components/sign-out-button";
 import { AdminSearch } from "@/components/shared/admin-search";
 import { NotificationBell, type NotificationItem } from "@/components/shared/notification-bell";
 import { PORTAL_NAV, ADMIN_NAV } from "@/lib/nav-items";
+import { Menu as MenuIcon, LogoutOutlined, HomeOutlined } from "@/components/icons";
 
 const SIDEBAR_WIDTH = 280;
 const HEADER_HEIGHT = { xs: 64, lg: 72 };

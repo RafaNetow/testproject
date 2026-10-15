@@ -1,12 +1,15 @@
 /**
  * The portal's colour standard, in one place.
  *
- * - Brand: a single primary (`--color-accent`, petrol blue) for actions,
- *   navigation and progress.
- * - Status: success / warning / error / info, for state only — never as
- *   decoration (in a chemistry context red reads as hazard).
- * - Categories: the Okabe–Ito palette (`--cat-1`…`--cat-8`), colour-blind safe
- *   and familiar from scientific figures, for tags, avatars, file types.
+ * Minimal: one accent and greys. Colour only appears when it means something.
+ *
+ * - Brand: a single accent (`--color-accent`, verdigris) for actions,
+ *   navigation and the current stage.
+ * - Attention: warning (amber) and error (vermillion) — the only status hues,
+ *   so anything coloured is something that needs a person.
+ * - Everything else — done, sent, in progress, upcoming, tags, techniques,
+ *   avatars — is neutral grey. Status labels keep their icon, so state never
+ *   rests on colour alone.
  *
  * Colours are CSS variables (globals.css), so light and dark mode come free.
  */
@@ -35,33 +38,34 @@ const NEUTRAL: Tone = {
   solid: "var(--color-muted-foreground)",
 };
 
+/** Finished work: quiet, but solid enough to read as "done" on bars and step markers. */
+const DONE: Tone = {
+  bg: NEUTRAL.bg,
+  text: "var(--color-secondary)",
+  solid: "var(--color-secondary)",
+};
+
 export const STATUS_TONE = {
-  success: tone("--color-success"),
+  success: DONE,
   warning: tone("--color-warning"),
   error: tone("--color-error"),
-  info: tone("--color-info"),
+  info: NEUTRAL,
   primary: tone("--color-accent"),
   neutral: NEUTRAL,
 } as const;
 
 export type StatusToneName = keyof typeof STATUS_TONE;
 
-const CATEGORIES = Array.from({ length: 8 }, (_, i) => tone(`--cat-${i + 1}`));
-
-/** The i-th category colour, wrapping around. */
+/** Categories (tags, techniques, avatars) are told apart by their text, not by hue. */
 export function category(index: number): Tone {
-  return CATEGORIES[((index % CATEGORIES.length) + CATEGORIES.length) % CATEGORIES.length];
+  void index;
+  return NEUTRAL;
 }
 
-function hash(text: string) {
-  let h = 0;
-  for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) >>> 0;
-  return h;
-}
-
-/** A stable category colour per key — the same tag or person always gets the same hue. */
+/** Kept as the single entry point, so categories could get hues back in one place. */
 export function categorical(key: string): Tone {
-  return category(hash(key));
+  void key;
+  return NEUTRAL;
 }
 
 /** Lab-notebook figures: monospaced, tabular digits, so numbers line up and read as measurements. */

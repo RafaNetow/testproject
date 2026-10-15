@@ -3,8 +3,8 @@
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import Add from "@mui/icons-material/Add";
 import { Popover } from "@/components/shared/popover";
+import { Add } from "@/components/icons";
 
 export function NewProjectPopover({
   createAction,

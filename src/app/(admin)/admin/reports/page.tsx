@@ -1,6 +1,5 @@
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import FileDownloadOutlined from "@mui/icons-material/FileDownloadOutlined";
 import { createClient } from "@/lib/supabase/server";
 import { deriveInvoiceStatus } from "@/lib/invoice-status";
 import { SectionHeader } from "@/components/shared/section-header";
@@ -119,10 +118,10 @@ export default async function AdminReportsPage() {
         subtitle="Revenue, outstanding invoices, and billable hours across every client."
         actions={
           <>
-            <Button href="/api/export/invoices" variant="outlined" startIcon={<FileDownloadOutlined />} color="secondary">
+            <Button href="/api/export/invoices" variant="outlined" color="secondary">
               Export invoices
             </Button>
-            <Button href="/api/export/hours" variant="outlined" startIcon={<FileDownloadOutlined />} color="secondary">
+            <Button href="/api/export/hours" variant="outlined" color="secondary">
               Export hours
             </Button>
           </>

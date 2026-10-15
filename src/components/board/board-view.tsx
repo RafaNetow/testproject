@@ -34,16 +34,12 @@ import InputBase from "@mui/material/InputBase";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import Add from "@mui/icons-material/Add";
-import AttachFile from "@mui/icons-material/AttachFile";
-import CalendarMonthOutlined from "@mui/icons-material/CalendarMonthOutlined";
-import Close from "@mui/icons-material/Close";
-import ChatBubbleOutlined from "@mui/icons-material/ChatBubbleOutlined";
 import { createCard, reorderCards } from "@/lib/actions/board";
 import { CardDetailModal, type ModalCard } from "./card-detail-modal";
 import { colorFor, initials } from "./board-colors";
 import { STATUS_TONE, type Tone } from "@/lib/palette";
 import { EmptyState } from "@/components/shared/empty-state";
+import { Add, AttachFile, CalendarMonthOutlined, Close, ChatBubbleOutlined } from "@/components/icons";
 
 type Column = { id: string; name: string; position: number };
 type Card = {

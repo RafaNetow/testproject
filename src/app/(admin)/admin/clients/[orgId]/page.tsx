@@ -9,9 +9,6 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import Close from "@mui/icons-material/Close";
-import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
-import ExpandMore from "@mui/icons-material/ExpandMore";
 import { createClient } from "@/lib/supabase/server";
 import { ConfirmButton } from "@/components/confirm-button";
 import { SectionHeader } from "@/components/shared/section-header";
@@ -34,6 +31,7 @@ import {
   updateProject,
   deleteProject,
 } from "./actions";
+import { Close, DeleteOutlined, ExpandMore } from "@/components/icons";
 
 const STATUS_OPTIONS = ["onboarding", "active", "at_risk", "offboarded"] as const;
 const PROJECT_STATUS_OPTIONS = ["active", "paused", "completed"] as const;

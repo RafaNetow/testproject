@@ -5,8 +5,8 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import SendOutlined from "@mui/icons-material/SendOutlined";
 import { resendInvite } from "./actions";
+import { SendOutlined } from "@/components/icons";
 
 export function ResendInviteButton({ orgId, email }: { orgId: string; email: string }) {
   const [isPending, startTransition] = useTransition();

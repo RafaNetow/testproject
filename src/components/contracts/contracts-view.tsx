@@ -9,10 +9,6 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import Add from "@mui/icons-material/Add";
-import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
-import Download from "@mui/icons-material/Download";
-import Draw from "@mui/icons-material/Draw";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { FileInput } from "@/components/shared/file-input";
@@ -20,6 +16,7 @@ import { SelectField } from "@/components/shared/select-field";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { createContract, updateContractStatus, deleteContract } from "@/lib/actions/contracts";
 import { SendForSignatureForm } from "./send-for-signature-form";
+import { Add, DeleteOutlined, Download } from "@/components/icons";
 
 type Contract = {
   id: string;
@@ -157,7 +154,6 @@ export function ContractsView({
                             rel="noreferrer"
                             variant="contained"
                             size="small"
-                            startIcon={<Draw />}
                           >
                             Sign now
                           </Button>

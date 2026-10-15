@@ -5,14 +5,8 @@ import { useRouter } from "next/navigation";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import InputBase from "@mui/material/InputBase";
-import SearchIcon from "@mui/icons-material/Search";
-import BusinessOutlined from "@mui/icons-material/BusinessOutlined";
-import ViewKanbanOutlined from "@mui/icons-material/ViewKanbanOutlined";
-import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
-import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
-import FolderOpenOutlined from "@mui/icons-material/FolderOpenOutlined";
-import ForumOutlined from "@mui/icons-material/ForumOutlined";
 import { searchAdmin, type SearchResult } from "@/lib/actions/search";
+import { Search as SearchIcon, BusinessOutlined, ViewKanbanOutlined, ReceiptLongOutlined, DescriptionOutlined, FolderOpenOutlined, ForumOutlined } from "@/components/icons";
 
 const ICONS = {
   client: BusinessOutlined,

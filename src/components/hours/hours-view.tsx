@@ -6,11 +6,11 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import Add from "@mui/icons-material/Add";
 import { SelectField } from "@/components/shared/select-field";
 import { StatTiles } from "@/components/shared/stat-tiles";
 import { logHours, updateHoursEntry, deleteHoursEntry } from "@/lib/actions/hours";
 import { EditableHoursRow, HOUR_CATEGORIES } from "./editable-hours-row";
+import { Add } from "@/components/icons";
 
 type HoursEntry = {
   id: string;

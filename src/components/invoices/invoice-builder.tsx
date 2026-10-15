@@ -11,9 +11,6 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import AccessTimeOutlined from "@mui/icons-material/AccessTimeOutlined";
-import Add from "@mui/icons-material/Add";
-import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import { SelectField } from "@/components/shared/select-field";
 import {
   createInvoiceWithLineItems,
@@ -21,6 +18,7 @@ import {
   type VatTreatment,
 } from "@/lib/actions/invoices";
 import { InvoicePreview } from "./invoice-preview";
+import { AccessTimeOutlined, Add, DeleteOutlined } from "@/components/icons";
 
 const VAT_OPTIONS: { value: VatTreatment; label: string }[] = [
   { value: "domestic", label: "Danish domestic (25% moms)" },

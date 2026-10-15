@@ -9,11 +9,6 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import AttachFile from "@mui/icons-material/AttachFile";
-import Close from "@mui/icons-material/Close";
-import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
-import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
-import ExpandMore from "@mui/icons-material/ExpandMore";
 import { ConfirmButton } from "@/components/confirm-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { SelectField } from "@/components/shared/select-field";
@@ -35,6 +30,7 @@ import {
   detachDeliverableFile,
   updateDeliverable,
 } from "@/lib/actions/deliverables";
+import { AttachFile, Close, DeleteOutlined, DescriptionOutlined, ExpandMore } from "@/components/icons";
 
 export type DeliverableFile = {
   id: string;

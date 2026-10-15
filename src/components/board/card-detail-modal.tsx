@@ -18,15 +18,6 @@ import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import Add from "@mui/icons-material/Add";
-import Check from "@mui/icons-material/Check";
-import Close from "@mui/icons-material/Close";
-import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
-import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
-import Download from "@mui/icons-material/Download";
-import FolderOpenOutlined from "@mui/icons-material/FolderOpenOutlined";
-import LinkIcon from "@mui/icons-material/Link";
-import UploadFileOutlined from "@mui/icons-material/UploadFileOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
 import { FileInput } from "@/components/shared/file-input";
 import { Popover } from "@/components/shared/popover";
@@ -49,6 +40,7 @@ import {
   uploadAndAttachCardFile,
   deleteCard,
 } from "@/lib/actions/board";
+import { Add, Check, Close, DeleteOutlined, DescriptionOutlined, Download, FolderOpenOutlined, Link as LinkIcon, UploadFileOutlined } from "@/components/icons";
 
 type Member = { id: string; full_name: string | null };
 type Folder = { id: string; name: string };

@@ -9,13 +9,11 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import Close from "@mui/icons-material/Close";
-import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
-import EditOutlined from "@mui/icons-material/EditOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
 import { figureSx } from "@/lib/palette";
 import { SelectField } from "@/components/shared/select-field";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { Close, DeleteOutlined, EditOutlined } from "@/components/icons";
 
 export const HOUR_CATEGORIES = ["Analysis", "Formulation work", "Meeting", "Report writing", "Other"];
 

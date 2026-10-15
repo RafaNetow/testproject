@@ -7,16 +7,7 @@ import Chip from "@mui/material/Chip";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import AccessTimeOutlined from "@mui/icons-material/AccessTimeOutlined";
-import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
-import EditNoteOutlined from "@mui/icons-material/EditNoteOutlined";
-import FolderOpenOutlined from "@mui/icons-material/FolderOpenOutlined";
-import ForumOutlined from "@mui/icons-material/ForumOutlined";
-import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
-import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
-import VideocamOutlined from "@mui/icons-material/VideocamOutlined";
-import ViewKanbanOutlined from "@mui/icons-material/ViewKanbanOutlined";
+import { ExpandMore, AccessTimeOutlined, DescriptionOutlined, EditNoteOutlined, FolderOpenOutlined, ForumOutlined, Inventory2Outlined, ReceiptLongOutlined, VideocamOutlined, ViewKanbanOutlined } from "@/components/icons";
 
 /** The day-to-day sections stay visible; the rest sit under "More". */
 const PRIMARY_SECTIONS = [

@@ -1,16 +1,12 @@
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import BusinessOutlined from "@mui/icons-material/BusinessOutlined";
-import CalendarMonthOutlined from "@mui/icons-material/CalendarMonthOutlined";
-import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
-import TrackChangesOutlined from "@mui/icons-material/TrackChangesOutlined";
-import WorkOutlineOutlined from "@mui/icons-material/WorkOutlineOutlined";
 import { LinkBox } from "@/components/shared/link-box";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardHero } from "@/components/shared/dashboard-hero";
 import { StatTiles } from "@/components/shared/stat-tiles";
 import { ActivityFeed, type ActivityItem } from "@/components/shared/activity-feed";
+import { BusinessOutlined, CalendarMonthOutlined, ReceiptLongOutlined, TrackChangesOutlined, WorkOutlineOutlined } from "@/components/icons";
 
 const QUICK_LINKS = [
   { label: "Clients", href: "/admin/clients", icon: BusinessOutlined },

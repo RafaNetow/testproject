@@ -2,13 +2,13 @@ import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import Add from "@mui/icons-material/Add";
 import { createClient } from "@/lib/supabase/server";
 import { SectionHeader } from "@/components/shared/section-header";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LinkTable } from "@/components/shared/link-table";
 import { createOrganization } from "./actions";
+import { Add } from "@/components/icons";
 
 export default async function ClientsPage() {
   const supabase = await createClient();

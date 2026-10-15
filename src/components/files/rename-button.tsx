@@ -8,7 +8,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
-import EditOutlined from "@mui/icons-material/EditOutlined";
+import { EditOutlined } from "@/components/icons";
 
 /**
  * Opens a small dialog to rename something, then submits the surrounding

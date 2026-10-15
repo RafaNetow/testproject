@@ -4,7 +4,7 @@ import { useState, type ChangeEvent } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import AttachFile from "@mui/icons-material/AttachFile";
+import { AttachFile } from "@/components/icons";
 
 /**
  * A file picker that looks like an MUI button but submits like a native

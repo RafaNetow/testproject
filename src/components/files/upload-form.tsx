@@ -6,8 +6,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import CloudUploadOutlined from "@mui/icons-material/CloudUploadOutlined";
 import { uploadFile, type UploadResult } from "@/lib/actions/files";
+import { CloudUploadOutlined } from "@/components/icons";
 
 export function UploadForm({
   projectId,

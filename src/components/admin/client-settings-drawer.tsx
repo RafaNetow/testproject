@@ -5,8 +5,7 @@ import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import SettingsOutlined from "@mui/icons-material/SettingsOutlined";
-import Close from "@mui/icons-material/Close";
+import { SettingsOutlined, Close } from "@/components/icons";
 
 /**
  * Slide-over panel for everything that isn't "look at the client's active

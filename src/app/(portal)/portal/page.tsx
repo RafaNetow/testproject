@@ -1,8 +1,4 @@
 import Stack from "@mui/material/Stack";
-import FolderOpenOutlined from "@mui/icons-material/FolderOpenOutlined";
-import ForumOutlined from "@mui/icons-material/ForumOutlined";
-import VideocamOutlined from "@mui/icons-material/VideocamOutlined";
-import ViewKanbanOutlined from "@mui/icons-material/ViewKanbanOutlined";
 import { createClient } from "@/lib/supabase/server";
 import { getPortalProjectContext } from "@/lib/portal-context";
 import { DashboardHero } from "@/components/shared/dashboard-hero";
@@ -14,6 +10,7 @@ import { ProjectProgress } from "@/components/shared/project-progress";
 import type { TimelineMarker } from "@/components/shared/project-timeline";
 import { WaitingOnYou } from "@/components/shared/waiting-on-you";
 import { loadWaiting } from "@/lib/waiting";
+import { FolderOpenOutlined, ForumOutlined, VideocamOutlined, ViewKanbanOutlined } from "@/components/icons";
 
 /** Request time; kept out of the component body so render stays pure. */
 function currentTime() {

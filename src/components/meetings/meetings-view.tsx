@@ -7,14 +7,11 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import Add from "@mui/icons-material/Add";
-import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import VideocamOutlined from "@mui/icons-material/VideocamOutlined";
 import { ConfirmButton } from "@/components/confirm-button";
 import { SelectField } from "@/components/shared/select-field";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { createMeeting, updateMeeting, deleteMeeting } from "@/lib/actions/meetings";
+import { Add, DeleteOutlined, ExpandMore } from "@/components/icons";
 
 type Meeting = {
   id: string;
@@ -117,7 +114,6 @@ export function MeetingsView({
                       rel="noreferrer"
                       variant="outlined"
                       color="secondary"
-                      startIcon={<VideocamOutlined />}
                     >
                       Join
                     </Button>

@@ -7,8 +7,6 @@ import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import CheckCircleOutlined from "@mui/icons-material/CheckCircleOutlined";
-import EditNoteOutlined from "@mui/icons-material/EditNoteOutlined";
 import { reviewDeliverable, type ReviewState } from "@/lib/actions/deliverables";
 
 /**
@@ -54,7 +52,7 @@ export function ReviewControls({ deliverableId, title }: { deliverableId: string
           disabled={pending}
           aria-label={`Approve "${title}"`}
           variant="contained"
-          startIcon={pending ? <CircularProgress size={16} color="inherit" /> : <CheckCircleOutlined />}
+          startIcon={pending ? <CircularProgress size={16} color="inherit" /> : undefined}
         >
           Approve
         </Button>
@@ -66,7 +64,6 @@ export function ReviewControls({ deliverableId, title }: { deliverableId: string
           aria-label={`Request changes to "${title}"`}
           variant="outlined"
           color="secondary"
-          startIcon={<EditNoteOutlined />}
         >
           Request changes
         </Button>

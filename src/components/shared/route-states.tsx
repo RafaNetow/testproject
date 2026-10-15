@@ -6,7 +6,6 @@ import Button from "@mui/material/Button";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import Replay from "@mui/icons-material/Replay";
 
 /** Shared body for the portal's and admin's `error.tsx` boundaries. */
 export function RouteError({ error, retry }: { error: Error & { digest?: string }; retry: () => void }) {
@@ -25,7 +24,7 @@ export function RouteError({ error, retry }: { error: Error & { digest?: string 
       <Typography sx={{ maxWidth: 380, fontSize: 15, lineHeight: 1.6, color: "text.muted" }}>
         {error.message || "The action couldn't be completed. Try again."}
       </Typography>
-      <Button variant="contained" startIcon={<Replay />} onClick={retry} sx={{ mt: 1 }}>
+      <Button variant="contained" onClick={retry} sx={{ mt: 1 }}>
         Try again
       </Button>
     </Stack>

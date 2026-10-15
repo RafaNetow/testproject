@@ -2,7 +2,6 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import VideocamOutlined from "@mui/icons-material/VideocamOutlined";
 import { createClient } from "@/lib/supabase/server";
 import { SectionHeader } from "@/components/shared/section-header";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -81,7 +80,6 @@ export default async function CalendarPage() {
               rel="noreferrer"
               variant="outlined"
               color="secondary"
-              startIcon={<VideocamOutlined />}
             >
               Join
             </Button>

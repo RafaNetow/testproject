@@ -6,7 +6,6 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
-import Send from "@mui/icons-material/Send";
 import { FileInput } from "@/components/shared/file-input";
 import { sendContractForSignature, type SendForSignatureResult } from "@/lib/actions/contracts";
 
@@ -37,7 +36,7 @@ export function SendForSignatureForm({
           sx={{ flex: 1, minWidth: 160 }}
         />
         <FileInput name="pdf" label="Unsigned PDF" accept="application/pdf" required size="small" />
-        <Button type="submit" variant="contained" size="small" startIcon={<Send />} disabled={isPending}>
+        <Button type="submit" variant="contained" size="small" disabled={isPending}>
           {isPending ? "Sending…" : "Send for e-signature"}
         </Button>
       </Box>
