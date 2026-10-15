@@ -138,6 +138,51 @@
   }
 }
 
+/*
+ * Accent comparison (admin colour switcher, src/components/shared/accent-switcher.tsx).
+ * Verdigris is the default and needs no attribute. Each alternative is a historic
+ * pigment; borders and fills take a matching low-chroma tint.
+ */
+:root[data-accent="prussian"] {
+  --color-accent: #1f4e79;
+  --color-accent-foreground: #ffffff;
+}
+:root[data-accent="prussian"]:has(.app-shell) {
+  --grey-channel: 134 149 166;
+}
+:root[data-accent="cobalt"] {
+  --color-accent: #6a4c93;
+  --color-accent-foreground: #ffffff;
+}
+:root[data-accent="cobalt"]:has(.app-shell) {
+  --grey-channel: 150 142 166;
+}
+:root[data-accent="graphite"] {
+  --color-accent: #2f3a38;
+  --color-accent-foreground: #ffffff;
+}
+:root[data-accent="graphite"]:has(.app-shell) {
+  --grey-channel: 145 150 149;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-accent="prussian"]:has(.app-shell) {
+    --color-accent: #7fb0de;
+    --color-accent-foreground: #0a1a2a;
+    --color-ring: #7fb0de;
+  }
+  :root[data-accent="cobalt"]:has(.app-shell) {
+    --color-accent: #b9a2dc;
+    --color-accent-foreground: #1d1230;
+    --color-ring: #b9a2dc;
+  }
+  :root[data-accent="graphite"]:has(.app-shell) {
+    --color-accent: #c9d2cf;
+    --color-accent-foreground: #141a19;
+    --color-ring: #c9d2cf;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

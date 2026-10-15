@@ -3,6 +3,7 @@ import { Fraunces, Inter, JetBrains_Mono, Public_Sans } from "next/font/google";
 import { CookieNotice } from "@/components/cookie-notice";
 import { DevEnvironmentBadge } from "@/components/dev-environment-badge";
 import { MuiProvider } from "@/components/providers/mui-provider";
+import { ACCENT_BOOT_SCRIPT } from "@/lib/accents";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -62,8 +63,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // The accent boot script may set data-accent before React hydrates.
+      suppressHydrationWarning
       className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} ${publicSans.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: ACCENT_BOOT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground font-body">
         <MuiProvider>
           {children}

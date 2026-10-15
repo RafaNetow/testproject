@@ -57,6 +57,7 @@ import {
   MagnifyingGlass,
   NotePencil,
   Package,
+  Palette as PhPalette,
   PaperPlaneRight,
   Paperclip,
   PencilSimple,
@@ -150,6 +151,7 @@ export const LogoutOutlined = icon(SignOut);
 export const SettingsOutlined = icon(GearSix);
 export const HomeOutlined = icon(House);
 export const NotificationsNoneOutlined = icon(Bell);
+export const Palette = icon(PhPalette);
 
 // Status
 export const CheckCircleOutlined = icon(CheckCircle);

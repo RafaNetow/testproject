@@ -19,6 +19,7 @@ import Typography from "@mui/material/Typography";
 import { useSignOut } from "@/components/sign-out-button";
 import { AdminSearch } from "@/components/shared/admin-search";
 import { NotificationBell, type NotificationItem } from "@/components/shared/notification-bell";
+import { AccentSwitcher } from "@/components/shared/accent-switcher";
 import { PORTAL_NAV, ADMIN_NAV } from "@/lib/nav-items";
 import { Menu as MenuIcon, LogoutOutlined, HomeOutlined } from "@/components/icons";
 
@@ -265,6 +266,7 @@ export function AppShell({
           )}
 
           <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 1 }}>
+            {variant === "admin" && <AccentSwitcher />}
             <NotificationBell notifications={notifications} surface={variant} userId={userId} />
             <AccountMenu email={userEmail} variant={variant} />
           </Box>
