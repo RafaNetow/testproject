@@ -1,7 +1,6 @@
 "use client";
 
 import { Fragment, useActionState, useEffect, useLayoutEffect, useRef, useState, useTransition, type ChangeEvent } from "react";
-import { useRouter } from "next/navigation";
 import Alert from "@mui/material/Alert";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
@@ -11,7 +10,6 @@ import Link from "@mui/material/Link";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
@@ -30,9 +28,9 @@ function timeLabel(iso: string) {
 }
 
 /**
- * A project's conversation between the client and Alchemica. New messages and
- * read markers arrive over Realtime and trigger a server refresh, so names,
- * attachments and links always come from the server.
+ * A project's conversation between the client and Alchemica, sized to fill
+ * the chat panel. New messages and read markers arrive over Realtime and ask
+ * the parent to refetch, so names, attachments and links come from the server.
  */
 export function MessageThread({
   projectId,
@@ -40,16 +38,20 @@ export function MessageThread({
   isAdmin,
   messages,
   reads,
-  paths,
+  onRefresh,
+  onRead,
 }: {
   projectId: string;
   viewerId: string;
   isAdmin: boolean;
   messages: ThreadMessage[];
   reads: ThreadRead[];
-  paths: string[];
+  /** Refetch the thread (after a send, an admin action or a realtime event). */
+  onRefresh: () => void;
+  /** Called after the thread is marked read, so unread badges can update. */
+  onRead?: () => void;
 }) {
-  const router = useRouter();
+  const paths: string[] = [];
   const scrollRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, pending] = useActionState<SendResult | null, FormData>(
@@ -66,8 +68,11 @@ export function MessageThread({
       setAttachment("");
     }
   }
+  useEffect(() => {
+    if (state?.ok) onRefresh();
+  }, [state, onRefresh]);
 
-  // Live updates: any new message or read marker in this thread refreshes the page data.
+  // Live updates: any new message or read marker in this thread refetches it.
   useEffect(() => {
     const supabase = createClient();
     let cancelled = false;
@@ -80,10 +85,10 @@ export function MessageThread({
       channel = supabase
         .channel(`messages:${projectId}`)
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `project_id=eq.${projectId}` }, () =>
-          router.refresh()
+          onRefresh()
         )
         .on("postgres_changes", { event: "*", schema: "public", table: "message_reads", filter: `project_id=eq.${projectId}` }, () =>
-          router.refresh()
+          onRefresh()
         )
         .subscribe();
     })();
@@ -91,16 +96,16 @@ export function MessageThread({
       cancelled = true;
       if (channel) void supabase.removeChannel(channel);
     };
-  }, [projectId, router]);
+  }, [projectId, onRefresh]);
 
   // Mark as read when someone else's message is newer than this viewer's last visit.
   const myRead = reads.find((r) => r.user_id === viewerId)?.last_read_at ?? "";
   const latestFromOthers = [...messages].reverse().find((m) => m.author_id !== viewerId)?.created_at ?? "";
   useEffect(() => {
     if (latestFromOthers && latestFromOthers > myRead && document.visibilityState === "visible") {
-      void markThreadRead(projectId);
+      void markThreadRead(projectId).then(() => onRead?.());
     }
-  }, [latestFromOthers, myRead, projectId]);
+  }, [latestFromOthers, myRead, projectId, onRead]);
 
   // Keep the newest message in view.
   useLayoutEffect(() => {
@@ -114,8 +119,8 @@ export function MessageThread({
     : [];
 
   return (
-    <Paper variant="outlined" sx={{ display: "flex", flexDirection: "column", height: { xs: "calc(100dvh - 220px)", md: "calc(100dvh - 260px)" }, minHeight: 420, overflow: "hidden" }}>
-      <Box ref={scrollRef} role="log" aria-live="polite" aria-label="Messages" sx={{ flex: 1, overflowY: "auto", px: { xs: 2, md: 3 }, py: 2.5 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+      <Box ref={scrollRef} role="log" aria-live="polite" aria-label="Messages" sx={{ flex: 1, overflowY: "auto", px: 2, py: 2.5 }}>
         {messages.length === 0 ? (
           <Box sx={{ height: "100%", display: "grid", placeItems: "center", textAlign: "center", color: "text.secondary" }}>
             <Box>
@@ -136,7 +141,7 @@ export function MessageThread({
                 {newDay && (
                   <Typography sx={{ my: 2, textAlign: "center", fontSize: 12, fontWeight: 600, color: "text.muted" }}>{dayLabel(m.created_at)}</Typography>
                 )}
-                <MessageRow message={m} mine={mine} grouped={grouped} isAdmin={isAdmin} paths={paths} />
+                <MessageRow message={m} mine={mine} grouped={grouped} isAdmin={isAdmin} paths={paths} onDone={onRefresh} />
               </Fragment>
             );
           })
@@ -146,7 +151,7 @@ export function MessageThread({
         )}
       </Box>
 
-      <Box sx={{ borderTop: 1, borderColor: "divider", px: { xs: 2, md: 3 }, pt: 1.5, pb: 2 }}>
+      <Box sx={{ borderTop: 1, borderColor: "divider", px: 2, pt: 1.5, pb: 2 }}>
         <Typography sx={{ mb: 1, fontSize: 12, color: "text.muted" }}>
           {isAdmin ? "Messages are visible to everyone on the client's team." : "Axel usually replies within one business day."}
         </Typography>
@@ -195,7 +200,7 @@ export function MessageThread({
           </Button>
         </Box>
       </Box>
-    </Paper>
+    </Box>
   );
 }
 
@@ -205,19 +210,24 @@ function MessageRow({
   grouped,
   isAdmin,
   paths,
+  onDone,
 }: {
   message: ThreadMessage;
   mine: boolean;
   grouped: boolean;
   isAdmin: boolean;
   paths: string[];
+  onDone: () => void;
 }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [busy, startTransition] = useTransition();
 
   function run(action: (id: string, p: string[]) => Promise<void>) {
     setAnchor(null);
-    startTransition(() => action(m.id, paths));
+    startTransition(async () => {
+      await action(m.id, paths);
+      onDone();
+    });
   }
 
   return (
@@ -236,7 +246,7 @@ function MessageRow({
       >
         {initials(m.author_name)}
       </Avatar>
-      <Box sx={{ maxWidth: { xs: "82%", md: "68%" }, display: "flex", flexDirection: "column", alignItems: mine ? "flex-end" : "flex-start" }}>
+      <Box sx={{ maxWidth: "80%", display: "flex", flexDirection: "column", alignItems: mine ? "flex-end" : "flex-start" }}>
         {!grouped && (
           <Typography sx={{ mb: 0.25, px: 0.5, fontSize: 12, color: "text.muted" }}>
             {mine ? "You" : m.author_name}

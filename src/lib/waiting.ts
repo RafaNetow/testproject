@@ -126,7 +126,7 @@ export async function loadWaiting(
       title: `${n} new ${n === 1 ? "message" : "messages"}`,
       projectId,
       projectName: nameOf.get(projectId) ?? null,
-      href: `/portal/messages?project=${projectId}`,
+      href: `/portal?chat=${projectId}`,
       due: null,
     })),
   ];

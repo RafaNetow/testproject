@@ -88,3 +88,44 @@ export async function loadUnread(supabase: SupabaseClient, userId: string, proje
   const [{ data: msgs }, { data: reads }] = await Promise.all([msgQuery, readQuery]);
   return countUnread(msgs ?? [], reads ?? [], userId);
 }
+
+export type ThreadSummary = {
+  projectId: string;
+  orgId: string;
+  project: string;
+  org: string;
+  body: string;
+  at: string;
+  fromMe: boolean;
+  unread: number;
+};
+
+/** Every thread the user can see, unread first, then newest — the admin's chat list. */
+export async function loadThreadList(supabase: SupabaseClient, userId: string): Promise<ThreadSummary[]> {
+  const [{ data: recent }, unread] = await Promise.all([
+    supabase
+      .from("messages")
+      .select("project_id, body, created_at, author_id, projects(name, org_id, organizations(name))")
+      .order("created_at", { ascending: false })
+      .limit(1000),
+    loadUnread(supabase, userId),
+  ]);
+
+  const threads = new Map<string, ThreadSummary>();
+  for (const m of recent ?? []) {
+    if (threads.has(m.project_id)) continue;
+    const p = m.projects as unknown as { name: string; org_id: string; organizations: { name: string } | null } | null;
+    if (!p) continue;
+    threads.set(m.project_id, {
+      projectId: m.project_id,
+      orgId: p.org_id,
+      project: p.name,
+      org: p.organizations?.name ?? "",
+      body: m.body,
+      at: m.created_at,
+      fromMe: m.author_id === userId,
+      unread: unread[m.project_id] ?? 0,
+    });
+  }
+  return [...threads.values()].sort((a, b) => b.unread - a.unread || b.at.localeCompare(a.at));
+}

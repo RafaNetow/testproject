@@ -35,13 +35,15 @@ const SECTION: Partial<Record<NotificationKind, string>> = {
   hours: "hours",
   invoice: "invoices",
   contract: "contracts",
-  message: "messages",
 };
 
 /** Where clicking a notification takes the reader, per surface. */
 export function notificationHref(n: Pick<NotificationRow, "kind" | "project_id" | "org_id">, surface: "portal" | "admin") {
   const kind = n.kind as NotificationKind;
   const section = SECTION[kind];
+
+  // Messages open the top-bar chat panel over the current page.
+  if (kind === "message" && n.project_id) return `?chat=${n.project_id}`;
 
   if (surface === "admin") {
     if (kind === "prospect") return "/admin/prospects";

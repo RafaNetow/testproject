@@ -38,7 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       userEmail={user?.email ?? ""}
       userId={user?.id ?? ""}
       notifications={notifications}
-      badges={{ "/admin/messages": unreadMessages }}
+      chat={{ unread: unreadMessages }}
     >
       {children}
     </AppShell>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { Suspense, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Avatar from "@mui/material/Avatar";
@@ -20,6 +20,7 @@ import { useSignOut } from "@/components/sign-out-button";
 import { AdminSearch } from "@/components/shared/admin-search";
 import { NotificationBell, type NotificationItem } from "@/components/shared/notification-bell";
 import { AccentSwitcher } from "@/components/shared/accent-switcher";
+import { ChatDrawer } from "@/components/messages/chat-drawer";
 import { PORTAL_NAV, ADMIN_NAV } from "@/lib/nav-items";
 import { Menu as MenuIcon, LogoutOutlined, HomeOutlined } from "@/components/icons";
 
@@ -35,6 +36,8 @@ type AppShellProps = {
   notifications: NotificationItem[];
   /** Counts shown beside a nav item, keyed by its href — e.g. what's waiting on the user. */
   badges?: Record<string, number>;
+  /** Top-bar chat: unread count, and the client's projects for the project picker. */
+  chat?: { unread: number; projects?: { id: string; name: string }[] };
   children: ReactNode;
 };
 
@@ -63,6 +66,7 @@ export function AppShell({
   userId,
   notifications,
   badges,
+  chat,
   children,
 }: AppShellProps) {
   const pathname = usePathname();
@@ -267,6 +271,12 @@ export function AppShell({
 
           <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 1 }}>
             {variant === "admin" && <AccentSwitcher />}
+            {chat && (
+              // useSearchParams (for ?chat= links) needs a Suspense boundary.
+              <Suspense fallback={null}>
+                <ChatDrawer surface={variant} viewerId={userId} projects={chat.projects} unread={chat.unread} />
+              </Suspense>
+            )}
             <NotificationBell notifications={notifications} surface={variant} userId={userId} />
             <AccountMenu email={userEmail} variant={variant} />
           </Box>

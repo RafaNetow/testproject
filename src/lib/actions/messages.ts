@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAxelAdmin, requireSessionUser } from "@/lib/dal";
+import { isAxelAdmin, requireAxelAdmin, requireSessionUser } from "@/lib/dal";
+import { loadThread, loadThreadList, type ThreadMessage, type ThreadRead, type ThreadSummary } from "@/lib/messages";
 import { createClient } from "@/lib/supabase/server";
 import { recordActivity, quoted } from "@/lib/activity";
 import { detectTechnique } from "@/lib/techniques";
@@ -14,9 +15,8 @@ export type SendResult = { ok: boolean; message?: string };
 
 function revalidateAll(paths: string[]) {
   for (const p of paths) revalidatePath(p);
-  // The client's summary shows "Axel sent you a message" under Waiting on you.
+  // The client's summary lists unread messages under "Waiting on you".
   revalidatePath("/portal");
-  revalidatePath("/admin/messages");
 }
 
 /** A short single-line excerpt for notifications, titles and previews. */
@@ -98,7 +98,6 @@ export async function markThreadRead(projectId: string) {
   const supabase = await createClient();
   await supabase.from("message_reads").upsert({ project_id: projectId, user_id: user.id, last_read_at: new Date().toISOString() });
   revalidatePath("/portal");
-  revalidatePath("/admin/messages");
 }
 
 async function getMessage(messageId: string) {
@@ -154,4 +153,19 @@ export async function messageToCard(messageId: string, paths: string[]) {
   await recordActivity({ kind: "card", projectId: message.project_id, message: `added ${quoted(title)} to ${column.name} from the chat` });
   await postNote(message.project_id, `Added to the board: ${quoted(title)}`);
   revalidateAll(paths);
+}
+
+/** The chat panel's data for one project; RLS limits it to people in the engagement. */
+export async function getThread(projectId: string): Promise<{ messages: ThreadMessage[]; reads: ThreadRead[] }> {
+  await requireSessionUser();
+  const supabase = await createClient();
+  return loadThread(supabase, projectId);
+}
+
+/** Admin: every client conversation, unread first. */
+export async function listThreads(): Promise<ThreadSummary[]> {
+  const user = await requireSessionUser();
+  if (!(await isAxelAdmin())) return [];
+  const supabase = await createClient();
+  return loadThreadList(supabase, user.id);
 }

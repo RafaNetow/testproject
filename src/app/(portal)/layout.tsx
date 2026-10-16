@@ -17,7 +17,7 @@ export default async function PortalLayout({ children }: { children: React.React
       .limit(30),
     supabase
       .from("org_memberships")
-      .select("role")
+      .select("role, org_id")
       .eq("user_id", user.id)
       .not("accepted_at", "is", null)
       .limit(1)
@@ -36,7 +36,12 @@ export default async function PortalLayout({ children }: { children: React.React
       : { count: 0 };
 
   // Unread messages across the client's projects (RLS limits this to their org).
-  const unread = await loadUnread(supabase, user.id);
+  const [unread, { data: projects }] = await Promise.all([
+    loadUnread(supabase, user.id),
+    membership
+      ? supabase.from("projects").select("id, name").eq("org_id", membership.org_id).order("created_at", { ascending: false })
+      : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+  ]);
   const unreadMessages = Object.values(unread).reduce((a, b) => a + b, 0);
 
   const notifications = (rows ?? []).map((n) => ({
@@ -56,7 +61,8 @@ export default async function PortalLayout({ children }: { children: React.React
       userEmail={user.email ?? ""}
       userId={user.id}
       notifications={notifications}
-      badges={{ "/portal/deliverables": awaitingReview ?? 0, "/portal/messages": unreadMessages }}
+      badges={{ "/portal/deliverables": awaitingReview ?? 0 }}
+      chat={{ unread: unreadMessages, projects: projects ?? [] }}
     >
       {children}
     </AppShell>

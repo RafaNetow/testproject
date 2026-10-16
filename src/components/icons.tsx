@@ -16,6 +16,7 @@ import type { IconProps as PhosphorProps, IconWeight } from "@phosphor-icons/rea
 import {
   ArrowCounterClockwise,
   ArrowDown,
+  ArrowLeft,
   ArrowRight,
   ArrowUp,
   BookOpen,
@@ -31,7 +32,6 @@ import {
   ChartScatter,
   ChatCircle,
   ChatCircleText,
-  Tray,
   ChatsCircle,
   Check as PhCheck,
   CheckCircle,
@@ -185,8 +185,7 @@ export const WorkOutlineOutlined = icon(Briefcase);
 // Sidebar sections: outlined at rest, filled for the current page.
 export const ChatOutlined = icon(ChatCircleText);
 export const Chat = icon(ChatCircleText, "fill");
-export const InboxOutlined = icon(Tray);
-export const Inbox = icon(Tray, "fill");
+export const ArrowBackIcon = icon(ArrowLeft);
 export const BusinessOutlined = icon(Buildings);
 export const Business = icon(Buildings, "fill");
 export const CalendarMonthOutlined = icon(CalendarBlank);

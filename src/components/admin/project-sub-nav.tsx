@@ -4,11 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
-import { ViewKanbanOutlined, Inventory2Outlined, ForumOutlined, FolderOpenOutlined, VideocamOutlined, EditNoteOutlined, AccessTimeOutlined, ReceiptLongOutlined, DescriptionOutlined, ChatOutlined } from "@/components/icons";
+import { ViewKanbanOutlined, Inventory2Outlined, ForumOutlined, FolderOpenOutlined, VideocamOutlined, EditNoteOutlined, AccessTimeOutlined, ReceiptLongOutlined, DescriptionOutlined } from "@/components/icons";
 
 const SECTIONS = [
   { href: "board", label: "Board", icon: ViewKanbanOutlined },
-  { href: "messages", label: "Messages", icon: ChatOutlined },
   { href: "deliverables", label: "Deliverables", icon: Inventory2Outlined },
   { href: "decisions", label: "Decisions", icon: ForumOutlined },
   { href: "files", label: "Files", icon: FolderOpenOutlined },
