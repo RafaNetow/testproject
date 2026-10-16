@@ -57,14 +57,21 @@ export function ChatDrawer({
   const [thread, setThread] = useState<{ messages: ThreadMessage[]; reads: ThreadRead[] } | null>(null);
   const [threads, setThreads] = useState<ThreadSummary[] | null>(null);
 
-  // A ?chat= link opens the panel on that conversation.
-  const [handledLink, setHandledLink] = useState<string | null>(null);
-  if (linked && linked !== handledLink) {
-    setHandledLink(linked);
-    setOpen(true);
-    setProjectId(linked);
-    setThread(null);
-  }
+  // A ?chat= link opens the panel on that conversation. Done after mount (not
+  // during render) so a fresh page load can't lose it to hydration.
+  useEffect(() => {
+    if (!linked) return;
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      setOpen(true);
+      setProjectId(linked);
+      setThread(null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [linked]);
 
   function defaultProject() {
     if (isAdmin) return null;
@@ -142,6 +149,30 @@ export function ChatDrawer({
       if (channel) void supabase.removeChannel(channel);
     };
   }, [open, isAdmin, projectId, refreshList]);
+
+  // Keep the top-bar badge live: a message from someone else re-runs the layout's
+  // unread count (RLS limits the feed to threads this user belongs to).
+  useEffect(() => {
+    const supabase = createClient();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let cancelled = false;
+    void (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (cancelled) return;
+      if (data.session) await supabase.realtime.setAuth(data.session.access_token);
+      if (cancelled) return;
+      channel = supabase
+        .channel(`messages:badge:${viewerId}`)
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
+          if ((payload.new as { author_id?: string }).author_id !== viewerId) router.refresh();
+        })
+        .subscribe();
+    })();
+    return () => {
+      cancelled = true;
+      if (channel) void supabase.removeChannel(channel);
+    };
+  }, [viewerId, router]);
 
   // Reading a thread changes the unread badge, which the layout computes.
   const onRead = useCallback(() => router.refresh(), [router]);

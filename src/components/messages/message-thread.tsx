@@ -113,10 +113,12 @@ export function MessageThread({
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages.length]);
 
-  const lastMine = [...messages].reverse().find((m) => m.author_id === viewerId);
-  const seenBy = lastMine
-    ? reads.filter((r) => r.user_id !== viewerId && r.last_read_at >= lastMine.created_at).map((r) => r.name)
-    : [];
+  // "Seen by" only makes sense under your own latest message, when it's the last one in the thread.
+  const last = messages[messages.length - 1];
+  const seenBy =
+    last && last.author_id === viewerId
+      ? reads.filter((r) => r.user_id !== viewerId && r.last_read_at >= last.created_at).map((r) => r.name)
+      : [];
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
