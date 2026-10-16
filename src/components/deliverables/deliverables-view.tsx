@@ -2,7 +2,6 @@ import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import MuiLink from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
@@ -31,6 +30,7 @@ import {
   updateDeliverable,
 } from "@/lib/actions/deliverables";
 import { AttachFile, Close, DeleteOutlined, DescriptionOutlined, ExpandMore } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 export type DeliverableFile = {
   id: string;
@@ -297,9 +297,9 @@ function AdminDeliverables({
             and notifies their team.
           </Typography>
           <Box>
-            <Button type="submit" variant="contained">
+            <SubmitButton variant="contained">
               Add deliverable
-            </Button>
+            </SubmitButton>
           </Box>
         </Stack>
       </Paper>
@@ -360,9 +360,9 @@ function AdminDeliverables({
                           </SelectField>
                         </Box>
                         <Box>
-                          <Button type="submit" variant="contained">
+                          <SubmitButton variant="contained">
                             Save changes
-                          </Button>
+                          </SubmitButton>
                         </Box>
                       </Stack>
 
@@ -381,9 +381,9 @@ function AdminDeliverables({
                             </option>
                           ))}
                         </SelectField>
-                        <Button type="submit" variant="outlined" color="secondary" startIcon={<AttachFile />} disabled={!attachable.length}>
+                        <SubmitButton variant="outlined" color="secondary" startIcon={<AttachFile />} disabled={!attachable.length}>
                           Attach
-                        </Button>
+                        </SubmitButton>
                       </Box>
 
                       <form action={remove}>

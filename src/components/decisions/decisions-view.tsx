@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
@@ -8,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import { ConfirmButton } from "@/components/confirm-button";
 import { logDecision, deleteDecision } from "@/lib/actions/decisions";
 import { DeleteOutlined } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 type Decision = {
   id: string;
@@ -62,9 +62,9 @@ export function DecisionsView({
               />
             </Box>
             <Box>
-              <Button type="submit" variant="contained">
+              <SubmitButton variant="contained">
                 Log decision
-              </Button>
+              </SubmitButton>
             </Box>
           </Stack>
         </Paper>

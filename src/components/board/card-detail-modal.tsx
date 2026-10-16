@@ -41,6 +41,7 @@ import {
   deleteCard,
 } from "@/lib/actions/board";
 import { Add, Check, Close, DeleteOutlined, DescriptionOutlined, Download, FolderOpenOutlined, Link as LinkIcon, UploadFileOutlined } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 type Member = { id: string; full_name: string | null };
 type Folder = { id: string; name: string };
@@ -462,9 +463,9 @@ function CardDetailBody({
                   {(close) => (
                     <Box component="form" action={addThisTag} onSubmit={close} sx={{ display: "flex", width: 220, gap: 0.75, p: 1 }}>
                       <TextField name="tag" required placeholder="e.g. urgent" slotProps={{ htmlInput: { "aria-label": "Label" } }} />
-                      <Button type="submit" variant="contained" size="small">
+                      <SubmitButton variant="contained" size="small">
                         Add
-                      </Button>
+                      </SubmitButton>
                     </Box>
                   )}
                 </Popover>
@@ -496,9 +497,9 @@ function CardDetailBody({
                   slotProps={{ htmlInput: { "aria-label": "Description" } }}
                 />
                 <Box>
-                  <Button type="submit" variant="outlined" color="secondary" size="small">
+                  <SubmitButton variant="outlined" color="secondary" size="small">
                     Save
-                  </Button>
+                  </SubmitButton>
                 </Box>
               </Stack>
             </DetailRow>
@@ -598,9 +599,9 @@ function CardDetailBody({
                       <Stack component="form" action={addThisLink} onSubmit={close} spacing={1.25} sx={{ width: 256, p: 1.5 }}>
                         <TextField name="url" label="URL" required placeholder="https://…" />
                         <TextField name="label" label="Label (optional)" />
-                        <Button type="submit" variant="contained" size="small">
+                        <SubmitButton variant="contained" size="small">
                           Attach
-                        </Button>
+                        </SubmitButton>
                       </Stack>
                     )}
                   </Popover>
@@ -634,9 +635,9 @@ function CardDetailBody({
                       >
                         <TextField name="body" required autoFocus multiline minRows={2} placeholder="Write a reply…" slotProps={{ htmlInput: { "aria-label": "Reply" } }} />
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          <Button type="submit" variant="contained" size="small">
+                          <SubmitButton variant="contained" size="small">
                             Reply
-                          </Button>
+                          </SubmitButton>
                           <Button size="small" color="secondary" onClick={() => setReplyingTo(null)}>
                             Cancel
                           </Button>
@@ -676,9 +677,9 @@ function CardDetailBody({
             placeholder="Type a message…"
             slotProps={{ htmlInput: { "aria-label": "Comment" } }}
           />
-          <Button type="submit" variant="contained" sx={{ flexShrink: 0 }}>
+          <SubmitButton variant="contained" sx={{ flexShrink: 0 }}>
             Send
-          </Button>
+          </SubmitButton>
         </Box>
       )}
     </Box>

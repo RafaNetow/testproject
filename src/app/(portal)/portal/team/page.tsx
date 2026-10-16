@@ -1,6 +1,5 @@
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
@@ -16,6 +15,7 @@ import { SectionHeader } from "@/components/shared/section-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DigestToggle } from "@/components/shared/digest-toggle";
 import { GroupsOutlined } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 export default async function TeamPage() {
   const { org, role } = await getPortalProjectContext();
@@ -81,9 +81,9 @@ export default async function TeamPage() {
               placeholder="Street, postal code, city"
               sx={{ flex: 1, minWidth: 220 }}
             />
-            <Button type="submit" variant="outlined" color="navy" sx={{ height: 40 }}>
+            <SubmitButton variant="outlined" color="navy" sx={{ height: 40 }}>
               Save
-            </Button>
+            </SubmitButton>
           </Box>
         ) : (
           <Box sx={{ mt: 2.5, display: "flex", flexWrap: "wrap", gap: 4 }}>

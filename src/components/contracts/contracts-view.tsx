@@ -18,6 +18,7 @@ import { createContract, updateContractStatus, deleteContract } from "@/lib/acti
 import { SendForSignatureForm } from "./send-for-signature-form";
 import { SignContractDialog } from "./sign-contract-dialog";
 import { Add, DeleteOutlined, Download } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 type Contract = {
   id: string;
@@ -97,9 +98,9 @@ export function ContractsView({
             <option value="sow">SOW</option>
           </SelectField>
           <FileInput name="pdf" label="Signed PDF (optional)" accept="application/pdf" />
-          <Button type="submit" variant="contained" startIcon={<Add />}>
+          <SubmitButton variant="contained" startIcon={<Add />}>
             Create
-          </Button>
+          </SubmitButton>
         </Paper>
       )}
 

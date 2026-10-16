@@ -1,6 +1,5 @@
 import Box from "@mui/material/Box";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
-import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -30,6 +29,7 @@ import { TechniqueLabel } from "@/components/shared/technique-label";
 import { DataRequests, type DataRequestRow } from "./data-requests";
 import { LinkBox } from "@/components/shared/link-box";
 import { DeleteOutlined, Download, Folder, FolderOutlined, NavigateNext, NoteAddOutlined } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 /** Hidden from sight, still read by screen readers. */
 const visuallyHidden = { position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" } as const;
@@ -316,9 +316,9 @@ export function FilesView({
                 sx={{ width: { xs: 160, sm: 220 } }}
                 slotProps={{ htmlInput: { "aria-label": "New folder name" } }}
               />
-              <Button type="submit" variant="contained">
+              <SubmitButton variant="contained">
                 New folder
-              </Button>
+              </SubmitButton>
             </Box>
           )}
         </Box>

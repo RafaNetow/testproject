@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -15,6 +14,7 @@ import {
   convertProspectToClient,
 } from "@/lib/actions/prospects";
 import { Add, ArrowForward, DeleteOutlined } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 const STAGES = [
   { value: "lead", label: "Lead" },
@@ -69,9 +69,9 @@ export default async function ProspectsPage() {
           slotProps={{ htmlInput: { min: 0 } }}
           sx={{ width: 128 }}
         />
-        <Button type="submit" variant="contained" startIcon={<Add />}>
+        <SubmitButton variant="contained" startIcon={<Add />}>
           Add prospect
-        </Button>
+        </SubmitButton>
       </Paper>
 
       <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(5, 1fr)" } }}>

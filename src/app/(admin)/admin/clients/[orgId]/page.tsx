@@ -3,7 +3,6 @@ import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
@@ -35,6 +34,7 @@ import {
   deleteProject,
 } from "./actions";
 import { Close, DeleteOutlined, ExpandMore } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 const STATUS_OPTIONS = ["onboarding", "active", "at_risk", "offboarded"] as const;
 const PROJECT_STATUS_OPTIONS = ["active", "paused", "completed"] as const;
@@ -157,9 +157,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ o
                     placeholder="Street, postal code, city"
                   />
                   <Box>
-                    <Button type="submit" variant="contained">
+                    <SubmitButton variant="contained">
                       Save changes
-                    </Button>
+                    </SubmitButton>
                   </Box>
                 </Stack>
               </Stack>
@@ -312,9 +312,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ o
                             />
                           </Box>
                           <Box>
-                            <Button type="submit" variant="contained">
+                            <SubmitButton variant="contained">
                               Save
-                            </Button>
+                            </SubmitButton>
                           </Box>
                         </Stack>
 

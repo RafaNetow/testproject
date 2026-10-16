@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Slider from "@mui/material/Slider";
 import Stack from "@mui/material/Stack";
@@ -14,6 +13,7 @@ import { ConfirmButton } from "@/components/confirm-button";
 import { addPhase, deletePhase, movePhase, updatePhase } from "@/lib/actions/phases";
 import type { ProgressPhase } from "@/components/shared/project-progress";
 import { Add, ArrowDownward, ArrowUpward, DeleteOutlined } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 /**
  * Admin editor for a project's stages: rename, set each stage's percentage
@@ -79,9 +79,9 @@ export function PhaseEditor({ projectId, phases }: { projectId: string; phases: 
         sx={{ display: "flex", alignItems: "center", gap: 1, pt: 0.5 }}
       >
         <TextField name="name" required placeholder="New stage, e.g. Main experiments" slotProps={{ htmlInput: { "aria-label": "New stage name", maxLength: 80 } }} />
-        <Button type="submit" variant="outlined" color="secondary" startIcon={<Add />} sx={{ flexShrink: 0 }}>
+        <SubmitButton variant="outlined" color="secondary" startIcon={<Add />} sx={{ flexShrink: 0 }}>
           Add stage
-        </Button>
+        </SubmitButton>
       </Box>
     </Stack>
   );

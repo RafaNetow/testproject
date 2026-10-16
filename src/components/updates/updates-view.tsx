@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -7,6 +6,7 @@ import Typography from "@mui/material/Typography";
 import { ConfirmButton } from "@/components/confirm-button";
 import { publishUpdate, deleteUpdate } from "@/lib/actions/updates";
 import { DeleteOutlined } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 type Update = {
   id: string;
@@ -45,9 +45,9 @@ export function UpdatesView({
               placeholder="What happened, what it means, what's next"
             />
             <Box>
-              <Button type="submit" variant="contained">
+              <SubmitButton variant="contained">
                 Publish update
-              </Button>
+              </SubmitButton>
             </Box>
           </Stack>
         </Paper>

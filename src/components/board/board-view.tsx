@@ -40,6 +40,7 @@ import { colorFor, initials } from "./board-colors";
 import { STATUS_TONE, type Tone } from "@/lib/palette";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Add, AttachFile, CalendarMonthOutlined, Close, ChatBubbleOutlined } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 type Column = { id: string; name: string; position: number };
 type Card = {
@@ -469,9 +470,9 @@ function BoardColumn({
               slotProps={{ htmlInput: { "aria-label": "Due date" } }}
               sx={{ flex: 1, "& input": { fontSize: 13 } }}
             />
-            <Button type="submit" variant="contained" size="small">
+            <SubmitButton variant="contained" size="small">
               Add
-            </Button>
+            </SubmitButton>
             <IconButton size="small" aria-label="Cancel" onClick={() => setAdding(false)}>
               <Close sx={{ fontSize: 18 }} />
             </IconButton>

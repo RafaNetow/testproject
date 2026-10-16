@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import Chip from "@mui/material/Chip";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -14,6 +13,7 @@ import { figureSx } from "@/lib/palette";
 import { SelectField } from "@/components/shared/select-field";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Close, DeleteOutlined, EditOutlined } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 export const HOUR_CATEGORIES = ["Analysis", "Formulation work", "Meeting", "Report writing", "Other"];
 
@@ -80,9 +80,9 @@ export function EditableHoursRow({
         </SelectField>
         <TextField name="description" label="Description" defaultValue={entry.description ?? ""} sx={{ flex: 1, minWidth: 180 }} />
         <FormControlLabel control={<Checkbox name="billable" defaultChecked={entry.billable} />} label="Billable" />
-        <Button type="submit" variant="contained" size="small">
+        <SubmitButton variant="contained" size="small">
           Save
-        </Button>
+        </SubmitButton>
         <IconButton size="small" aria-label="Cancel editing" onClick={() => setEditing(false)}>
           <Close sx={{ fontSize: 18 }} />
         </IconButton>

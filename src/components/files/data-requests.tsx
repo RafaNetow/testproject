@@ -24,6 +24,7 @@ import {
   type FulfillResult,
 } from "@/lib/actions/data-requests";
 import { Add, CheckCircleOutlined, DeleteOutlined, ScheduleOutlined } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 export type DataRequestRow = {
   id: string;
@@ -146,9 +147,9 @@ export function DataRequests({
               <TextField name="due_date" label="Needed by" type="date" slotProps={{ inputLabel: { shrink: true } }} />
             </Box>
             <Box sx={{ display: "flex", gap: 1 }}>
-              <Button type="submit" variant="contained">
+              <SubmitButton variant="contained">
                 Send request
-              </Button>
+              </SubmitButton>
               <Button color="secondary" onClick={() => setAdding(false)}>
                 Cancel
               </Button>

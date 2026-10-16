@@ -1,12 +1,14 @@
 "use client";
 
 import { useId, useRef, useState, type ReactNode } from "react";
+import { useFormStatus } from "react-dom";
 import Button, { type ButtonProps } from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import type { SxProps, Theme } from "@mui/material/styles";
 
@@ -43,6 +45,8 @@ export function ConfirmButton({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
   const [open, setOpen] = useState(false);
+  // The surrounding <form action> is working once the user has confirmed.
+  const { pending } = useFormStatus();
 
   function confirm() {
     setOpen(false);
@@ -58,6 +62,8 @@ export function ConfirmButton({
           onClick={() => setOpen(true)}
           aria-label={ariaLabel}
           startIcon={icon}
+          loading={pending}
+          loadingPosition="start"
           variant={variant}
           color={color}
           size={size}
@@ -72,12 +78,13 @@ export function ConfirmButton({
           onClick={() => setOpen(true)}
           aria-label={ariaLabel}
           size={size}
+          disabled={pending}
           sx={[
             { color: "text.muted", "&:hover": { color: "error.main", bgcolor: "color-mix(in srgb, var(--color-destructive) 10%, transparent)" } },
             ...(Array.isArray(sx) ? sx : [sx]),
           ]}
         >
-          {icon}
+          {pending ? <CircularProgress size={16} color="inherit" aria-label="Working" /> : icon}
         </IconButton>
       )}
 

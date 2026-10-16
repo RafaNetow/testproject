@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Paper from "@mui/material/Paper";
@@ -11,6 +10,7 @@ import { StatTiles } from "@/components/shared/stat-tiles";
 import { logHours, updateHoursEntry, deleteHoursEntry } from "@/lib/actions/hours";
 import { EditableHoursRow, HOUR_CATEGORIES } from "./editable-hours-row";
 import { Add } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 type HoursEntry = {
   id: string;
@@ -89,9 +89,9 @@ export function HoursView({
             sx={{ flex: 1, minWidth: 200 }}
           />
           <FormControlLabel control={<Checkbox name="billable" defaultChecked />} label="Billable" />
-          <Button type="submit" variant="contained" startIcon={<Add />}>
+          <SubmitButton variant="contained" startIcon={<Add />}>
             Log time
-          </Button>
+          </SubmitButton>
         </Paper>
       )}
 

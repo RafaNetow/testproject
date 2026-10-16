@@ -12,6 +12,7 @@ import { SelectField } from "@/components/shared/select-field";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { createMeeting, updateMeeting, deleteMeeting } from "@/lib/actions/meetings";
 import { Add, DeleteOutlined, ExpandMore } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 type Meeting = {
   id: string;
@@ -71,9 +72,9 @@ export function MeetingsView({
             placeholder="https://…"
             sx={{ flex: 1, minWidth: 200 }}
           />
-          <Button type="submit" variant="contained" startIcon={<Add />}>
+          <SubmitButton variant="contained" startIcon={<Add />}>
             Schedule
-          </Button>
+          </SubmitButton>
         </Paper>
       )}
 
@@ -150,9 +151,9 @@ export function MeetingsView({
                           placeholder="What was covered / decided"
                           sx={{ flex: 1, minWidth: 220 }}
                         />
-                        <Button type="submit" variant="outlined" color="navy">
+                        <SubmitButton variant="outlined" color="navy">
                           Save
-                        </Button>
+                        </SubmitButton>
                       </Box>
                       <form action={deleteThis}>
                         <ConfirmButton

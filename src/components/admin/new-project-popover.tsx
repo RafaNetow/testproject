@@ -5,6 +5,7 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import { Popover } from "@/components/shared/popover";
 import { Add } from "@/components/icons";
+import { SubmitButton } from "@/components/shared/submit-button";
 
 export function NewProjectPopover({
   createAction,
@@ -29,9 +30,9 @@ export function NewProjectPopover({
             type="date"
             slotProps={{ inputLabel: { shrink: true } }}
           />
-          <Button type="submit" variant="contained">
+          <SubmitButton variant="contained">
             Create project
-          </Button>
+          </SubmitButton>
         </Stack>
       )}
     </Popover>

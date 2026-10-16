@@ -21,6 +21,7 @@ import { AdminSearch } from "@/components/shared/admin-search";
 import { NotificationBell, type NotificationItem } from "@/components/shared/notification-bell";
 import { AccentSwitcher } from "@/components/shared/accent-switcher";
 import { ChatDrawer } from "@/components/messages/chat-drawer";
+import { NavigationProgress } from "@/components/shared/navigation-progress";
 import { PORTAL_NAV, ADMIN_NAV } from "@/lib/nav-items";
 import { Menu as MenuIcon, LogoutOutlined, HomeOutlined } from "@/components/icons";
 
@@ -211,6 +212,9 @@ export function AppShell({
 
   return (
     <Box className="app-shell" sx={{ display: "flex", minHeight: "100dvh", bgcolor: "background.default" }}>
+      <Suspense fallback={null}>
+        <NavigationProgress />
+      </Suspense>
       <Box
         component="aside"
         sx={{
