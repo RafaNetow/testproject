@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Alchemica Portal — User Guide</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm; }
+  :root {
+    --ink: #17201e; --muted: #4a5a56; --faint: #627069; --accent: #2f7d6d;
+    --fill: #f2f5f4; --line: rgb(134 156 149 / 0.32); --warn: #8a5a00; --warn-bg: #fff6e0;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font-family: "Segoe UI", "Public Sans", system-ui, sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.55; }
+  h1, h2, h3 { line-height: 1.2; margin: 0; }
+  h2 { font-size: 20pt; margin-bottom: 4mm; }
+  h3 { font-size: 12.5pt; margin: 7mm 0 2mm; color: var(--ink); }
+  p { margin: 0 0 3mm; }
+  ol, ul { margin: 0 0 3mm; padding-left: 5.5mm; }
+  li { margin-bottom: 1.2mm; }
+  .eyebrow { font: 600 8.5pt/1 "Cascadia Mono", Consolas, monospace; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 3mm; }
+  .page-break { break-before: page; }
+  .lead { font-size: 11.5pt; color: var(--muted); margin-bottom: 6mm; }
+  figure { margin: 4mm 0 6mm; break-inside: avoid; }
+  figure img { display: block; width: 100%; border: 0.3mm solid var(--line); border-radius: 3mm; }
+  figure.crop-right img { height: 95mm; object-fit: cover; object-position: right top; }
+  figure.crop-top img { height: 100mm; object-fit: cover; object-position: center top; }
+  figure.half { width: 70%; }
+  figcaption { font-size: 8.5pt; color: var(--faint); margin-top: 1.5mm; }
+  .tip { break-inside: avoid; background: var(--fill); border-left: 1mm solid var(--accent); border-radius: 0 2mm 2mm 0; padding: 3mm 4mm; margin: 4mm 0; font-size: 10pt; }
+  .tip strong { color: var(--accent); }
+  .note { break-inside: avoid; background: var(--warn-bg); border-left: 1mm solid #e69f00; border-radius: 0 2mm 2mm 0; padding: 3mm 4mm; margin: 4mm 0; font-size: 10pt; }
+  .kbd { font: 600 8.5pt Consolas, monospace; background: var(--fill); border: 0.3mm solid var(--line); border-radius: 1mm; padding: 0 1.2mm; }
+  .pill { display: inline-block; font-size: 8.5pt; font-weight: 700; padding: 0.3mm 2mm; border-radius: 3mm; background: rgb(47 125 109 / 0.12); color: #1d5a4d; }
+  .pill.warn { background: var(--warn-bg); color: var(--warn); }
+  table { width: 100%; border-collapse: collapse; margin: 3mm 0 5mm; font-size: 9.5pt; break-inside: avoid; }
+  th, td { text-align: left; padding: 2mm 2.5mm; border-bottom: 0.3mm solid var(--line); vertical-align: top; }
+  th { font-weight: 700; color: var(--muted); font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Cover */
+  .cover { height: 255mm; display: flex; flex-direction: column; justify-content: space-between; padding: 6mm 2mm; }
+  .brand { display: flex; align-items: center; gap: 4mm; font-size: 16pt; font-weight: 700; }
+  .cover h1 { font-size: 34pt; letter-spacing: -0.02em; margin: 0 0 5mm; }
+  .cover .sub { font-size: 13pt; color: var(--muted); max-width: 140mm; }
+  .cover .parts { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; margin-top: 12mm; }
+  .cover .part { border: 0.3mm solid var(--line); border-radius: 3mm; padding: 5mm; }
+  .cover .part b { display: block; font-size: 12pt; margin-bottom: 1.5mm; }
+  .cover .foot { font-size: 8.5pt; color: var(--faint); border-top: 0.3mm solid var(--line); padding-top: 3mm; }
+
+  /* Contents */
+  .toc { columns: 2; column-gap: 10mm; }
+  .toc h3 { margin-top: 0; }
+  .toc ol { margin-bottom: 6mm; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .part-title { height: 250mm; display: flex; flex-direction: column; justify-content: center; }
+  .part-title h2 { font-size: 30pt; }
+</style>
+</head>
+<body>
+
+<!-- Cover -->
+<section class="cover">
+  <div class="brand">
+    <svg width="44" height="48" viewBox="0 0 44 48" aria-hidden="true"><path d="M22 1 43 13v22L22 47 1 35V13z" fill="#2f7d6d"/><text x="22" y="32" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="20" font-weight="700" fill="#fff">A</text></svg>
+    Alchemica
+  </div>
+  <div>
+    <div class="eyebrow">User guide · October 2026</div>
+    <h1>The Alchemica portal</h1>
+    <p class="sub">How to follow your engagement, share data and talk to Axel — and, for the Alchemica team, how to run each engagement from the admin.</p>
+    <div class="parts">
+      <div class="part"><b>Part A · For clients</b>Signing in, your Executive Summary, files and data requests, deliverables, the board, messages and notifications.</div>
+      <div class="part"><b>Part B · For the Alchemica team</b>Client pages, stages and progress, data requests, deliverables, file labels, the message list and the weekly digest.</div>
+    </div>
+  </div>
+  <div class="foot">Screens show the demo workspace "Nordic Polymers ApS (demo)". Names, projects and numbers are illustrative and not real client data.</div>
+</section>
+
+<!-- Contents -->
+<section class="page-break">
+  <div class="eyebrow">Contents</div>
+  <h2>What's inside</h2>
+  <div class="toc">
+    <h3>Part A · For clients</h3>
+    <ol>
+      <li><a href="#a1">Signing in</a></li>
+      <li><a href="#a2">Your Executive Summary</a></li>
+      <li><a href="#a3">Progress, stages and the timeline</a></li>
+      <li><a href="#a4">Files and data requests</a></li>
+      <li><a href="#a5">Reviewing deliverables</a></li>
+      <li><a href="#a6">The board</a></li>
+      <li><a href="#a7">Messages with Axel</a></li>
+      <li><a href="#a8">Notifications and the weekly email</a></li>
+      <li><a href="#a9">Choosing a colour</a></li>
+    </ol>
+    <h3>Part B · For the Alchemica team</h3>
+    <ol>
+      <li><a href="#b1">Dashboard and client pages</a></li>
+      <li><a href="#b2">Stages, progress and descriptions</a></li>
+      <li><a href="#b3">Requesting data</a></li>
+      <li><a href="#b4">Deliverables</a></li>
+      <li><a href="#b5">Files: labels and folders</a></li>
+      <li><a href="#b6">Messages: the client list</a></li>
+      <li><a href="#b7">Weekly digest preview</a></li>
+      <li><a href="#b8">Colours and good habits</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= PART A ================= -->
+<section class="page-break part-title">
+  <div class="eyebrow">Part A</div>
+  <h2>For clients</h2>
+  <p class="lead">Everything you need to follow your engagement, without the technical detail.</p>
+</section>
+
+<section class="page-break" id="a1">
+  <div class="eyebrow">A1</div>
+  <h2>Signing in</h2>
+  <p>There is no password to remember. You sign in with a one-time link sent to your work email.</p>
+  <ol>
+    <li>Go to the portal sign-in page and enter your email address.</li>
+    <li>Select <b>Send magic link</b>. A message titled "Your sign-in link" arrives within a minute.</li>
+    <li>Open the link <b>on the same device</b> and select <b>Finish signing in</b>. This extra click protects you from email apps that open links automatically.</li>
+  </ol>
+  <figure class="half"><img src="img/c-login.png" alt="Sign-in page" /><figcaption>The sign-in page: enter your email and request a one-time link.</figcaption></figure>
+  <div class="tip"><strong>Tip.</strong> If the link has expired or was opened in another browser, simply request a new one.</div>
+</section>
+
+<section class="page-break" id="a2">
+  <div class="eyebrow">A2</div>
+  <h2>Your Executive Summary</h2>
+  <p>The first page you see answers two questions: <b>where are we?</b> and <b>what do you need from me?</b></p>
+  <figure class="crop-top"><img src="img/c-summary.png" alt="Executive Summary" /><figcaption>The opening card shows the current stage and how many things are waiting on you.</figcaption></figure>
+  <h3>Waiting on you</h3>
+  <p>One list with everything that needs your action, most urgent first. Each row has a single button:</p>
+  <table>
+    <tr><th>Button</th><th>What it means</th></tr>
+    <tr><td><b>Review</b></td><td>A deliverable is ready. Approve it or ask for changes.</td></tr>
+    <tr><td><b>Answer</b></td><td>We need your input on a question on the board.</td></tr>
+    <tr><td><b>Upload</b></td><td>We need data from you (for example oven logs or FTIR exports).</td></tr>
+    <tr><td><b>Sign</b></td><td>A contract is waiting for your signature.</td></tr>
+    <tr><td><b>Open</b></td><td>Axel sent you a message.</td></tr>
+  </table>
+  <p>Items past their date are marked <span class="pill warn">Overdue</span>.</p>
+</section>
+
+<section class="page-break" id="a3">
+  <div class="eyebrow">A3</div>
+  <h2>Progress, stages and the timeline</h2>
+  <p>Each project is split into stages (for example Onboarding, Preliminary experiments, Main experiments, Final report). The large percentage is the project's overall progress; each stage shows its own.</p>
+  <p>The <b>timeline</b> places the stages on a calendar. The red line is today; diamonds mark meetings and deliverable dates. <b>Select a stage</b> to open it:</p>
+  <figure><img src="img/c-timeline.png" alt="Timeline with a stage open" /><figcaption>An open stage: dates, an automatic on-time check, what happens in the stage, and what falls in it.</figcaption></figure>
+  <ul>
+    <li><b>On time?</b> <span class="pill">On track</span>, "About 3 days behind", "Starts in 5 days", "2 days overdue" or "Done" — calculated from the dates and the percentage.</li>
+    <li><b>What happens</b> — a plain-language description written by Axel.</li>
+    <li><b>What falls in it</b> — deliverables, meetings and data requests dated inside the stage, each with its status and a link.</li>
+  </ul>
+</section>
+
+<section class="page-break" id="a4">
+  <div class="eyebrow">A4</div>
+  <h2>Files and data requests</h2>
+  <p>All project files live in folders. Each file carries a label for the technique or document type (NMR, FTIR, DSC, Process log, Report…). <b>Hover a label</b> to see what it means in plain words.</p>
+  <figure class="crop-top"><img src="img/c-files.png" alt="Files" /><figcaption>"Requested data" lists what Alchemica needs from you, with a progress line.</figcaption></figure>
+  <h3>Sending requested data</h3>
+  <ol>
+    <li>Find the item under <b>Requested data</b> (it also appears under Waiting on you).</li>
+    <li>Choose the file and select <b>Send</b>. It is saved in the right folder with the right label.</li>
+    <li>The item turns <span class="pill">Received</span> and Alchemica is notified.</li>
+  </ol>
+</section>
+
+<section class="page-break" id="a5">
+  <div class="eyebrow">A5</div>
+  <h2>Reviewing deliverables</h2>
+  <p>Reports and proposals arrive in <b>Deliverables</b>. When one is <span class="pill warn">Ready for review</span>, open it and choose:</p>
+  <ul>
+    <li><b>Approve</b> — you accept it as delivered.</li>
+    <li><b>Request changes</b> — write what should change; Alchemica is notified and sends a revised version.</li>
+  </ul>
+  <figure class="crop-top"><img src="img/c-deliverables.png" alt="Deliverables" /><figcaption>Deliverables waiting for your review appear first.</figcaption></figure>
+</section>
+
+<section class="page-break" id="a6">
+  <div class="eyebrow">A6</div>
+  <h2>The board</h2>
+  <p>The board shows the work as cards in columns. The column <b>Waiting on you</b> holds questions only you can answer. Open a card to read the details, comment and attach files.</p>
+  <figure class="crop-top"><img src="img/c-board.png" alt="Board" /><figcaption>Cards move from left to right as the work progresses.</figcaption></figure>
+  <div class="tip"><strong>Keyboard.</strong> Press <span class="kbd">Tab</span> to reach a card and <span class="kbd">Enter</span> to open it.</div>
+</section>
+
+<section class="page-break" id="a7">
+  <div class="eyebrow">A7</div>
+  <h2>Messages with Axel</h2>
+  <p>Select the <b>chat icon</b> in the top bar (next to the bell) from any page. A panel opens on the right with your project's conversation; the page behind stays where it was.</p>
+  <figure><img src="img/c-chat.png" alt="Chat panel" /><figcaption>The conversation panel. With several projects, switch between them at the top.</figcaption></figure>
+  <ul>
+    <li>Press <span class="kbd">Enter</span> to send, <span class="kbd">Shift</span> + <span class="kbd">Enter</span> for a new line. Use the paperclip to attach a file — it is also saved in Files › Chat attachments.</li>
+    <li>"Seen by Axel" appears under your message once he has read it. Axel usually replies within one business day.</li>
+    <li>Agreements made in the chat are logged as decisions or added to the board by Alchemica, so nothing gets lost.</li>
+  </ul>
+</section>
+
+<section class="page-break" id="a8">
+  <div class="eyebrow">A8</div>
+  <h2>Notifications and the weekly email</h2>
+  <p>The <b>bell</b> shows what changed: new files, deliverables, decisions, messages. Select a notification to go straight to it. New items also appear as a short pop-up while you are using the portal.</p>
+  <p>Every <b>Monday morning</b> you receive a short email: what's waiting on you, where each project stands, and what happened last week. If there is nothing to report, no email is sent.</p>
+  <figure><img src="img/c-team.png" alt="Email updates setting" /><figcaption>Turn the weekly email on or off on the Team page.</figcaption></figure>
+</section>
+
+<section class="page-break" id="a9">
+  <div class="eyebrow">A9</div>
+  <h2>Choosing a colour</h2>
+  <p>Select the <b>palette icon</b> in the top bar to choose the portal's accent colour. It only changes your own view on that browser.</p>
+  <figure class="crop-top"><img src="img/c-colour.png" alt="Colour picker" /><figcaption>Five colours, each named after a historic pigment.</figcaption></figure>
+</section>
+
+<!-- ================= PART B ================= -->
+<section class="page-break part-title">
+  <div class="eyebrow">Part B</div>
+  <h2>For the Alchemica team</h2>
+  <p class="lead">Running each engagement from the admin, and keeping the client's view clear.</p>
+</section>
+
+<section class="page-break" id="b1">
+  <div class="eyebrow">B1</div>
+  <h2>Dashboard and client pages</h2>
+  <p>The <b>Dashboard</b> summarises active engagements and the next meeting. <b>Clients</b> lists each organisation; open one to see its projects.</p>
+  <figure class="crop-top"><img src="img/a-client.png" alt="Admin client page" /><figcaption>Each project shows its stages, a collapsible timeline and shortcuts to Board, Files, Deliverables and Updates (the rest under "More").</figcaption></figure>
+  <div class="tip"><strong>Settings.</strong> The gear icon on a client page holds organisation details, team invitations and the delete option.</div>
+</section>
+
+<section class="page-break" id="b2">
+  <div class="eyebrow">B2</div>
+  <h2>Stages, progress and descriptions</h2>
+  <p>Open <b>Progress &amp; stages</b> under a project. For each stage you can set:</p>
+  <ul>
+    <li>The <b>name</b> and the <b>percentage</b> (slider or number). The project total is the average of its stages.</li>
+    <li><b>Start and end dates</b> — these place the stage on the client's timeline and drive the "On track / behind" check.</li>
+    <li><b>What happens in this stage</b> — one or two plain sentences the client reads when they open the stage.</li>
+  </ul>
+  <p>Changes save when you leave the field, and the client is notified (for example "completed the stage …").</p>
+  <figure><img src="img/a-stages.png" alt="Progress and stages editor" /><figcaption>The stage editor: name, %, dates and the client-facing description.</figcaption></figure>
+</section>
+
+<section class="page-break" id="b3">
+  <div class="eyebrow">B3</div>
+  <h2>Requesting data</h2>
+  <p>In a project's <b>Files</b>, use <b>Request data</b> to list what you need: a title, details, the technique and the folder it should land in, and a due date.</p>
+  <figure><img src="img/a-request.png" alt="Request data" /><figcaption>The client sees each request under Waiting on you and uploads straight into it.</figcaption></figure>
+  <p>When data arrives by email instead, mark the request <b>received</b> yourself; <b>Reopen</b> undoes it, and the bin withdraws a request.</p>
+</section>
+
+<section class="page-break" id="b4">
+  <div class="eyebrow">B4</div>
+  <h2>Deliverables</h2>
+  <p>Create a deliverable as a <b>draft</b> (the client cannot see drafts), attach the file, then move it to <b>Ready for review</b>. The client approves it or requests changes; you are notified either way.</p>
+  <figure class="crop-top"><img src="img/a-deliverables.png" alt="Admin deliverables" /><figcaption>Deliverables grouped by status.</figcaption></figure>
+</section>
+
+<section class="page-break" id="b5">
+  <div class="eyebrow">B5</div>
+  <h2>Files: labels and folders</h2>
+  <p>Uploads are labelled automatically from the filename. To change a label, <b>select the label chip</b> on the file's row and pick from the list — each option shows the plain-language explanation the client will see. Files without a label show <b>Add label</b>.</p>
+  <figure class="crop-right"><img src="img/a-files-technique.png" alt="Technique menu" /><figcaption>The technique menu, opened from the file's label.</figcaption></figure>
+  <p>To move a file, open the row's <b>⋯</b> menu and choose a folder under <b>Move to folder</b>.</p>
+</section>
+
+<section class="page-break" id="b6">
+  <div class="eyebrow">B6</div>
+  <h2>Messages: the client list</h2>
+  <p>The chat icon in the top bar shows the number of unread messages. It opens the list of all client conversations, unread first; select one to reply in the same panel and use the arrow to go back.</p>
+  <figure><img src="img/a-chat-list.png" alt="Admin message list" /><figcaption>Every client conversation in one panel.</figcaption></figure>
+  <p>Open a message's <b>⋮</b> menu to <b>Log as decision</b> (it goes to the decisions log) or <b>Add to board</b> (a new card in the first column). A short note in the chat records it for both sides.</p>
+</section>
+
+<section class="page-break" id="b7">
+  <div class="eyebrow">B7</div>
+  <h2>Weekly digest preview</h2>
+  <p>Each client member receives a Monday email unless they turned it off. Open <b>/admin/digest-preview</b> to see exactly what any member would receive this week — nothing is sent from that page.</p>
+  <figure class="crop-top"><img src="img/a-digest.png" alt="Digest preview" /><figcaption>Pick a member at the top to preview their email.</figcaption></figure>
+</section>
+
+<section class="page-break" id="b8">
+  <div class="eyebrow">B8</div>
+  <h2>Colours and good habits</h2>
+  <p>The palette icon lets you compare the five accent colours on your own browser; clients choose theirs independently.</p>
+  <h3>Good habits that keep the client's view clear</h3>
+  <ul>
+    <li>Give every stage dates and a one-line description — the timeline then explains itself.</li>
+    <li>Use data requests instead of emails for anything you need from the client.</li>
+    <li>When something is agreed in the chat, log it as a decision straight away.</li>
+    <li>Keep deliverables as drafts until they are ready; move them to review in one step.</li>
+    <li>Check the digest preview on Monday morning if a client has had a busy week.</li>
+  </ul>
+  <div class="note">This guide reflects the portal as of October 2026. Screens use demo data.</div>
+</section>
+
+</body>
+</html>
