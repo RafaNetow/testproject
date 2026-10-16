@@ -1,12 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
+import { loadContracts } from "@/lib/contracts";
 import { getPortalProjectContext } from "@/lib/portal-context";
 import { ContractsView } from "@/components/contracts/contracts-view";
 import { ProjectSwitcher } from "@/components/board/project-switcher";
 import { SectionHeader } from "@/components/shared/section-header";
 import Stack from "@mui/material/Stack";
 import { EmptyState } from "@/components/shared/empty-state";
-
-const BUCKET = "org-documents";
 
 export default async function PortalContractsPage({
   searchParams,
@@ -39,23 +38,7 @@ export default async function PortalContractsPage({
   }
 
   const supabase = await createClient();
-  const { data: contracts } = await supabase
-    .from("contracts")
-    .select(
-      "id, title, contract_type, signing_status, signed_pdf_storage_path, documenso_document_id, documenso_signing_url"
-    )
-    .eq("project_id", project.id)
-    .order("created_at", { ascending: false });
-
-  const contractsWithUrls = await Promise.all(
-    (contracts ?? []).map(async (c) => {
-      if (!c.signed_pdf_storage_path) return { ...c, url: null };
-      const { data } = await supabase.storage
-        .from(BUCKET)
-        .createSignedUrl(c.signed_pdf_storage_path, 3600);
-      return { ...c, url: data?.signedUrl ?? null };
-    })
-  );
+  const contractsWithUrls = await loadContracts(supabase, project.id);
 
   return (
     <Stack spacing={4}>

@@ -16,6 +16,7 @@ import { SelectField } from "@/components/shared/select-field";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { createContract, updateContractStatus, deleteContract } from "@/lib/actions/contracts";
 import { SendForSignatureForm } from "./send-for-signature-form";
+import { SignContractDialog } from "./sign-contract-dialog";
 import { Add, DeleteOutlined, Download } from "@/components/icons";
 
 type Contract = {
@@ -23,11 +24,20 @@ type Contract = {
   title: string;
   contract_type: string;
   signing_status: string;
+  signing_method?: string | null;
   signed_pdf_storage_path: string | null;
   documenso_document_id: string | null;
   documenso_signing_url: string | null;
+  signer_name?: string | null;
+  signed_at?: string | null;
+  signature_hash?: string | null;
   url: string | null;
+  /** The unsigned PDF, only while a portal-signed contract is waiting for its signature. */
+  reviewUrl?: string | null;
 };
+
+const signedOn = (iso: string) =>
+  new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
 const TYPE_LABELS: Record<string, string> = {
   msa: "MSA",
@@ -132,6 +142,7 @@ export function ContractsView({
                 const deleteThis = deleteContract.bind(null, c.id, c.signed_pdf_storage_path, revalidatePaths);
                 const needsSignature = canManage && c.signing_status === "draft" && !c.documenso_document_id;
                 const canSignNow = c.documenso_signing_url && c.signing_status !== "signed";
+                const awaitingPortalSignature = c.signing_method === "portal" && c.signing_status === "sent";
 
                 return (
                   <Box key={c.id} sx={{ py: 2, borderBottom: 1, borderColor: "divider" }}>
@@ -146,6 +157,9 @@ export function ContractsView({
                         <StatusBadge status={c.signing_status} />
                       </Box>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        {awaitingPortalSignature && !canManage && (
+                          <SignContractDialog contractId={c.id} title={c.title} pdfUrl={c.reviewUrl ?? null} revalidatePaths={revalidatePaths} />
+                        )}
                         {canSignNow && (
                           <Button
                             component="a"
@@ -192,6 +206,22 @@ export function ContractsView({
                       </Box>
                     </Box>
 
+                    {awaitingPortalSignature && canManage && (
+                      <Typography sx={{ mt: 0.75, fontSize: 13, color: "text.secondary" }}>
+                        Waiting for the client&apos;s workspace owner to review and sign it in the portal.
+                      </Typography>
+                    )}
+                    {awaitingPortalSignature && !canManage && (
+                      <Typography sx={{ mt: 0.75, fontSize: 13, color: "text.secondary" }}>
+                        Waiting for your signature. Open it to read the contract, then type your name to sign.
+                      </Typography>
+                    )}
+                    {c.signing_status === "signed" && c.signed_at && c.signer_name && (
+                      <Typography sx={{ mt: 0.75, fontSize: 13, color: "text.secondary" }}>
+                        Signed by <b>{c.signer_name}</b> on {signedOn(c.signed_at)}
+                        {c.signature_hash ? <> · fingerprint <span style={{ fontFamily: "var(--font-mono)" }}>{c.signature_hash.slice(0, 12)}…</span></> : null}
+                      </Typography>
+                    )}
                     {needsSignature && (
                       <SendForSignatureForm contractId={c.id} orgId={orgId} revalidatePaths={revalidatePaths} />
                     )}
