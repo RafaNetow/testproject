@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Alchemica — Plan de pruebas</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm 18mm; }
+  :root { --ink:#17201e; --muted:#4a5a56; --faint:#627069; --accent:#2f7d6d; --fill:#f2f5f4; --line:rgb(134 156 149 / .35); --warn:#8a5a00; --warn-bg:#fff6e0; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin:0; font-family:"Segoe UI","Public Sans",system-ui,sans-serif; color:var(--ink); font-size:10pt; line-height:1.5; }
+  h1,h2,h3,.eyebrow { line-height:1.2; margin:0; break-after:avoid; }
+  h2 { font-size:17pt; margin-bottom:2mm; }
+  h3 { font-size:11.5pt; margin:5mm 0 2mm; }
+  p { margin:0 0 2.5mm; }
+  ul,ol { margin:0 0 3mm; padding-left:5.5mm; } li { margin-bottom:1mm; }
+  .eyebrow { font:600 8pt/1 Consolas,monospace; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:2.5mm; }
+  .pb { break-before:page; }
+  .lead { font-size:11pt; color:var(--muted); margin-bottom:5mm; }
+  code, .k { font:600 8.5pt Consolas,monospace; background:var(--fill); border:.3mm solid var(--line); border-radius:1mm; padding:0 1.2mm; }
+  .tip,.note { break-inside:avoid; border-radius:0 2mm 2mm 0; padding:2.5mm 3.5mm; margin:3mm 0; font-size:9.5pt; }
+  .tip { background:var(--fill); border-left:1mm solid var(--accent); } .tip b { color:var(--accent); }
+  .note { background:var(--warn-bg); border-left:1mm solid #e69f00; }
+  table { width:100%; border-collapse:collapse; margin:2mm 0 5mm; font-size:9pt; }
+  th,td { text-align:left; padding:1.8mm 2.2mm; border-bottom:.3mm solid var(--line); vertical-align:top; }
+  th { font-size:7.5pt; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+  tr { break-inside:avoid; }
+  td.n { width:9mm; font:600 8.5pt Consolas,monospace; color:var(--faint); }
+  td.ok { width:22mm; white-space:nowrap; font-size:11pt; letter-spacing:.5mm; color:var(--faint); }
+  figure { margin:3mm 0 5mm; break-inside:avoid; }
+  figure img { display:block; width:100%; border:.3mm solid var(--line); border-radius:2.5mm; }
+  figcaption { font-size:8pt; color:var(--faint); margin-top:1mm; }
+  figure.half { width:68%; }
+  .cover { height:250mm; display:flex; flex-direction:column; justify-content:space-between; padding:4mm 2mm; }
+  .brand { display:flex; align-items:center; gap:3.5mm; font-size:15pt; font-weight:700; }
+  .cover h1 { font-size:32pt; letter-spacing:-.02em; margin:0 0 4mm; }
+  .cover .sub { font-size:12.5pt; color:var(--muted); max-width:135mm; }
+  .box { border:.3mm solid var(--line); border-radius:3mm; padding:4mm 5mm; margin-top:8mm; }
+  .box b { display:block; margin-bottom:1mm; }
+  .foot { font-size:8pt; color:var(--faint); border-top:.3mm solid var(--line); padding-top:2.5mm; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:4mm; }
+  .grid2 figure { margin:2mm 0 3mm; }
+  .grid2 figure img { width:84%; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="brand">
+    <svg width="42" height="46" viewBox="0 0 44 48" aria-hidden="true"><path d="M22 1 43 13v22L22 47 1 35V13z" fill="#2f7d6d"/><text x="22" y="32" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="20" font-weight="700" fill="#fff">A</text></svg>
+    Alchemica
+  </div>
+  <div>
+    <div class="eyebrow">Plan de pruebas · octubre 2026</div>
+    <h1>Probar lo más importante del sistema</h1>
+    <p class="sub">Un recorrido paso a paso, con el resultado esperado de cada paso y una casilla para marcar si pasó. Pensado para ensayar la demo antes de mostrársela a Axel.</p>
+    <div class="box"><b>Cuánto tarda</b>Unos 45 minutos completo. El guion de demo de 10 minutos está en la última sección.</div>
+    <div class="box"><b>Cómo marcar</b>Cada prueba tiene <span class="k">☐ ✔ ✘</span>: marca ✔ si el resultado esperado ocurrió y ✘ si no, y anota qué viste en el margen. Los textos de pantalla están en inglés porque el portal lo está.</div>
+  </div>
+  <div class="foot">Todo se prueba con el espacio demo "Nordic Polymers ApS (demo)". Los datos y las cuentas son de ejemplo, no reales.</div>
+</section>
+
+<section class="pb">
+  <div class="eyebrow">Antes de empezar</div>
+  <h2>Preparación</h2>
+  <h3>1 · Que todo esté encendido</h3>
+  <ol>
+    <li><b>Docker Desktop</b> abierto y Supabase local arriba: <code>npx supabase start</code>.</li>
+    <li>El servidor de la app: <code>npm run dev</code> (queda en <code>http://localhost:3000</code>).</li>
+    <li>Para la IA: en <code>.env.local</code> están <code>AI_ENABLED=true</code> y tu clave en <code>AI_API_KEY=</code>. Si cambiaste algo, reinicia el servidor.</li>
+  </ol>
+  <h3>2 · Dos sesiones a la vez</h3>
+  <p>El navegador guarda la sesión por dirección, así que puedes ser administrador y cliente al mismo tiempo en dos pestañas:</p>
+  <table>
+    <tr><th>Quién</th><th>Dirección</th><th>Cuenta</th><th>Rol</th></tr>
+    <tr><td><b>Axel</b> (admin)</td><td><code>http://localhost:3000</code></td><td><code>admin@alchemica.test</code></td><td>Administrador</td></tr>
+    <tr><td><b>Maja</b> (cliente)</td><td><code>http://127.0.0.1:3000</code></td><td><code>owner@cliente.test</code></td><td>Dueña del workspace: ve todo, incluido contratos y facturas</td></tr>
+    <tr><td><b>Lars</b> (cliente)</td><td><code>http://127.0.0.1:3000</code></td><td><code>colab@cliente.test</code></td><td>Colaborador: no ve contratos ni facturas</td></tr>
+  </table>
+  <h3>3 · Cómo entrar (sin contraseña)</h3>
+  <ol>
+    <li>Abre <code>/login</code> en la dirección de esa persona y escribe su correo; pulsa <b>Send magic link</b>.</li>
+    <li>El correo llega a la bandeja de pruebas: <code>http://localhost:54324</code> (Mailpit). Abre el último mensaje y pulsa el enlace.</li>
+    <li>Pulsa <b>Finish signing in</b>.</li>
+  </ol>
+  <div class="note"><b>Ojo:</b> abre la bandeja de pruebas en una pestaña <b>distinta</b> a la del cliente. Si la abres en la misma pestaña y dirección, puede cerrarse su sesión.</div>
+  <div class="tip"><b>Si algo se ve raro</b> tras cambiar código: detén el servidor, borra la carpeta <code>.next</code> y vuelve a levantarlo. Es un problema conocido del entorno de desarrollo, no de la app.</div>
+</section>
+
+<section class="pb">
+  <div class="eyebrow">Prueba 1</div>
+  <h2>Contratos: firmar dentro del portal</h2>
+  <p class="lead">Es lo que Axel pidió ver. Hay un contrato esperando la firma de Maja y otro ya firmado como ejemplo.</p>
+  <table>
+    <tr><th>#</th><th>Pasos</th><th>Resultado esperado</th><th>OK</th></tr>
+    <tr><td class="n">1.1</td><td><b>Maja:</b> menú <b>Contracts</b>.</td><td>Ve <b>Services agreement — ready for your signature</b> con estado <b>Sent</b> y el texto "Waiting for your signature".</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">1.2</td><td>Pulsa <b>Review &amp; sign</b>.</td><td>Se abre una ventana con el PDF a la vista, un campo "Type your full name" y la casilla de aceptación.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">1.3</td><td>Escribe <code>Maja Owner</code> y pulsa <b>Sign</b> <b>sin marcar la casilla</b>.</td><td>No firma: el navegador pide marcar la casilla.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">1.4</td><td>Marca la casilla y pulsa <b>Sign</b>.</td><td>La ventana se cierra y el contrato pasa a <b>Signed</b>, con "Signed by Maja Owner on …" y una huella (fingerprint).</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">1.5</td><td>Pulsa el ícono de descarga y abre el PDF.</td><td>Tiene una <b>página extra de certificado</b>: firmante, cuenta, fecha en UTC, IP y la huella SHA-256 del original.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">1.6</td><td><b>Axel:</b> proyecto <i>Water-resistant coating</i> → <b>More</b> → <b>Contracts</b>.</td><td>Ve el mismo contrato firmado y su huella. Le llegó una notificación en la campana.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">1.7</td><td><b>Axel:</b> crea otro: escribe un título, elige el tipo, <b>Create</b>. En el formulario que aparece deja <b>Sign in the portal</b>, adjunta <code>docs/guide/sample-contract-demo.pdf</code> y pulsa <b>Send for signature</b>.</td><td>Mensaje verde "Sent…". El contrato queda <b>Sent</b> con "Waiting for the client's workspace owner…".</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">1.8</td><td><b>Lars</b> (colaborador): menú <b>Contracts</b>.</td><td>Ve "Owner-only": un colaborador no puede ver ni firmar contratos.</td><td class="ok">☐ ✔ ✘</td></tr>
+  </table>
+  <div class="grid2">
+    <figure><img src="img/t-sign-dialog.png" alt="Ventana de firma" /><figcaption>Maja revisa el PDF y firma con su nombre.</figcaption></figure>
+    <figure><img src="img/t-signed.png" alt="Contrato firmado" /><figcaption>El contrato queda firmado, con firmante, fecha y huella.</figcaption></figure>
+  </div>
+  <div class="note"><b>Qué es esta firma:</b> una firma electrónica simple (nombre escrito + confirmación + certificado con fecha, IP y huella del documento). Sirve como prueba en la mayoría de contratos comerciales en la UE y Dinamarca, pero es más débil que una firma avanzada o cualificada (MitID, o la firma avanzada de Documenso). Si un contrato exige ese nivel, hay que usar esa vía: en el formulario existe la opción <b>Send by email (Documenso)</b>, que necesita una cuenta y <code>DOCUMENSO_API_KEY</code>.</div>
+</section>
+
+<section>
+  <div class="eyebrow" style="margin-top:6mm">Prueba 2</div>
+  <h2>Resumen del cliente: qué necesita de mí y dónde vamos</h2>
+  <table>
+    <tr><th>#</th><th>Pasos</th><th>Resultado esperado</th><th>OK</th></tr>
+    <tr><td class="n">2.1</td><td><b>Maja:</b> <b>Executive Summary</b>.</td><td>La tarjeta de arriba dice la etapa actual ("Now: Preliminary experiments") y cuántas cosas esperan a la clienta.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">2.2</td><td>Mira <b>Waiting on you</b>.</td><td>Lista con un botón por fila (Answer, Review, Upload, Sign, Open). Lo vencido dice <b>Overdue</b>.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">2.3</td><td>En el <b>Timeline</b>, pulsa la etapa <i>Preliminary experiments</i>.</td><td>Se abre con fechas y avance, un estado tipo <b>On track</b>, la descripción y los entregables, reuniones y pedidos de datos de esa etapa.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">2.4</td><td>Con el teclado: <span class="k">Tab</span> hasta una etapa y <span class="k">Enter</span>.</td><td>Se abre igual; abrir otra cierra la anterior.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">2.5</td><td>Pasa el mouse sobre una etiqueta (FTIR, NMR…) en <b>Files</b>.</td><td>Aparece una explicación en lenguaje simple.</td><td class="ok">☐ ✔ ✘</td></tr>
+  </table>
+
+  <div class="eyebrow" style="margin-top:8mm">Prueba 3</div>
+  <h2>Datos pedidos y archivos</h2>
+  <table>
+    <tr><th>#</th><th>Pasos</th><th>Resultado esperado</th><th>OK</th></tr>
+    <tr><td class="n">3.1</td><td><b>Axel:</b> proyecto → <b>Files</b> → <b>Request data</b>: título, técnica, carpeta y fecha.</td><td>Aparece en la lista como pendiente y a Maja le llega una notificación.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">3.2</td><td><b>Maja:</b> <b>Files</b> → en ese pedido, elige un archivo y <b>Send</b>.</td><td>El pedido pasa a <b>Received</b>, el archivo queda en la carpeta correcta con la etiqueta, y Axel recibe aviso.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">3.3</td><td><b>Axel:</b> en un archivo, pulsa su etiqueta (o <b>Add label</b>).</td><td>Menú con técnicas y tipos de documento, cada uno explicado. Al elegir, la etiqueta cambia.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">3.4</td><td><b>Axel:</b> menú <b>⋯</b> de un archivo → <b>Move to folder</b>.</td><td>El archivo cambia de carpeta y deja de verse en la actual.</td><td class="ok">☐ ✔ ✘</td></tr>
+  </table>
+</section>
+
+<section class="pb">
+  <div class="eyebrow">Prueba 4</div>
+  <h2>Chat entre cliente y Axel</h2>
+  <table>
+    <tr><th>#</th><th>Pasos</th><th>Resultado esperado</th><th>OK</th></tr>
+    <tr><td class="n">4.1</td><td><b>Axel:</b> ícono de chat de la barra superior.</td><td>Lista de conversaciones por cliente; al tocar una se abre al lado, sin salir de la página.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">4.2</td><td>Escribe un mensaje y pulsa <span class="k">Enter</span>.</td><td>Aparece en la conversación. En la otra pestaña, el ícono de Maja muestra un <b>contador</b> y la campana sube, <b>sin recargar</b>.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">4.3</td><td><b>Maja:</b> abre el chat y responde (prueba también adjuntar un archivo con el clip).</td><td>La respuesta llega al panel abierto de Axel en vivo. El adjunto queda en <b>Files › Chat attachments</b>.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">4.4</td><td><b>Axel:</b> menú <b>⋮</b> de un mensaje → <b>Log as decision</b> y luego <b>Add to board</b>.</td><td>Se crea la decisión y una tarjeta en la primera columna del board; queda una nota en el chat.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">4.5</td><td>Abre <code>/portal?chat=20000000-0000-0000-0000-000000000002</code> como Maja.</td><td>El panel se abre solo en esa conversación.</td><td class="ok">☐ ✔ ✘</td></tr>
+  </table>
+
+  <div class="eyebrow" style="margin-top:8mm">Prueba 5</div>
+  <h2>Etapas, fechas y entregables (admin)</h2>
+  <table>
+    <tr><th>#</th><th>Pasos</th><th>Resultado esperado</th><th>OK</th></tr>
+    <tr><td class="n">5.1</td><td><b>Axel:</b> <b>Clients</b> → <i>Nordic Polymers</i> → <b>Progress &amp; stages</b>.</td><td>Cada etapa tiene nombre, porcentaje, fechas y "What happens in this stage".</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">5.2</td><td>Cambia el % de una etapa y la descripción de otra; sal del campo.</td><td>Se guarda solo; el avance total del proyecto se recalcula. Maja lo ve en su resumen y recibe una notificación.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">5.3</td><td>En <b>Deliverables</b>, mueve una entrega a <b>Awaiting client</b>. Luego <b>Maja</b> entra a <b>Deliverables</b> y la aprueba con <b>Approve</b>.</td><td>Maja la ve como <b>Awaiting your review</b>; al aprobar cambia a <b>Approved</b> y Axel recibe aviso.</td><td class="ok">☐ ✔ ✘</td></tr>
+  </table>
+</section>
+
+<section class="pb">
+  <div class="eyebrow">Prueba 6</div>
+  <h2>El asistente de IA</h2>
+  <p class="lead">Necesita tu clave en <code>.env.local</code> y el interruptor del cliente encendido. Los datos viajan a DeepSeek: úsalo solo con datos demo.</p>
+  <table>
+    <tr><th>#</th><th>Pasos</th><th>Resultado esperado</th><th>OK</th></tr>
+    <tr><td class="n">6.1</td><td><b>Axel:</b> ficha del cliente → engranaje → <b>AI assistant for this client</b>: actívalo.</td><td>El interruptor queda encendido y no muestra el aviso "not configured".</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">6.2</td><td><b>Maja:</b> chat → pestaña <b>Ask Alchemica</b> → "Where are we, and what's next?".</td><td>Responde con datos reales del proyecto (avance, pendientes, decisión de 140 °C), etiqueta <b>AI</b> y fuentes en enlaces.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">6.3</td><td>Pregunta algo técnico: "What temperature should we use?".</td><td>No inventa: dice que es una decisión de Axel y ofrece <b>Ask Axel instead</b>.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">6.4</td><td><b>Axel:</b> en un chat, pulsa <b>Suggest reply</b>.</td><td>Aparece un borrador en la caja. <b>No se envía</b> hasta que pulses Send.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">6.5</td><td><b>Axel:</b> edita el borrador y envíalo. Abre el menú <b>Assistant</b>.</td><td>En <b>Your corrections</b> aparecen el borrador de la IA y lo que enviaste.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">6.6</td><td>En <b>Your rules</b> escribe una regla ("Siempre termina con 'Saludos'"), guarda, y pide otro borrador.</td><td>El nuevo borrador cumple la regla.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">6.7</td><td>En <b>Case book</b>: elige un proyecto, <b>Draft with AI</b>, revisa y <b>Save</b>.</td><td>El borrador no trae nombres de cliente ni de personas; queda guardado en la lista.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">6.8</td><td>Apaga el interruptor del cliente (6.1) y recarga el portal de Maja.</td><td>La pestaña <b>Ask Alchemica</b> desaparece.</td><td class="ok">☐ ✔ ✘</td></tr>
+  </table>
+  <div class="grid2">
+    <figure><img src="img/t-assistant.png" alt="Página Assistant" /><figcaption>Reglas y correcciones: lo que el copiloto aprende de Axel.</figcaption></figure>
+    <figure><img src="img/t-case.png" alt="Caso anonimizado" /><figcaption>Un caso redactado sin nombres, para que Axel lo revise.</figcaption></figure>
+  </div>
+</section>
+
+<section class="pb">
+  <div class="eyebrow">Prueba 7</div>
+  <h2>Seguridad básica</h2>
+  <table>
+    <tr><th>#</th><th>Pasos</th><th>Resultado esperado</th><th>OK</th></tr>
+    <tr><td class="n">7.1</td><td><b>Maja:</b> abre <code>http://127.0.0.1:3000/admin</code>.</td><td>No entra al admin: la devuelven a su portal.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">7.2</td><td><b>Lars</b> (colaborador): intenta abrir <b>Invoices</b> y <b>Contracts</b>.</td><td>Muestra "Owner-only"; no ve importes ni contratos.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">7.3</td><td><b>Maja:</b> busca en su portal algo de otro cliente o proyecto.</td><td>Solo ve su organización.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">7.4</td><td><b>Maja:</b> mira si tiene la pestaña/menú <b>Assistant</b> o las reglas de Axel.</td><td>No existe para ella: esa parte es solo del admin.</td><td class="ok">☐ ✔ ✘</td></tr>
+  </table>
+
+  <div class="eyebrow" style="margin-top:8mm">Prueba 8</div>
+  <h2>Detalles que suman</h2>
+  <table>
+    <tr><th>#</th><th>Pasos</th><th>Resultado esperado</th><th>OK</th></tr>
+    <tr><td class="n">8.1</td><td>Cualquiera: ícono de <b>paleta</b> de la barra → elige otro color.</td><td>Todo el portal cambia de color y se mantiene al recargar; no afecta a la otra persona.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">8.2</td><td>Reduce la ventana al tamaño de un celular.</td><td>El menú pasa a un botón ☰, el chat ocupa toda la pantalla y nada se sale de la pantalla.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">8.3</td><td><b>Axel:</b> abre <code>/admin/digest-preview</code>.</td><td>Muestra el resumen semanal que recibiría cada cliente (no envía nada).</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">8.4</td><td><b>Maja:</b> <b>Team</b> → interruptor "Email me a weekly summary".</td><td>Se puede apagar y encender; apagado, deja de recibir el correo de los lunes.</td><td class="ok">☐ ✔ ✘</td></tr>
+  </table>
+</section>
+
+<section class="pb">
+  <div class="eyebrow">Para mañana</div>
+  <h2>Guion de demo (10 minutos)</h2>
+  <p class="lead">Un orden que cuenta una historia: primero lo que ve el cliente, luego lo que hace Axel, y cierra con lo que le ahorra tiempo.</p>
+  <table>
+    <tr><th>Min</th><th>Qué mostrar</th><th>Qué decir</th></tr>
+    <tr><td class="n">0–2</td><td><b>Maja:</b> Executive Summary, <b>Waiting on you</b> y el timeline con una etapa abierta.</td><td>"El cliente entiende en 10 segundos dónde estamos y qué le toca a él, sin términos técnicos."</td></tr>
+    <tr><td class="n">2–4</td><td><b>Maja:</b> Contracts → <b>Review &amp; sign</b> → firmar. Descarga el PDF y enseña la página del certificado.</td><td>"Firma dentro del portal, sin cuentas externas. Queda un certificado con quién, cuándo y la huella del documento."</td></tr>
+    <tr><td class="n">4–6</td><td><b>Maja</b> pregunta en el chat; <b>Axel</b> responde en vivo. Axel pasa un mensaje a <b>Log as decision</b>.</td><td>"Nada se pierde en correos: lo acordado queda como decisión."</td></tr>
+    <tr><td class="n">6–8</td><td><b>Axel:</b> <b>Suggest reply</b>, edita y envía; abre <b>Assistant</b> y enseña las reglas, las correcciones y el caso anonimizado.</td><td>"El copiloto aprende cómo escribe Axel. Siempre propone, nunca envía solo, y es solo suyo."</td></tr>
+    <tr><td class="n">8–10</td><td><b>Axel:</b> Progress &amp; stages (fechas y descripción), pedido de datos, y el cambio de color.</td><td>"Axel configura el proyecto en un par de clics y el cliente lo ve al instante."</td></tr>
+  </table>
+  <h3>Antes de entrar a la sala</h3>
+  <ul>
+    <li>Docker, Supabase y <code>npm run dev</code> funcionando; las dos sesiones (Axel y Maja) ya iniciadas.</li>
+    <li>El contrato <b>Services agreement — ready for your signature</b> sigue esperando firma (si lo firmaste en el ensayo, crea otro con el paso 1.7).</li>
+    <li>El interruptor de IA del cliente demo encendido y tu clave puesta.</li>
+    <li>Cierra pestañas con datos que no quieras mostrar.</li>
+  </ul>
+  <h3>Lo que conviene decir con honestidad</h3>
+  <ul>
+    <li>La firma del portal es una firma electrónica simple. Para contratos que exijan más (MitID, firma avanzada) se usa Documenso, que se conecta con una clave.</li>
+    <li>La IA usa hoy la API de DeepSeek, que procesa datos fuera de la UE: con clientes reales hay que moverla a un proveedor europeo con contrato de datos. Cada cliente se activa por separado.</li>
+    <li>Esto corre en un entorno local de pruebas; para producción hace falta publicar la base de datos y configurar los servicios (correo, firma, IA) en la UE.</li>
+  </ul>
+  <div class="note"><b>Pendiente de seguridad antes de publicar:</b> hoy cualquier usuario con sesión podría cambiar su propio rol a administrador. Está documentado en <code>docs/AUDITORIA.md</code> y se corrige con una migración corta; conviene hacerlo antes de usar datos reales.</div>
+</section>
+
+</body>
+</html>
