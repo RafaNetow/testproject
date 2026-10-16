@@ -37,7 +37,7 @@ type AppShellProps = {
   notifications: NotificationItem[];
   /** Counts shown beside a nav item, keyed by its href — e.g. what's waiting on the user. */
   badges?: Record<string, number>;
-  /** Top-bar chat: unread count, and the client's projects for the project picker. */
+  /** Chat bubble: unread count, and the client's projects for the project picker. */
   chat?: { unread: number; projects?: { id: string; name: string }[]; aiEnabled?: boolean };
   children: ReactNode;
 };
@@ -275,12 +275,6 @@ export function AppShell({
 
           <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 1 }}>
             <AccentSwitcher surface={variant} />
-            {chat && (
-              // useSearchParams (for ?chat= links) needs a Suspense boundary.
-              <Suspense fallback={null}>
-                <ChatDrawer surface={variant} viewerId={userId} projects={chat.projects} unread={chat.unread} aiEnabled={chat.aiEnabled} />
-              </Suspense>
-            )}
             <NotificationBell notifications={notifications} surface={variant} userId={userId} />
             <AccountMenu email={userEmail} variant={variant} />
           </Box>
@@ -297,7 +291,8 @@ export function AppShell({
             mx: "auto",
             px: { xs: 2, sm: 3, lg: 5 },
             pt: { xs: 1, lg: 2 },
-            pb: { xs: 6, lg: 10 },
+            // Room at the bottom so the chat bubble never covers the last thing on the page.
+            pb: chat ? 13 : { xs: 6, lg: 10 },
             // Work surfaces like the kanban board opt out of the centered column.
             "&:has([data-full-bleed])": { maxWidth: "none", pb: { xs: 2, lg: 3 } },
           }}
@@ -305,6 +300,15 @@ export function AppShell({
           {children}
         </Box>
       </Box>
+
+      {chat && (
+        // Floating bubble, bottom right. Kept out of the top bar: its backdrop
+        // blur would trap a position:fixed child. useSearchParams (for ?chat=
+        // links) needs a Suspense boundary.
+        <Suspense fallback={null}>
+          <ChatDrawer surface={variant} viewerId={userId} projects={chat.projects} unread={chat.unread} aiEnabled={chat.aiEnabled} />
+        </Suspense>
+      )}
     </Box>
   );
 }

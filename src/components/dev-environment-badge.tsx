@@ -20,7 +20,7 @@ export function DevEnvironmentBadge() {
         pointerEvents: "none",
         position: "fixed",
         bottom: 12,
-        right: 12,
+        left: 12, // bottom right belongs to the chat bubble
         zIndex: 2000,
         borderRadius: 999,
         px: 1.5,

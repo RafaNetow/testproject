@@ -1,14 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
 import ButtonBase from "@mui/material/ButtonBase";
 import CircularProgress from "@mui/material/CircularProgress";
-import Drawer from "@mui/material/Drawer";
+import Fab from "@mui/material/Fab";
+import Grow from "@mui/material/Grow";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
+import Paper from "@mui/material/Paper";
 import Select from "@mui/material/Select";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
@@ -31,8 +33,9 @@ function when(iso: string) {
 }
 
 /**
- * The chat lives in the top bar: an icon with the unread count that opens a
- * right-hand panel over whatever page you're on. Clients land straight in
+ * The chat is the familiar bubble in the bottom-right corner: it shows the
+ * unread count and opens a chat window above it, over whatever page you're on
+ * (the whole screen on phones). Clients land straight in
  * their project's conversation with Axel; the admin gets the list of client
  * threads first. `?chat=<projectId>` (from notifications, "Waiting on you" or
  * the weekly email) opens it on that conversation.
@@ -58,6 +61,7 @@ export function ChatDrawer({
   const isAdmin = surface === "admin";
   const linked = searchParams.get("chat");
 
+  const panelId = useId();
   const [open, setOpen] = useState(false);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [thread, setThread] = useState<{ messages: ThreadMessage[]; reads: ThreadRead[] } | null>(null);
@@ -160,7 +164,7 @@ export function ChatDrawer({
     };
   }, [open, isAdmin, projectId, refreshList]);
 
-  // Keep the top-bar badge live: a message from someone else re-runs the layout's
+  // Keep the bubble's badge live: a message from someone else re-runs the layout's
   // unread count (RLS limits the feed to threads this user belongs to).
   useEffect(() => {
     const supabase = createClient();
@@ -198,20 +202,35 @@ export function ChatDrawer({
 
   return (
     <>
-      <Tooltip title="Messages">
-        <IconButton aria-label={unread ? `Messages, ${unread} unread` : "Messages"} onClick={openPanel}>
-          <Badge badgeContent={unread} color="error" max={99}>
-            <ChatOutlined sx={{ fontSize: 22 }} />
-          </Badge>
-        </IconButton>
-      </Tooltip>
-
-      <Drawer
-        anchor="right"
-        open={open}
-        onClose={closePanel}
-        slotProps={{ paper: { sx: { width: { xs: "100%", sm: 420 }, display: "flex", flexDirection: "column" } } }}
-      >
+      <Grow in={open} style={{ transformOrigin: "bottom right" }} unmountOnExit>
+        <Paper
+          id={panelId}
+          role="dialog"
+          aria-label={isAdmin ? "Messages" : "Messages with Axel"}
+          elevation={12}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              e.stopPropagation();
+              closePanel();
+            }
+          }}
+          sx={{
+            position: "fixed",
+            zIndex: (t) => t.zIndex.speedDial,
+            // Phones: the whole screen. Larger screens: a window above the bubble.
+            inset: { xs: 0, sm: "auto" },
+            right: { sm: 24 },
+            bottom: { sm: 96 },
+            width: { xs: "100%", sm: 400 },
+            height: { xs: "100dvh", sm: "min(640px, calc(100dvh - 128px))" },
+            borderRadius: { xs: 0, sm: 3 },
+            border: { sm: 1 },
+            borderColor: { sm: "divider" },
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+        >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, px: 1.5, py: 1.25, borderBottom: 1, borderColor: "divider" }}>
           {isAdmin && projectId && (
             <IconButton aria-label="Back to all conversations" onClick={() => { setProjectId(null); setThread(null); void refreshList(); }}>
@@ -296,7 +315,30 @@ export function ChatDrawer({
             <Typography sx={{ fontSize: 14 }}>Once your engagement is set up, you can message Axel here.</Typography>
           </Box>
         )}
-      </Drawer>
+        </Paper>
+      </Grow>
+
+      <Tooltip title={open ? "Close messages" : "Messages"} placement="left">
+        <Fab
+          color="primary"
+          onClick={open ? closePanel : openPanel}
+          aria-label={open ? "Close messages" : unread ? `Messages, ${unread} unread` : "Messages"}
+          aria-expanded={open}
+          aria-controls={open ? panelId : undefined}
+          sx={{
+            position: "fixed",
+            right: 24,
+            bottom: 24,
+            zIndex: (t) => t.zIndex.speedDial,
+            // On phones the open window covers the screen and has its own close button.
+            display: { xs: open ? "none" : "inline-flex", sm: "inline-flex" },
+          }}
+        >
+          <Badge badgeContent={open ? 0 : unread} color="error" max={99} overlap="circular">
+            {open ? <Close sx={{ fontSize: 24 }} /> : <ChatOutlined sx={{ fontSize: 26 }} />}
+          </Badge>
+        </Fab>
+      </Tooltip>
     </>
   );
 }
