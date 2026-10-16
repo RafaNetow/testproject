@@ -19,11 +19,12 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import { ConfirmButton } from "@/components/confirm-button";
 import { STATUS_TONE, category, categorical, type Tone } from "@/lib/palette";
-import { AutoSubmitSelect } from "@/components/board/auto-submit-select";
 import { UploadForm } from "./upload-form";
 import { FilePreviewDialog } from "./file-preview-dialog";
 import { RenameButton } from "./rename-button";
-import { createFolder, deleteFolder, deleteFile, moveFile, renameFolder, renameFile, setFileTechnique } from "@/lib/actions/files";
+import { TechniqueMenu } from "./technique-menu";
+import { FileRowMenu } from "./file-row-menu";
+import { createFolder, deleteFolder, deleteFile, renameFolder, renameFile } from "@/lib/actions/files";
 import { FILE_LABELS } from "@/lib/techniques";
 import { TechniqueLabel } from "@/components/shared/technique-label";
 import { DataRequests, type DataRequestRow } from "./data-requests";
@@ -209,16 +210,12 @@ export function FilesView({
   const labelsHere = FILE_LABELS.filter((label) => filesHere.some((f) => f.technique === label));
   const activeTechnique = technique && labelsHere.includes(technique) ? technique : null;
   const visibleFiles = activeTechnique ? filesHere.filter((f) => f.technique === activeTechnique) : filesHere;
-  const techniqueOptions = [{ value: "", label: "No label" }, ...FILE_LABELS.map((l) => ({ value: l, label: l }))];
   const createInThisFolder = createFolder.bind(null, projectId, currentFolderId, revalidatePaths);
 
-  const moveOptions = [
-    { value: "__root__", label: "Top level" },
-    ...folders
-      .slice()
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((f) => ({ value: f.id, label: f.name })),
-  ];
+  const moveTargets = folders
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((f) => ({ id: f.id, name: f.name }));
 
   // Recursive file count per folder (includes files in nested subfolders),
   // computed bottom-up so the tree shows "how much is really in here".
@@ -444,7 +441,6 @@ export function FilesView({
                     <TableCell sx={{ pl: 2.5 }}>Name</TableCell>
                     <TableCell>Technique</TableCell>
                     <TableCell>Modified</TableCell>
-                    {canManage && <TableCell>Folder</TableCell>}
                     <TableCell align="right" sx={{ pr: 2 }}>
                       <Box component="span" sx={visuallyHidden}>
                         Actions
@@ -455,7 +451,6 @@ export function FilesView({
                 <TableBody>
                   {visibleFiles.map((f) => {
                     const deleteThis = deleteFile.bind(null, f.id, f.storage_path, revalidatePaths);
-                    const moveThis = moveFile.bind(null, f.id, revalidatePaths);
                     const renameThis = renameFile.bind(null, f.id, revalidatePaths);
                     const type = fileType(f.filename, f.mime_type);
                     return (
@@ -492,15 +487,7 @@ export function FilesView({
                         </TableCell>
                         <TableCell sx={{ width: canManage ? 150 : undefined }}>
                           {canManage ? (
-                            <form action={setFileTechnique.bind(null, f.id, revalidatePaths)}>
-                              <AutoSubmitSelect
-                                name="technique"
-                                defaultValue={f.technique ?? ""}
-                                options={techniqueOptions}
-                                ariaLabel={`Technique for ${f.filename}`}
-                                sx={{ minWidth: 0, width: "100%" }}
-                              />
-                            </form>
+                            <TechniqueMenu fileId={f.id} filename={f.filename} technique={f.technique} revalidatePaths={revalidatePaths} />
                           ) : (
                             <TechniqueLabel label={f.technique} />
                           )}
@@ -508,19 +495,6 @@ export function FilesView({
                         <TableCell sx={{ whiteSpace: "nowrap", color: "text.secondary" }}>
                           {new Date(f.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                         </TableCell>
-                        {canManage && (
-                          <TableCell sx={{ width: 160, minWidth: 140 }}>
-                            <form action={moveThis}>
-                              <AutoSubmitSelect
-                                name="folder_id"
-                                defaultValue={f.folder_id ?? "__root__"}
-                                options={moveOptions}
-                                ariaLabel={`Folder for ${f.filename}`}
-                                sx={{ minWidth: 0, width: "100%" }}
-                              />
-                            </form>
-                          </TableCell>
-                        )}
                         <TableCell align="right" sx={{ pr: 1.5, whiteSpace: "nowrap" }}>
                           <Box sx={{ display: "inline-flex", alignItems: "center" }}>
                             {f.url && (
@@ -548,6 +522,15 @@ export function FilesView({
                                   ariaLabel={`Rename file ${f.filename}`}
                                 />
                               </form>
+                            )}
+                            {canManage && (
+                              <FileRowMenu
+                                fileId={f.id}
+                                filename={f.filename}
+                                folderId={f.folder_id}
+                                folders={moveTargets}
+                                revalidatePaths={revalidatePaths}
+                              />
                             )}
                             {canManage && (
                               <form action={deleteThis}>
