@@ -28,10 +28,10 @@ function applyAccent(key: AccentKey) {
 }
 
 /**
- * Admin-only: try the four candidate brand accents live. The choice is a cookie
- * on this browser (portal and marketing pages follow it); clients never see this.
+ * Pick the accent colour for your own view, live. The choice is a cookie on this
+ * browser (portal and marketing pages follow it); nobody else is affected.
  */
-export function AccentSwitcher() {
+export function AccentSwitcher({ surface = "admin" }: { surface?: "portal" | "admin" }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [accent, setAccent] = useState<AccentKey>("verdigris");
 
@@ -42,9 +42,9 @@ export function AccentSwitcher() {
 
   return (
     <>
-      <Tooltip title="Compare brand colours">
+      <Tooltip title={surface === "admin" ? "Compare brand colours" : "Choose a colour"}>
         <IconButton
-          aria-label="Compare brand colours"
+          aria-label={surface === "admin" ? "Compare brand colours" : "Choose a colour"}
           aria-haspopup="dialog"
           onClick={(e) => {
             setAccent(currentAccent());
@@ -64,7 +64,7 @@ export function AccentSwitcher() {
       >
         <Typography sx={{ px: 1, pt: 0.5, fontSize: 14, fontWeight: 700 }}>Brand colour</Typography>
         <Typography sx={{ px: 1, pb: 1, fontSize: 12, color: "text.muted" }}>
-          Comparing colours — only you see this.
+          {surface === "admin" ? "Comparing colours — only you see this." : "Choose the colour you prefer — it only changes your view."}
         </Typography>
         <Box role="radiogroup" aria-label="Brand colour" sx={{ display: "grid", gap: 0.5 }}>
           {ACCENTS.map((a) => {

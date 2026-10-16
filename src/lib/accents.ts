@@ -1,10 +1,11 @@
 /**
- * Brand accents the admin can compare (accent-switcher.tsx). The CSS for each
+ * Brand accents anyone can pick for their own view (accent-switcher.tsx). The CSS for each
  * lives in globals.css under `:root[data-accent=…]`; verdigris is the default.
  */
 export const ACCENTS = [
   { key: "verdigris", name: "Verdigris", note: "Copper patina — current brand", swatch: "#2f7d6d" },
   { key: "prussian", name: "Prussian blue", note: "The first synthetic pigment, 1706", swatch: "#1f4e79" },
+  { key: "blue", name: "Blue", note: "Classic, calm and familiar", swatch: "#1f6fb2" },
   { key: "cobalt", name: "Cobalt violet", note: "Cobalt phosphate pigment", swatch: "#6a4c93" },
   { key: "graphite", name: "Graphite", note: "Carbon — almost monochrome", swatch: "#2f3a38" },
 ] as const;

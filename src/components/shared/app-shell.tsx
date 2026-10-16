@@ -270,7 +270,7 @@ export function AppShell({
           )}
 
           <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 1 }}>
-            {variant === "admin" && <AccentSwitcher />}
+            <AccentSwitcher surface={variant} />
             {chat && (
               // useSearchParams (for ?chat= links) needs a Suspense boundary.
               <Suspense fallback={null}>

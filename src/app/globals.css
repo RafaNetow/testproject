@@ -150,6 +150,13 @@
 :root[data-accent="prussian"]:has(.app-shell) {
   --grey-channel: 134 149 166;
 }
+:root[data-accent="blue"] {
+  --color-accent: #1f6fb2;
+  --color-accent-foreground: #ffffff;
+}
+:root[data-accent="blue"]:has(.app-shell) {
+  --grey-channel: 134 149 166;
+}
 :root[data-accent="cobalt"] {
   --color-accent: #6a4c93;
   --color-accent-foreground: #ffffff;
@@ -170,6 +177,11 @@
     --color-accent: #7fb0de;
     --color-accent-foreground: #0a1a2a;
     --color-ring: #7fb0de;
+  }
+  :root[data-accent="blue"]:has(.app-shell) {
+    --color-accent: #78b4e6;
+    --color-accent-foreground: #0a1a2a;
+    --color-ring: #78b4e6;
   }
   :root[data-accent="cobalt"]:has(.app-shell) {
     --color-accent: #b9a2dc;
