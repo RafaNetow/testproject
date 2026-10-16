@@ -26,23 +26,20 @@ function readableAuthError(message: string | undefined) {
   return trimmed;
 }
 
-export function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<Status>("idle");
-  const [errorMessage, setErrorMessage] = useState("");
+const LINK_FAILED =
+  "That sign-in link didn't work — it may have expired or been opened in a different browser. Request a fresh one below.";
 
-  // Surface a failed magic-link verification (the callback bounces back
-  // here with ?error=auth) — previously this was silently swallowed.
+export function LoginForm({ linkFailed = false }: { linkFailed?: boolean }) {
+  const [email, setEmail] = useState("");
+  // A failed magic-link verification bounces back here with ?error=auth; the
+  // page passes that in so the message shows from the first render.
+  const [status, setStatus] = useState<Status>(linkFailed ? "error" : "idle");
+  const [errorMessage, setErrorMessage] = useState(linkFailed ? LINK_FAILED : "");
+
+  // Drop ?error=auth from the address so a reload doesn't show it again.
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("error") === "auth") {
-      setStatus("error");
-      setErrorMessage(
-        "That sign-in link didn't work — it may have expired or been opened in a different browser. Request a fresh one below."
-      );
-      window.history.replaceState(null, "", "/login");
-    }
-  }, []);
+    if (linkFailed) window.history.replaceState(null, "", "/login");
+  }, [linkFailed]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();

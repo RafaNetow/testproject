@@ -8,7 +8,8 @@ import Typography from "@mui/material/Typography";
 import { SelectField } from "@/components/shared/select-field";
 import { StatTiles } from "@/components/shared/stat-tiles";
 import { logHours, updateHoursEntry, deleteHoursEntry } from "@/lib/actions/hours";
-import { EditableHoursRow, HOUR_CATEGORIES } from "./editable-hours-row";
+import { EditableHoursRow } from "./editable-hours-row";
+import { HOUR_CATEGORIES } from "@/lib/hour-categories";
 import { Add } from "@/components/icons";
 import { SubmitButton } from "@/components/shared/submit-button";
 

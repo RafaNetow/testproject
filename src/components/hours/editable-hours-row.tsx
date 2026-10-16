@@ -11,11 +11,11 @@ import Typography from "@mui/material/Typography";
 import { ConfirmButton } from "@/components/confirm-button";
 import { figureSx } from "@/lib/palette";
 import { SelectField } from "@/components/shared/select-field";
+import { HOUR_CATEGORIES } from "@/lib/hour-categories";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Close, DeleteOutlined, EditOutlined } from "@/components/icons";
 import { SubmitButton } from "@/components/shared/submit-button";
 
-export const HOUR_CATEGORIES = ["Analysis", "Formulation work", "Meeting", "Report writing", "Other"];
 
 type HoursEntry = {
   id: string;

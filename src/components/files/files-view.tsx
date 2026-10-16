@@ -32,7 +32,8 @@ import { DeleteOutlined, Download, Folder, FolderOutlined, NavigateNext, NoteAdd
 import { SubmitButton } from "@/components/shared/submit-button";
 
 /** Hidden from sight, still read by screen readers. */
-const visuallyHidden = { position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" } as const;
+// Pixel strings on purpose: in `sx`, a bare `1` means 100%.
+const visuallyHidden = { position: "absolute", width: "1px", height: "1px", overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" } as const;
 
 type FolderRow = { id: string; name: string; parent_folder_id: string | null };
 type FileRow = {
@@ -441,7 +442,8 @@ export function FilesView({
                     <TableCell sx={{ pl: 2.5 }}>Name</TableCell>
                     <TableCell>Technique</TableCell>
                     <TableCell>Modified</TableCell>
-                    <TableCell align="right" sx={{ pr: 2 }}>
+                    {/* Positioned so the hidden label stays inside the table's scroll area. */}
+                    <TableCell align="right" sx={{ pr: 2, position: "relative" }}>
                       <Box component="span" sx={visuallyHidden}>
                         Actions
                       </Box>

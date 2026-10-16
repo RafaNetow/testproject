@@ -220,7 +220,7 @@ export function MessageThread({
                 type="file"
                 name="file"
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setAttachment(e.target.files?.[0]?.name ?? "")}
-                sx={{ position: "absolute", width: 1, height: 1, opacity: 0, overflow: "hidden", clip: "rect(0 0 0 0)" }}
+                sx={{ position: "absolute", width: "1px", height: "1px", opacity: 0, overflow: "hidden", clip: "rect(0 0 0 0)" }}
               />
             </IconButton>
           </Tooltip>

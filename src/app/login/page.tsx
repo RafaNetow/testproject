@@ -9,7 +9,8 @@ import { LoginForm } from "./login-form";
  * Server component so an already-authenticated visitor never sees the
  * login form — they're routed straight to the right surface by role.
  */
-export default async function LoginPage() {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const { error } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -60,7 +61,7 @@ export default async function LoginPage() {
             to remember.
           </p>
 
-          <LoginForm />
+          <LoginForm linkFailed={error === "auth"} />
         </div>
       </div>
     </main>
