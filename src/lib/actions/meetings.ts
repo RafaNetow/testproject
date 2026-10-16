@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAxelAdmin } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
 import { recordActivity, entityInfo, quoted } from "@/lib/activity";
+import { STUDIO_TIMEZONE, zonedLocalToUtc } from "@/lib/calendar";
 
 function revalidateAll(paths: string[]) {
   for (const p of paths) revalidatePath(p);
@@ -20,18 +21,22 @@ export async function createMeeting(projectId: string, paths: string[], formData
     throw new Error("Title and date/time are required.");
   }
 
+  // The form sends wall-clock time with no zone; it means Copenhagen time,
+  // whatever zone the server runs in.
+  const startsAt = zonedLocalToUtc(scheduledAt, STUDIO_TIMEZONE);
+
   const supabase = await createClient();
   const { error } = await supabase.from("meetings").insert({
     project_id: projectId,
     title,
-    scheduled_at: new Date(scheduledAt).toISOString(),
+    scheduled_at: startsAt.toISOString(),
     duration_minutes: durationMinutes > 0 ? durationMinutes : null,
     zoom_url: zoomUrl || null,
   });
   if (error) {
     throw new Error(`Couldn't schedule meeting: ${error.message}`);
   }
-  const when = new Date(scheduledAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  const when = startsAt.toLocaleString("en-GB", { timeZone: STUDIO_TIMEZONE, day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
   await recordActivity({ kind: "meeting", projectId, message: `scheduled ${quoted(title)} for ${when}` });
   revalidateAll(paths);
 }

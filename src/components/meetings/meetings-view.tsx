@@ -13,6 +13,7 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { createMeeting, updateMeeting, deleteMeeting } from "@/lib/actions/meetings";
 import { Add, DeleteOutlined, ExpandMore } from "@/components/icons";
 import { SubmitButton } from "@/components/shared/submit-button";
+import { dayKey, formatDay, formatTime } from "@/lib/calendar";
 
 type Meeting = {
   id: string;
@@ -52,6 +53,7 @@ export function MeetingsView({
             label="Date & time"
             type="datetime-local"
             required
+            helperText="Copenhagen time"
             slotProps={{ inputLabel: { shrink: true } }}
             fullWidth={false}
             sx={{ width: 220 }}
@@ -85,7 +87,6 @@ export function MeetingsView({
           {meetings.map((m) => {
             const updateThis = updateMeeting.bind(null, m.id, revalidatePaths);
             const deleteThis = deleteMeeting.bind(null, m.id, revalidatePaths);
-            const when = new Date(m.scheduled_at);
             return (
               <Paper key={m.id} variant="outlined" sx={{ p: 2.5 }}>
                 <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 1.5 }}>
@@ -97,8 +98,7 @@ export function MeetingsView({
                       <StatusBadge status={m.status} />
                     </Box>
                     <Typography sx={{ mt: 0.5, fontSize: 14, color: "text.muted" }}>
-                      {when.toLocaleDateString("en-GB", { weekday: "short", month: "short", day: "numeric" })} at{" "}
-                      {when.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
+                      {formatDay(dayKey(m.scheduled_at))} at {formatTime(m.scheduled_at)}
                       {m.duration_minutes ? ` · ${m.duration_minutes} min` : ""}
                     </Typography>
                     {m.notes && (
