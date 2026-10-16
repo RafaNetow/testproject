@@ -84,6 +84,10 @@ export async function sendMessage(
   const { error } = await supabase.from("messages").insert({ project_id: projectId, author_id: user.id, body: text, file_id: fileId });
   if (error) return { ok: false, message: `Couldn't send the message: ${error.message}` };
 
+  // If Axel is replying after "Suggest reply", remember what he actually sent: his
+  // corrections are what the copilot learns from. Best effort, and admin only.
+  await supabase.rpc("record_draft_final", { p_project: projectId, p_text: text });
+
   // Writing in a thread means you've read it.
   await supabase.from("message_reads").upsert({ project_id: projectId, user_id: user.id, last_read_at: new Date().toISOString() });
 

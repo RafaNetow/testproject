@@ -7,7 +7,8 @@ import { recordActivity } from "@/lib/activity";
 import { AiUnavailableError, aiConfigured, aiModel, chat } from "@/lib/ai/provider";
 import { buildProjectContext } from "@/lib/ai/context";
 import { citedSources, stripCitations, type Source } from "@/lib/ai/format";
-import { CLIENT_SYSTEM, DRAFT_SYSTEM } from "@/lib/ai/prompts";
+import { CLIENT_SYSTEM, draftSystem } from "@/lib/ai/prompts";
+import { formatCases, formatExamples, rankCases, type CaseStudy } from "@/lib/ai/learning";
 
 export type AskResult = { ok: true; answer: string; sources: Source[] } | { ok: false; message: string };
 export type DraftResult = { ok: true; draft: string } | { ok: false; message: string };
@@ -79,10 +80,35 @@ export async function suggestReply(projectId: string): Promise<DraftResult> {
     .maybeSingle();
   if (!last) return { ok: false, message: "There's no client message to reply to yet." };
 
+  // What the copilot has learned from Axel: his rules, his recent corrections and similar past cases.
+  const [{ data: rules }, { data: pairs }, { data: caseRows }, { data: orgs }, { data: people }] = await Promise.all([
+    supabase.from("ai_rules").select("body").eq("id", 1).maybeSingle(),
+    supabase
+      .from("ai_interactions")
+      .select("answer, final_text")
+      .eq("kind", "draft")
+      .not("final_text", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(12),
+    supabase.from("case_studies").select("id, title, problem, findings, outcome, tags").order("created_at", { ascending: false }).limit(200),
+    supabase.from("organizations").select("name"),
+    supabase.rpc("thread_participants", { p_project: projectId }),
+  ]);
+  // Names are scrubbed from other conversations' examples before the model sees them.
+  const names = [
+    ...(orgs ?? []).map((o) => o.name as string),
+    ...((people ?? []) as { name: string; is_admin: boolean }[]).filter((p) => !p.is_admin).map((p) => p.name),
+  ];
+  const examples = formatExamples(
+    (pairs ?? []).map((p) => ({ draft: p.answer as string, final: p.final_text as string })),
+    names
+  );
+  const similar = rankCases(`${context.projectName} ${last.body}`, (caseRows ?? []) as CaseStudy[], 2);
+
   try {
     const raw = await chat({
       messages: [
-        { role: "system", content: DRAFT_SYSTEM },
+        { role: "system", content: draftSystem({ rules: (rules?.body as string) ?? "", examples, cases: formatCases(similar) }) },
         { role: "user", content: `${context.text}\n\nCLIENT'S LATEST MESSAGE: ${last.body}\n\nDraft Axel's reply.` },
       ],
       maxTokens: 400,

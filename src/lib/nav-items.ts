@@ -1,4 +1,4 @@
-import { Business, BusinessOutlined, CalendarMonth, CalendarMonthOutlined, Dashboard, DashboardOutlined, Dataset, DatasetOutlined, Description, DescriptionOutlined, EventNote, EventNoteOutlined, Groups, GroupsOutlined, Hub, HubOutlined, MenuBook, MenuBookOutlined, ReceiptLong, ReceiptLongOutlined, ScatterPlot, ScatterPlotOutlined, Science, ScienceOutlined, Summarize, SummarizeOutlined, Timeline, TimelineOutlined, Timer, TimerOutlined, TrackChanges, TrackChangesOutlined, type IconComponent } from "@/components/icons";
+import { Business, BusinessOutlined, CalendarMonth, CalendarMonthOutlined, Dashboard, DashboardOutlined, Dataset, DatasetOutlined, Description, DescriptionOutlined, EventNote, EventNoteOutlined, Groups, GroupsOutlined, Hub, HubOutlined, MenuBook, MenuBookOutlined, ReceiptLong, ReceiptLongOutlined, ScatterPlot, ScatterPlotOutlined, Science, ScienceOutlined, Summarize, SummarizeOutlined, Timeline, TimelineOutlined, Timer, TimerOutlined, TrackChanges, TrackChangesOutlined, type IconComponent, AssistantIcon, AssistantIconFilled } from "@/components/icons";
 
 export type NavItem = {
   label: string;
@@ -30,4 +30,5 @@ export const ADMIN_NAV: NavItem[] = [
   { label: "Invoices", href: "/admin/invoices", icon: ReceiptLongOutlined, activeIcon: ReceiptLong },
   { label: "Contracts", href: "/admin/contracts", icon: DescriptionOutlined, activeIcon: Description },
   { label: "Prospects", href: "/admin/prospects", icon: TrackChangesOutlined, activeIcon: TrackChanges },
+  { label: "Assistant", href: "/admin/assistant", icon: AssistantIcon, activeIcon: AssistantIconFilled },
 ];

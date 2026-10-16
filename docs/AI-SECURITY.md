@@ -65,3 +65,27 @@ On Vercel, add the same variables in the project's Environment Variables, never 
 
 - Purge `ai_interactions` rows older than 90 days, for example in the weekly cron.
 - Before using real client data, move `AI_BASE_URL` to an EU-hosted endpoint and add the provider to the DPA.
+
+## What the admin copilot learns from Axel (admin only)
+
+The **Assistant** page in the admin shows and edits everything the copilot has learned. None of it is visible to clients, and the client-facing assistant never uses it. Clients and collaborators have no read or write access to these tables.
+
+| What | How it is stored | How it is used |
+|---|---|---|
+| **Corrections** | For each AI draft, `ai_interactions.final_text` keeps the message Axel actually sent (`record_draft_final()`, admin only) | The latest four edited pairs go into the next draft as tone examples |
+| **Rules** | One editable text in `ai_rules` | Added to every draft's instructions |
+| **Case book** | Anonymised write-ups in `case_studies`, drafted by the assistant from a project and edited by Axel before saving | The two most similar cases are shown to the copilot when drafting |
+
+Confidentiality between clients:
+
+- **Case book:** company and person names are removed from the project data before the model sees it, and again from its answer. A project title is removed as a whole phrase. Axel reads and edits every entry before it is saved, and the page reminds him to check that nothing identifies the client.
+- **Correction examples** come from other conversations, so names are scrubbed and the prompt tells the model to learn tone only and never reuse their facts. **Residual risk:** a model can still echo a detail, which is why a draft is only text in a box and Axel reads it before sending. Do not use drafts without reading them.
+- Nothing learned is shared with clients, and nothing is learned automatically from client conversations: only from what Axel edits and saves.
+
+## Signing contracts in the portal
+
+Contracts can be signed in the portal (`signing_method = 'portal'`) or by email through Documenso.
+
+- The workspace **owner** reviews the PDF and signs by typing their full name and confirming. Collaborators cannot see contracts, and only the owner of that organisation can complete a signature (`complete_portal_signature()` checks it; the contracts table has no update policy for clients).
+- The server appends a **certificate page** to the PDF (name, account, time in UTC, IP address, browser and the SHA-256 fingerprint of the original) and files it as the signed copy. The service-role client is used only to store that file, at a path built from the contract's own organisation id.
+- This is a **simple electronic signature**: valid evidence for most commercial agreements in the EU and Denmark, but weaker than an advanced or qualified signature (for example MitID or Documenso's advanced signing). Use those where a contract or the law requires a higher level.
