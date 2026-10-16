@@ -37,7 +37,7 @@ type AppShellProps = {
   /** Counts shown beside a nav item, keyed by its href — e.g. what's waiting on the user. */
   badges?: Record<string, number>;
   /** Top-bar chat: unread count, and the client's projects for the project picker. */
-  chat?: { unread: number; projects?: { id: string; name: string }[] };
+  chat?: { unread: number; projects?: { id: string; name: string }[]; aiEnabled?: boolean };
   children: ReactNode;
 };
 
@@ -274,7 +274,7 @@ export function AppShell({
             {chat && (
               // useSearchParams (for ?chat= links) needs a Suspense boundary.
               <Suspense fallback={null}>
-                <ChatDrawer surface={variant} viewerId={userId} projects={chat.projects} unread={chat.unread} />
+                <ChatDrawer surface={variant} viewerId={userId} projects={chat.projects} unread={chat.unread} aiEnabled={chat.aiEnabled} />
               </Suspense>
             )}
             <NotificationBell notifications={notifications} surface={variant} userId={userId} />

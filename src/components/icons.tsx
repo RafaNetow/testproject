@@ -123,6 +123,37 @@ function icon(Glyph: ComponentType<PhosphorProps>, weight: IconWeight = "light")
   return Icon as unknown as IconComponent;
 }
 
+/**
+ * The Alchemica Assistant's mark: an alembic (the alchemist's still) with a
+ * spark, drawn on Phosphor's 256 grid so it sits with the rest of the set.
+ * "light" is the outline; "fill" tints the flask for the active state.
+ */
+const AlembicGlyph = forwardRef<SVGSVGElement, PhosphorProps>(function AlembicGlyph(
+  { size = "1em", weight = "light", color: _color, mirrored: _mirrored, alt: _alt, ...rest },
+  ref
+) {
+  void _color;
+  void _mirrored;
+  void _alt;
+  const stroke = weight === "bold" ? 20 : weight === "regular" ? 16 : 12;
+  return (
+    <svg ref={ref} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width={size} height={size} fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" {...rest}>
+      {weight === "fill" && <circle cx="104" cy="164" r="52" fill="currentColor" fillOpacity="0.18" stroke="none" />}
+      {/* neck and rim */}
+      <path d="M80 40h48M92 40v74M116 40v74" />
+      {/* round-bottomed flask */}
+      <path d="M92 114a56 56 0 1 0 24 0" />
+      {/* liquid */}
+      <path d="M60 178c15-9 29-9 44 0s29 9 44 0" />
+      {/* the still's spout, ending in a drop */}
+      <path d="M116 64c40-2 66 14 82 46" />
+      <path d="M198 128v0" strokeWidth={stroke * 1.6} />
+      {/* spark */}
+      <path d="M196 22c2.6 12.6 9.4 19.4 22 22c-12.6 2.6-19.4 9.4-22 22c-2.6-12.6-9.4-19.4-22-22c12.6-2.6 19.4-9.4 22-22Z" strokeWidth={stroke * 0.75} />
+    </svg>
+  );
+});
+
 // Actions & navigation
 export const Add = icon(Plus);
 export const Close = icon(X);
@@ -181,6 +212,10 @@ export const VideocamOutlined = icon(VideoCamera);
 export const ViewKanbanOutlined = icon(Kanban);
 export const BuildOutlined = icon(Wrench);
 export const WorkOutlineOutlined = icon(Briefcase);
+
+// Alchemica Assistant
+export const AssistantIcon = icon(AlembicGlyph as unknown as ComponentType<PhosphorProps>);
+export const AssistantIconFilled = icon(AlembicGlyph as unknown as ComponentType<PhosphorProps>, "fill");
 
 // Sidebar sections: outlined at rest, filled for the current page.
 export const ChatOutlined = icon(ChatCircleText);

@@ -16,6 +16,8 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { SelectField } from "@/components/shared/select-field";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ClientSettingsDrawer } from "@/components/admin/client-settings-drawer";
+import { AiToggle } from "@/components/admin/ai-toggle";
+import { aiConfigured } from "@/lib/ai/provider";
 import { NewProjectPopover } from "@/components/admin/new-project-popover";
 import { PhaseEditor } from "@/components/admin/phase-editor";
 import { ProjectSectionChips } from "@/components/admin/project-section-chips";
@@ -64,7 +66,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ o
 
   const { data: org } = await supabase
     .from("organizations")
-    .select("id, name, status, cvr_number, billing_address")
+    .select("id, name, status, cvr_number, billing_address, ai_enabled")
     .eq("id", orgId)
     .maybeSingle();
 
@@ -127,6 +129,13 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ o
         actions={
           <ClientSettingsDrawer>
             <Stack spacing={4}>
+              <Stack component="section" spacing={1.5}>
+                <Typography variant="h3" sx={{ fontSize: 16 }}>
+                  Alchemica Assistant
+                </Typography>
+                <AiToggle orgId={org.id} enabled={Boolean(org.ai_enabled)} configured={aiConfigured()} />
+              </Stack>
+
               <Stack component="section" spacing={2}>
                 <Typography variant="h3" sx={{ fontSize: 16 }}>
                   Client details

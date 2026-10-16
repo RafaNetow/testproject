@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/shared/app-shell";
 import { notificationHref } from "@/lib/notification-links";
 import { loadUnread } from "@/lib/messages";
+import { aiConfigured } from "@/lib/ai/provider";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAxelAdmin();
@@ -38,7 +39,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       userEmail={user?.email ?? ""}
       userId={user?.id ?? ""}
       notifications={notifications}
-      chat={{ unread: unreadMessages }}
+      chat={{ unread: unreadMessages, aiEnabled: aiConfigured() }}
     >
       {children}
     </AppShell>

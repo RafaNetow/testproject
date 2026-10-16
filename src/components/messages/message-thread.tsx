@@ -13,7 +13,8 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import { AttachFile, Close, ForumOutlined, MenuBookOutlined, MoreVert, Send, ViewKanbanOutlined } from "@/components/icons";
+import { AssistantIcon, AttachFile, Close, ForumOutlined, MenuBookOutlined, MoreVert, Send, ViewKanbanOutlined } from "@/components/icons";
+import { suggestReply } from "@/lib/actions/ai";
 import { createClient } from "@/lib/supabase/client";
 import { markThreadRead, messageToCard, messageToDecision, sendMessage, type SendResult } from "@/lib/actions/messages";
 import { initials } from "@/components/board/board-colors";
@@ -40,6 +41,8 @@ export function MessageThread({
   reads,
   onRefresh,
   onRead,
+  initialText,
+  canSuggest = false,
 }: {
   projectId: string;
   viewerId: string;
@@ -50,10 +53,35 @@ export function MessageThread({
   onRefresh: () => void;
   /** Called after the thread is marked read, so unread badges can update. */
   onRead?: () => void;
+  /** Pre-filled message text (e.g. a question the client moved over from the assistant). */
+  initialText?: string;
+  /** Admin: offer an AI-drafted reply that Axel edits and sends himself. */
+  canSuggest?: boolean;
 }) {
   const paths: string[] = [];
   const scrollRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const textRef = useRef<HTMLTextAreaElement>(null);
+  const [suggesting, startSuggest] = useTransition();
+  const [suggestError, setSuggestError] = useState<string | null>(null);
+
+  // The draft only fills the box: nothing is sent until Axel presses Send.
+  function suggest() {
+    setSuggestError(null);
+    startSuggest(async () => {
+      const res = await suggestReply(projectId);
+      if (!res.ok) {
+        setSuggestError(res.message);
+        return;
+      }
+      const el = textRef.current;
+      if (el) {
+        el.value = res.draft;
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        el.focus();
+      }
+    });
+  }
   const [state, formAction, pending] = useActionState<SendResult | null, FormData>(
     sendMessage.bind(null, projectId, paths),
     null
@@ -162,6 +190,27 @@ export function MessageThread({
             {state.message}
           </Alert>
         )}
+        {canSuggest && (
+          <Box sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+            <Button
+              size="small"
+              variant="outlined"
+              color="secondary"
+              onClick={suggest}
+              disabled={suggesting}
+              startIcon={<AssistantIcon sx={{ fontSize: 16 }} />}
+              sx={{ fontSize: 12 }}
+            >
+              {suggesting ? "Drafting…" : "Suggest reply"}
+            </Button>
+            <Typography sx={{ fontSize: 12, color: "text.muted" }}>AI draft — review before sending.</Typography>
+          </Box>
+        )}
+        {suggestError && (
+          <Alert severity="info" sx={{ mb: 1, fontSize: 13 }} onClose={() => setSuggestError(null)}>
+            {suggestError}
+          </Alert>
+        )}
         <Box key={formKey} component="form" ref={formRef} action={formAction} sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
           <Tooltip title="Attach a file">
             <IconButton component="label" aria-label="Attach a file" sx={{ mb: 0.25 }}>
@@ -183,6 +232,8 @@ export function MessageThread({
             )}
             <TextField
               name="body"
+              inputRef={textRef}
+              defaultValue={initialText}
               placeholder="Write a message…"
               multiline
               maxRows={6}
