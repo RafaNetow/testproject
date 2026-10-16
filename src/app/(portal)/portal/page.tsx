@@ -10,6 +10,7 @@ import { ProjectProgress } from "@/components/shared/project-progress";
 import type { TimelineMarker } from "@/components/shared/project-timeline";
 import { WaitingOnYou } from "@/components/shared/waiting-on-you";
 import { loadWaiting } from "@/lib/waiting";
+import { loadStageItems } from "@/lib/stage-items";
 import { requireSessionUser } from "@/lib/dal";
 import { FolderOpenOutlined, ForumOutlined, VideocamOutlined, ViewKanbanOutlined } from "@/components/icons";
 
@@ -79,7 +80,7 @@ export default async function PortalHome() {
       .maybeSingle(),
     supabase
       .from("projects")
-      .select("id, name, status, progress_pct, start_date, project_phases(id, name, position, progress_pct, start_date, end_date)")
+      .select("id, name, status, progress_pct, start_date, project_phases(id, name, position, progress_pct, start_date, end_date, description)")
       .in("id", projectIds)
       .order("created_at", { ascending: false }),
     // RLS already hides drafts from the client.
@@ -106,6 +107,12 @@ export default async function PortalHome() {
       .filter((d) => d.project_id === projectId && d.due_date && d.status !== "approved")
       .map((d) => ({ date: d.due_date!, label: d.title, kind: "deliverable" as const })),
   ];
+
+  // What falls in each stage (by date), for the timeline's expandable rows.
+  const stageItems = await loadStageItems(supabase, projectIds, (kind, projectId) => {
+    const section = kind === "deliverable" ? "deliverables" : kind === "meeting" ? "meetings" : "files";
+    return `/portal/${section}?project=${projectId}`;
+  });
 
   // Active engagements first; each with its stages in the admin's order.
   const progress = (progressRows ?? [])
@@ -171,6 +178,7 @@ export default async function PortalHome() {
             phases={p.phases}
             titleExtra={<StatusBadge status={p.status} />}
             markers={markersFor(p.id)}
+            items={stageItems[p.id] ?? []}
             today={today}
           />
         ))}

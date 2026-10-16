@@ -24,6 +24,8 @@ const STATUS_TONES: Record<string, Tone> = {
   upcoming: "info",
   past: "neutral",
   cancelled: "error",
+  requested: "warning",
+  received: "success",
 };
 
 /** Readable names for the raw database states; anything else is sentence-cased. */

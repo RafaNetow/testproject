@@ -219,3 +219,24 @@ insert into messages (project_id, author_id, body, created_at) values
 insert into message_reads (project_id, user_id, last_read_at) values
   ('20000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000a1', now() - interval '1 day 18 hours'),
   ('20000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000c1', now() - interval '1 day 19 hours');
+
+-- Stage descriptions (migration 0023): what happens in each stage, in plain words.
+update project_phases set description = case
+  when project_id = '20000000-0000-0000-0000-000000000001' and name = 'Onboarding'
+    then 'We agree the scope, collect your formulation records and the failed-batch data, and set up this workspace.'
+  when project_id = '20000000-0000-0000-0000-000000000001' and name = 'Preliminary experiments'
+    then 'Quick checks on retained samples to rule out the obvious causes: moisture, raw-material lots and mixing order.'
+  when project_id = '20000000-0000-0000-0000-000000000001' and name = 'Root-cause analysis'
+    then 'We read the NMR and FTIR data side by side with the batch records to find what changed in the failed bonds.'
+  when project_id = '20000000-0000-0000-0000-000000000001' and name = 'Final report'
+    then 'A written root cause and the next experiment to run, presented in a short call.'
+  when project_id = '20000000-0000-0000-0000-000000000002' and name = 'Onboarding'
+    then 'We agree the scope and collect the cure-oven settings and water-uptake results you already have.'
+  when project_id = '20000000-0000-0000-0000-000000000002' and name = 'Preliminary experiments'
+    then 'We test three cure temperatures on small panels to find where the coating stops absorbing water.'
+  when project_id = '20000000-0000-0000-0000-000000000002' and name = 'Main experiments'
+    then 'Full-size trial batches at the best temperature, checked against your production oven logs.'
+  when project_id = '20000000-0000-0000-0000-000000000002' and name = 'Final report'
+    then 'A revised cure schedule with the evidence behind it, ready for your production team.'
+  else description
+end;

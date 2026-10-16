@@ -101,7 +101,7 @@ function PhaseRow({
   isFirst: boolean;
   isLast: boolean;
   disabled: boolean;
-  onSave: (fields: { name?: string; progress_pct?: number; start_date?: string; end_date?: string }) => void;
+  onSave: (fields: { name?: string; progress_pct?: number; start_date?: string; end_date?: string; description?: string }) => void;
   onMove: (direction: "up" | "down") => void;
 }) {
   const [pct, setPct] = useState(phase.progress_pct);
@@ -197,6 +197,21 @@ function PhaseRow({
           />
         ))}
       </Box>
+
+      {/* Shown to the client when they open this stage on the timeline. */}
+      <TextField
+        label="What happens in this stage (the client sees this)"
+        defaultValue={phase.description ?? ""}
+        multiline
+        minRows={1}
+        maxRows={4}
+        onBlur={(e) => {
+          const value = e.target.value.trim();
+          if (value !== (phase.description ?? "")) onSave({ description: value });
+        }}
+        slotProps={{ inputLabel: { shrink: true }, htmlInput: { maxLength: 600, "aria-label": `${phase.name} description` } }}
+        sx={{ gridColumn: { md: "2 / 4" } }}
+      />
 
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: { xs: "flex-end", md: "flex-start" }, gridRow: { md: "1" }, gridColumn: { md: "4" } }}>
         <Tooltip title="Move up">

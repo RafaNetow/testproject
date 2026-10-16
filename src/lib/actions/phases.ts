@@ -13,6 +13,7 @@ type Phase = {
   progress_pct: number;
   start_date: string | null;
   end_date: string | null;
+  description: string | null;
 };
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -33,7 +34,7 @@ async function getPhase(phaseId: string): Promise<Phase> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("project_phases")
-    .select("id, project_id, name, position, progress_pct, start_date, end_date")
+    .select("id, project_id, name, position, progress_pct, start_date, end_date, description")
     .eq("id", phaseId)
     .maybeSingle();
   if (!data) throw new Error("Stage not found.");
@@ -87,7 +88,7 @@ export async function updatePhase(phaseId: string, formData: FormData) {
   await requireAxelAdmin();
   const current = await getPhase(phaseId);
 
-  const update: Partial<Pick<Phase, "name" | "progress_pct" | "start_date" | "end_date">> = {};
+  const update: Partial<Pick<Phase, "name" | "progress_pct" | "start_date" | "end_date" | "description">> = {};
   if (formData.has("name")) {
     const name = readName(formData);
     if (name !== current.name) update.name = name;
@@ -101,6 +102,12 @@ export async function updatePhase(phaseId: string, formData: FormData) {
       const date = readDate(formData, key);
       if (date !== current[key]) update[key] = date;
     }
+  }
+  if (formData.has("description")) {
+    const text = String(formData.get("description") ?? "").trim();
+    if (text.length > 600) throw new Error("Keep the description under 600 characters.");
+    const description = text || null;
+    if (description !== current.description) update.description = description;
   }
   const start = update.start_date !== undefined ? update.start_date : current.start_date;
   const end = update.end_date !== undefined ? update.end_date : current.end_date;
@@ -116,8 +123,10 @@ export async function updatePhase(phaseId: string, formData: FormData) {
 
   const name = update.name ?? current.name;
   const datesChanged = update.start_date !== undefined || update.end_date !== undefined;
-  const message =
-    update.progress_pct !== undefined
+  const descriptionOnly = update.description !== undefined && Object.keys(update).length === 1;
+  const message = descriptionOnly
+    ? `updated the description of ${quoted(name)}`
+    : update.progress_pct !== undefined
       ? update.progress_pct === 100
         ? `completed the stage ${quoted(name)}`
         : `updated ${quoted(name)} to ${update.progress_pct}%`

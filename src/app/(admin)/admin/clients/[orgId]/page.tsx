@@ -20,6 +20,7 @@ import { NewProjectPopover } from "@/components/admin/new-project-popover";
 import { PhaseEditor } from "@/components/admin/phase-editor";
 import { ProjectSectionChips } from "@/components/admin/project-section-chips";
 import { ProjectProgress } from "@/components/shared/project-progress";
+import { loadStageItems } from "@/lib/stage-items";
 import type { TimelineMarker } from "@/components/shared/project-timeline";
 import { InviteForm } from "./invite-form";
 import { ResendInviteButton } from "./resend-invite-button";
@@ -77,7 +78,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ o
 
   const { data: projects } = await supabase
     .from("projects")
-    .select("id, name, status, progress_pct, start_date, engagement_note, project_phases(id, name, position, progress_pct, start_date, end_date)")
+    .select("id, name, status, progress_pct, start_date, engagement_note, project_phases(id, name, position, progress_pct, start_date, end_date, description)")
     .eq("org_id", orgId)
     .order("created_at", { ascending: false });
 
@@ -107,6 +108,11 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ o
       .filter((d) => d.project_id === projectId)
       .map((d) => ({ date: d.due_date as string, label: d.title, kind: "deliverable" as const })),
   ];
+
+  const stageItems = await loadStageItems(supabase, projectIds, (kind, projectId) => {
+    const section = kind === "deliverable" ? "deliverables" : kind === "meeting" ? "meetings" : "files";
+    return `/admin/clients/${orgId}/projects/${projectId}/${section}`;
+  });
 
   const updateThisOrg = updateOrganization.bind(null, orgId);
   const deleteThisOrg = deleteOrganization.bind(null, orgId);
@@ -245,8 +251,10 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ o
                       phases={phases}
                       titleExtra={<StatusBadge status={project.status} />}
                       markers={markersFor(project.id)}
+                      items={stageItems[project.id] ?? []}
                       today={today}
                       collapseTimeline
+                      isAdmin
                     />
                   </Box>
 

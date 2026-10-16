@@ -13,6 +13,7 @@ import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { STATUS_TONE, figureSx } from "@/lib/palette";
 import { ProjectTimeline, type TimelineMarker } from "./project-timeline";
+import type { StageItem } from "@/lib/stage-items";
 import { Check, ExpandMore } from "@/components/icons";
 
 export type ProgressPhase = {
@@ -21,6 +22,8 @@ export type ProgressPhase = {
   progress_pct: number;
   start_date?: string | null;
   end_date?: string | null;
+  /** What happens in the stage, in plain words (shown when it's opened on the timeline). */
+  description?: string | null;
 };
 
 const DONE = STATUS_TONE.success;
@@ -38,8 +41,10 @@ export function ProjectProgress({
   flat,
   titleExtra,
   markers = [],
+  items = [],
   today,
   collapseTimeline,
+  isAdmin = false,
 }: {
   name: string;
   /** Shown beside the project name — e.g. its status label. */
@@ -54,6 +59,10 @@ export function ProjectProgress({
   today?: string;
   /** Start with the timeline folded away — the admin's client page lists many projects. */
   collapseTimeline?: boolean;
+  /** Deliverables, meetings and data requests; each shows under the stage its date falls in. */
+  items?: StageItem[];
+  /** The admin gets a nudge to describe stages that have no description yet. */
+  isAdmin?: boolean;
 }) {
   const [timelineOpen, setTimelineOpen] = useState(!collapseTimeline);
   const narrow = useMediaQuery("(max-width: 767px)", { noSsr: false });
@@ -144,7 +153,7 @@ export function ProjectProgress({
               Timeline
             </Typography>
           )}
-          {timelineOpen && <ProjectTimeline phases={phases} markers={markers} today={today} narrow={narrow} />}
+          {timelineOpen && <ProjectTimeline phases={phases} markers={markers} items={items} today={today} narrow={narrow} isAdmin={isAdmin} />}
         </Box>
       )}
     </>
