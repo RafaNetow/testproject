@@ -12,6 +12,7 @@ import { WaitingOnYou } from "@/components/shared/waiting-on-you";
 import { loadWaiting } from "@/lib/waiting";
 import { loadStageItems } from "@/lib/stage-items";
 import { requireSessionUser } from "@/lib/dal";
+import { firstName } from "@/lib/first-name";
 import { FolderOpenOutlined, ForumOutlined, VideocamOutlined, ViewKanbanOutlined } from "@/components/icons";
 
 /** Request time; kept out of the component body so render stays pure. */
@@ -129,7 +130,10 @@ export default async function PortalHome() {
     ? Math.max(1, Math.floor((currentTime() - new Date(`${main.start_date}T00:00:00`).getTime()) / 86_400_000) + 1)
     : null;
   const user = await requireSessionUser();
-  const waiting = await loadWaiting(supabase, { orgId: org.id, projects, userId: user.id });
+  const [waiting, greetName] = await Promise.all([
+    loadWaiting(supabase, { orgId: org.id, projects, userId: user.id }),
+    firstName(supabase, user.id),
+  ]);
   const nextDeliverable = (deliverableRows ?? []).find((d) => d.due_date && d.status !== "approved");
   const shortDate = (iso: string) =>
     new Date(iso.length === 10 ? `${iso}T00:00:00` : iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
@@ -164,8 +168,8 @@ export default async function PortalHome() {
   ];
 
   return (
-    <Stack spacing={5}>
-      <DashboardHero eyebrow={hero.eyebrow} title={hero.title} subtitle={hero.subtitle} />
+    <Stack spacing={5} className="stagger">
+      <DashboardHero eyebrow={hero.eyebrow} title={hero.title} subtitle={hero.subtitle} greetName={greetName} />
 
       <WaitingOnYou items={waiting} showProject={projects.length > 1} today={today} />
 
@@ -184,7 +188,7 @@ export default async function PortalHome() {
         ))}
       </Stack>
 
-      <StatTiles tiles={KPI_TILES} />
+      <StatTiles tiles={KPI_TILES} animate />
     </Stack>
   );
 }

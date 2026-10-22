@@ -289,6 +289,98 @@ section[id] {
   }
 }
 
+/* ---------- Living home pages: staggered entrance, filling bars, live stage ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  /* The home pages bring their sections in one by one instead of the plain page fade. */
+  .app-shell-main:has(.stagger) {
+    animation: none;
+  }
+
+  .stagger > * {
+    animation: rise-in 0.55s var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 80ms + 40ms);
+  }
+
+  .stagger > :nth-child(2) { --i: 1; }
+  .stagger > :nth-child(3) { --i: 2; }
+  .stagger > :nth-child(4) { --i: 3; }
+  .stagger > :nth-child(5) { --i: 4; }
+  .stagger > :nth-child(6) { --i: 5; }
+  .stagger > :nth-child(7) { --i: 6; }
+  .stagger > :nth-child(n + 8) { --i: 7; }
+
+  /* MUI's progress bar: only a "from" keyframe, so it ends wherever MUI put it. */
+  .bar-fill .MuiLinearProgress-bar {
+    animation: bar-fill 1.1s var(--ease-out) 0.35s backwards;
+  }
+
+  .bar-grow {
+    transform-origin: left center;
+    animation: bar-grow 0.9s var(--ease-out) backwards;
+  }
+
+  .stage-pulse {
+    animation: stage-pulse 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes bar-fill {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes stage-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 22%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 9px color-mix(in srgb, var(--color-accent) 0%, transparent);
+  }
+}
+
+/* ---------- Gear loader (shared/gear-loader.tsx) ---------- */
+@keyframes gear-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gear-spin-back {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes loader-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes loader-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(260%);
+  }
+}
+
 /* ---------- Client settings drawer ---------- */
 @media (prefers-reduced-motion: no-preference) {
   .client-settings-drawer[open] {

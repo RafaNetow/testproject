@@ -14,6 +14,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { STATUS_TONE, figureSx } from "@/lib/palette";
 import { ProjectTimeline, type TimelineMarker } from "./project-timeline";
 import type { StageItem } from "@/lib/stage-items";
+import { CountUp } from "@/components/shared/count-up";
 import { Check, ExpandMore } from "@/components/icons";
 
 export type ProgressPhase = {
@@ -85,11 +86,12 @@ export function ProjectProgress({
           </Box>
         </Box>
         <Typography sx={{ ...figureSx, flexShrink: 0, fontSize: 32, fontWeight: 700, lineHeight: 1, color: complete ? DONE.text : "primary.main" }}>
-          {total}%
+          <CountUp value={total} suffix="%" />
         </Typography>
       </Box>
 
       <LinearProgress
+        className="bar-fill"
         variant="determinate"
         value={total}
         aria-label={`${name}: ${total}% complete`}
@@ -171,6 +173,7 @@ export function ProjectProgress({
 function PhaseIcon({ completed: done, active: current, icon }: StepIconProps) {
   return (
     <Box
+      className={current ? "stage-pulse" : undefined}
       sx={{
         display: "grid",
         placeItems: "center",

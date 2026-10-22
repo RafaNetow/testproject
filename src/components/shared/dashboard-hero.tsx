@@ -8,17 +8,35 @@ import { figureSx } from "@/lib/palette";
 
 const noSubscription = () => () => {};
 
+function greetingNow() {
+  const h = new Date().getHours();
+  return h < 5 ? "Good evening" : h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+}
+
 function dateLabelNow() {
   return new Date().toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 }
 
 /**
- * The dashboard's opening card: where the engagement stands, not a greeting.
- * Content comes from the server; only the date uses the visitor's own clock
- * (rendered empty on the server, filled in after hydration, no mismatch).
+ * The dashboard's opening card: where the engagement stands, under a short
+ * time-of-day greeting. Content comes from the server; only the greeting and
+ * the date use the visitor's own clock (rendered empty on the server, filled
+ * in after hydration, no mismatch). The molecule network spreads out on arrival.
  */
-export function DashboardHero({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle: string }) {
+export function DashboardHero({
+  eyebrow,
+  title,
+  subtitle,
+  greetName,
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  /** First name for "Good morning, Maja" (the time of day comes from the visitor's clock). */
+  greetName?: string;
+}) {
   const dateLabel = useSyncExternalStore(noSubscription, dateLabelNow, () => "");
+  const greeting = useSyncExternalStore(noSubscription, greetingNow, () => "");
 
   return (
     <Box
@@ -45,9 +63,15 @@ export function DashboardHero({ eyebrow, title, subtitle }: { eyebrow: string; t
       }}
     >
       <Box sx={{ position: "absolute", inset: 0, left: "45%", display: { xs: "none", md: "block" } }}>
-        <MolecularAccent particleCount={36} opacity={0.9} />
+        <MolecularAccent particleCount={36} opacity={0.9} intro />
       </Box>
       <Box sx={{ position: "relative", zIndex: 1, maxWidth: 520 }}>
+        {greetName && (
+          // Space reserved on the server so the greeting appearing after hydration doesn't shift the card.
+          <Typography sx={{ minHeight: 24, mb: 0.75, fontSize: 15, color: "text.secondary" }}>
+            {greeting ? `${greeting}, ${greetName}` : ""}
+          </Typography>
+        )}
         <Typography sx={{ ...figureSx, fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "primary.main" }}>
           {eyebrow}
           <Box component="span" sx={{ color: "text.muted", fontWeight: 500 }}>

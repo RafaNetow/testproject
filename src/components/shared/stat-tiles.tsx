@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import { STATUS_TONE, figureSx } from "@/lib/palette";
+import { CountUp } from "@/components/shared/count-up";
 
 export type StatTile = { label: string; value: string | number; hint?: string; tone?: "error"; icon?: ReactNode };
 
@@ -15,11 +16,14 @@ export function StatTiles({
   tiles,
   columns = 4,
   compact,
+  animate,
 }: {
   tiles: StatTile[];
   columns?: 2 | 3 | 4;
   /** Smaller value type, for long values like multi-currency totals. */
   compact?: boolean;
+  /** Numbers count up from 0 when the tiles appear (home pages). */
+  animate?: boolean;
 }) {
   return (
     <Box
@@ -65,7 +69,7 @@ export function StatTiles({
               color: tile.tone === "error" ? STATUS_TONE.error.text : "text.primary",
             }}
           >
-            {tile.value}
+            {animate && typeof tile.value === "number" ? <CountUp value={tile.value} delay={450} /> : tile.value}
           </Typography>
           {tile.hint && <Typography sx={{ mt: 0.75, fontSize: 13, color: "text.secondary" }}>{tile.hint}</Typography>}
         </Paper>

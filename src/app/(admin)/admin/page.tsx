@@ -3,6 +3,8 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { LinkBox } from "@/components/shared/link-box";
 import { createClient } from "@/lib/supabase/server";
+import { requireSessionUser } from "@/lib/dal";
+import { firstName } from "@/lib/first-name";
 import { DashboardHero } from "@/components/shared/dashboard-hero";
 import { StatTiles } from "@/components/shared/stat-tiles";
 import { ActivityFeed, type ActivityItem } from "@/components/shared/activity-feed";
@@ -22,6 +24,8 @@ type WithProject = {
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
+  const user = await requireSessionUser();
+  const greetName = await firstName(supabase, user.id);
 
   const [
     { count: orgCount },
@@ -163,10 +167,11 @@ export default async function AdminDashboard() {
     .slice(0, 10);
 
   return (
-    <Stack spacing={5}>
-      <DashboardHero eyebrow={hero.eyebrow} title={hero.title} subtitle={hero.subtitle} />
+    <Stack spacing={5} className="stagger">
+      <DashboardHero eyebrow={hero.eyebrow} title={hero.title} subtitle={hero.subtitle} greetName={greetName} />
 
       <StatTiles
+        animate
         columns={3}
         tiles={[
           { label: "Active clients", value: orgCount ?? "—", icon: <BusinessOutlined /> },

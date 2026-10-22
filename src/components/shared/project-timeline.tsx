@@ -239,7 +239,7 @@ export function ProjectTimeline({
 
       {/* Stage rows — each opens its detail */}
       <Box sx={{ display: "grid", gap: 0.5 }}>
-        {dated.map((p) => {
+        {dated.map((p, i) => {
           const state = stateOf(p);
           const start = toMs(p.start_date!);
           const end = toMs(p.end_date!) + DAY;
@@ -258,7 +258,9 @@ export function ProjectTimeline({
                 </Typography>
                 <Box sx={{ position: "relative", flex: 1, height: 26, borderRadius: 1, bgcolor: "var(--fill-track)" }}>
                   <Box
+                    className="bar-grow"
                     sx={{
+                      animationDelay: `${0.25 + i * 0.09}s`,
                       position: "absolute",
                       top: 3,
                       bottom: 3,

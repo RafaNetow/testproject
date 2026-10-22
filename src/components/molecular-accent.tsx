@@ -23,6 +23,7 @@ export function MolecularAccent({
   tone = "accent",
   particleCount = 26,
   desktopOnly = true,
+  intro = false,
 }: {
   /** The canvas always fills its (positioned) parent; this only sets how strong it reads. */
   opacity?: number;
@@ -30,6 +31,8 @@ export function MolecularAccent({
   particleCount?: number;
   /** Skip the rAF loop below 1024px — set false when the panel is actually visible on mobile too. */
   desktopOnly?: boolean;
+  /** The network starts gathered in the middle and spreads out over a second, like a reaction starting. */
+  intro?: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -50,6 +53,8 @@ export function MolecularAccent({
     const { line: lineRgb, dot: dotRgb } = TONES[tone];
     let particles: Particle[] = [];
     let raf = 0;
+    const started = performance.now();
+    const INTRO_MS = 1300;
 
     function resize() {
       const rect = parent!.getBoundingClientRect();
@@ -76,13 +81,20 @@ export function MolecularAccent({
         if (p.y < 0 || p.y > canvas!.height) p.vy *= -1;
       });
 
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const a = particles[i];
-          const b = particles[j];
+      // Intro: draw each particle pulled toward the centre, easing out to its real place.
+      const k = intro && !reduceMotion ? 1 - Math.pow(1 - Math.min(1, (performance.now() - started) / INTRO_MS), 3) : 1;
+      const cx = canvas!.width / 2;
+      const cy = canvas!.height / 2;
+      const at = (p: Particle) => ({ x: cx + (p.x - cx) * (0.15 + 0.85 * k), y: cy + (p.y - cy) * (0.15 + 0.85 * k) });
+      const drawn = particles.map(at);
+
+      for (let i = 0; i < drawn.length; i++) {
+        for (let j = i + 1; j < drawn.length; j++) {
+          const a = drawn[i];
+          const b = drawn[j];
           const dist = Math.hypot(a.x - b.x, a.y - b.y);
           if (dist < 110) {
-            ctx!.strokeStyle = `rgba(${lineRgb},${(1 - dist / 110) * 0.4})`;
+            ctx!.strokeStyle = `rgba(${lineRgb},${(1 - dist / 110) * 0.4 * k})`;
             ctx!.lineWidth = 1;
             ctx!.beginPath();
             ctx!.moveTo(a.x, a.y);
@@ -91,8 +103,8 @@ export function MolecularAccent({
           }
         }
       }
-      particles.forEach((p) => {
-        ctx!.fillStyle = `rgba(${dotRgb},0.6)`;
+      drawn.forEach((p) => {
+        ctx!.fillStyle = `rgba(${dotRgb},${0.2 + 0.4 * k})`;
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, 2, 0, Math.PI * 2);
         ctx!.fill();
@@ -119,7 +131,7 @@ export function MolecularAccent({
       window.removeEventListener("resize", onResize);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [tone, particleCount, desktopOnly]);
+  }, [tone, particleCount, desktopOnly, intro]);
 
   return (
     <Box

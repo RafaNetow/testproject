@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import { GearLoader } from "@/components/shared/gear-loader";
 
 /** Shared body for the portal's and admin's `error.tsx` boundaries. */
 export function RouteError({ error, retry }: { error: Error & { digest?: string }; retry: () => void }) {
@@ -31,19 +30,7 @@ export function RouteError({ error, retry }: { error: Error & { digest?: string 
   );
 }
 
-/** Shared skeleton for the portal's and admin's `loading.tsx`. */
+/** Shared loading screen for the portal's and admin's `loading.tsx`: the spinning gears. */
 export function RouteLoading() {
-  return (
-    <Stack spacing={4}>
-      <Stack spacing={1}>
-        <Skeleton variant="rounded" width={96} height={12} sx={{ borderRadius: 999 }} />
-        <Skeleton variant="rounded" width={224} height={28} sx={{ borderRadius: 999 }} />
-      </Stack>
-      <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" } }}>
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} variant="rounded" height={128} sx={{ borderRadius: 4 }} />
-        ))}
-      </Box>
-    </Stack>
-  );
+  return <GearLoader />;
 }
