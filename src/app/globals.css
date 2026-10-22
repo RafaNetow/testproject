@@ -353,7 +353,7 @@ section[id] {
   }
 }
 
-/* ---------- Executive Summary: trend lines, live feed ---------- */
+/* ---------- Executive Summary: trend lines ---------- */
 @media (prefers-reduced-motion: no-preference) {
   .spark-line {
     stroke-dasharray: 1;
@@ -368,14 +368,6 @@ section[id] {
     transform-box: fill-box;
     transform-origin: center;
     animation: spark-pop 0.4s var(--ease-out) 1.55s backwards;
-  }
-
-  .live-dot {
-    animation: live-pulse 1.6s ease-in-out infinite;
-  }
-
-  .live-new {
-    animation: rise-in 0.45s var(--ease-out) both;
   }
 }
 
@@ -394,16 +386,6 @@ section[id] {
 @keyframes spark-pop {
   from {
     transform: scale(0);
-  }
-}
-
-@keyframes live-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 55%, transparent);
-  }
-  50% {
-    box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-accent) 0%, transparent);
   }
 }
 

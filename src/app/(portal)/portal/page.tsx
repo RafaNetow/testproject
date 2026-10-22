@@ -16,8 +16,6 @@ import { requireSessionUser } from "@/lib/dal";
 import { firstName } from "@/lib/first-name";
 import { FolderOpenOutlined, ForumOutlined, SummarizeOutlined, VideocamOutlined, ViewKanbanOutlined } from "@/components/icons";
 import { CountdownCard } from "@/components/shared/countdown-card";
-import { LiveActivity, type ActivityEntry } from "@/components/shared/live-activity";
-import { notificationHref, type NotificationRow } from "@/lib/notification-links";
 import { weeklyCounts, weeksAgo } from "@/lib/weekly";
 
 const TREND_WEEKS = 8;
@@ -144,23 +142,11 @@ export default async function PortalHome() {
     ? Math.max(1, Math.floor((currentTime() - new Date(`${main.start_date}T00:00:00`).getTime()) / 86_400_000) + 1)
     : null;
   const user = await requireSessionUser();
-  const [waiting, greetName, { data: recent }] = await Promise.all([
+  const [waiting, greetName] = await Promise.all([
     loadWaiting(supabase, { orgId: org.id, projects, userId: user.id }),
     firstName(supabase, user.id),
-    supabase
-      .from("notifications")
-      .select("id, message, kind, project_id, org_id, read_at, created_at")
-      .eq("recipient_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(5),
   ]);
   const nextDeliverable = (deliverableRows ?? []).find((d) => d.due_date && d.status !== "approved");
-  const activity: ActivityEntry[] = ((recent ?? []) as NotificationRow[]).map((n) => ({
-    id: n.id,
-    message: n.message,
-    href: notificationHref(n, "portal"),
-    created_at: n.created_at,
-  }));
 
   // The next thing with a date that isn't a meeting: an upcoming deliverable, else the end of the current stage.
   const upcomingDeliverable = (deliverableRows ?? []).find((d) => d.due_date && d.due_date >= today && d.status !== "approved");
@@ -196,7 +182,7 @@ export default async function PortalHome() {
     <Stack spacing={5} className="stagger">
       <DashboardHero eyebrow={hero.eyebrow} title={hero.title} subtitle={hero.subtitle} greetName={greetName} />
 
-      <Box sx={{ display: "grid", gap: 3, gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "repeat(2, minmax(0, 1fr))", lg: "repeat(3, minmax(0, 1fr))" } }}>
+      <Box sx={{ display: "grid", gap: 3, gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "repeat(2, minmax(0, 1fr))" } }}>
         <CountdownCard
           eyebrow="Next meeting"
           title={nextMeeting?.title}
@@ -213,7 +199,6 @@ export default async function PortalHome() {
           action={milestone ? { label: "Open", href: milestone.href } : undefined}
           empty="No upcoming milestones."
         />
-        <LiveActivity initial={activity} userId={user.id} />
       </Box>
 
       <WaitingOnYou items={waiting} showProject={projects.length > 1} today={today} />
