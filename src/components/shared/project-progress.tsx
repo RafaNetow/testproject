@@ -3,7 +3,6 @@
 import { useState, type ReactNode } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import LinearProgress from "@mui/material/LinearProgress";
 import Paper from "@mui/material/Paper";
 import Step from "@mui/material/Step";
 import type { StepIconProps } from "@mui/material/StepIcon";
@@ -14,7 +13,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { STATUS_TONE, figureSx } from "@/lib/palette";
 import { ProjectTimeline, type TimelineMarker } from "./project-timeline";
 import type { StageItem } from "@/lib/stage-items";
-import { CountUp } from "@/components/shared/count-up";
+import { CircularPercent, LinearPercent } from "@/components/shared/percent";
 import { Check, ExpandMore } from "@/components/icons";
 
 export type ProgressPhase = {
@@ -85,24 +84,10 @@ export function ProjectProgress({
             {titleExtra}
           </Box>
         </Box>
-        <Typography sx={{ ...figureSx, flexShrink: 0, fontSize: 32, fontWeight: 700, lineHeight: 1, color: complete ? DONE.text : "primary.main" }}>
-          <CountUp value={total} suffix="%" />
-        </Typography>
+        <CircularPercent value={total} size={68} label={`${name}: ${total}% complete`} />
       </Box>
 
-      <LinearProgress
-        className="bar-fill"
-        variant="determinate"
-        value={total}
-        aria-label={`${name}: ${total}% complete`}
-        sx={{
-          mt: 2,
-          height: 8,
-          borderRadius: 999,
-          bgcolor: "var(--fill-neutral)",
-          "& .MuiLinearProgress-bar": { borderRadius: 999, bgcolor: complete ? DONE.solid : "primary.main" },
-        }}
-      />
+      <LinearPercent value={total} height={8} showLabel={false} label={`${name}: ${total}% complete`} sx={{ mt: 2 }} />
 
       {phases.length > 0 && (
         <Stepper
@@ -120,15 +105,17 @@ export function ProjectProgress({
                   <Typography component="span" sx={{ display: "block", fontSize: 13, fontWeight: current ? 700 : 600, color: done || current ? "text.primary" : "text.secondary" }}>
                     {phase.name}
                   </Typography>
-                  <Typography component="span" sx={{ ...figureSx, display: "block", mt: 0.25, fontSize: 12, fontWeight: 600, color: done ? DONE.text : current ? "primary.main" : "text.muted" }}>
-                    {done ? "Done" : `${phase.progress_pct}%`}
-                  </Typography>
-                  {current && phase.progress_pct > 0 && (
-                    <LinearProgress
-                      variant="determinate"
+                  {current ? (
+                    <LinearPercent
                       value={phase.progress_pct}
-                      sx={{ mt: 0.75, mx: narrow ? 0 : "auto", width: narrow ? 120 : "60%", height: 4, borderRadius: 999, bgcolor: "var(--fill-neutral)", "& .MuiLinearProgress-bar": { borderRadius: 999 } }}
+                      height={4}
+                      label={`${phase.name}: ${phase.progress_pct}% complete`}
+                      sx={{ mt: 0.75, mx: narrow ? 0 : "auto", width: narrow ? 160 : "85%" }}
                     />
+                  ) : (
+                    <Typography component="span" sx={{ ...figureSx, display: "block", mt: 0.25, fontSize: 12, fontWeight: 600, color: done ? DONE.text : "text.muted" }}>
+                      {done ? "Done" : `${phase.progress_pct}%`}
+                    </Typography>
                   )}
                 </StepLabel>
               </Step>

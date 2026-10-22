@@ -99,7 +99,7 @@ export function HoursView({
       {!entries.length ? (
         <Typography sx={{ fontSize: 14, color: "text.muted" }}>No hours logged yet.</Typography>
       ) : (
-        <Box sx={{ borderTop: 1, borderColor: "divider" }}>
+        <Box className="stagger" sx={{ borderTop: 1, borderColor: "divider" }}>
           {entries.map((e) => {
             const updateThis = canLog ? updateHoursEntry.bind(null, e.id, revalidatePaths) : undefined;
             const deleteThis = canLog ? deleteHoursEntry.bind(null, e.id, revalidatePaths) : undefined;

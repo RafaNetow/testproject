@@ -54,7 +54,7 @@ export function WaitingOnYou({
           </Typography>
         </Box>
       ) : (
-        <Box component="ul" sx={{ listStyle: "none", m: 0, p: 0, pb: 1 }}>
+        <Box component="ul" className="stagger" sx={{ listStyle: "none", m: 0, p: 0, pb: 1 }}>
           {items.map((item) => {
             const kind = KIND[item.kind];
             const Icon = kind.icon;

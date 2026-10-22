@@ -13,6 +13,7 @@ import { STATUS_TONE, figureSx } from "@/lib/palette";
 import { phaseSchedule, type ScheduleTone } from "@/lib/phase-schedule";
 import type { StageItem, StageItemKind } from "@/lib/stage-items";
 import { StatusBadge } from "./status-badge";
+import { LinearPercent } from "@/components/shared/percent";
 import type { ProgressPhase } from "./project-progress";
 
 export type TimelineMarker = { date: string; label: string; kind: "meeting" | "deliverable" };
@@ -72,9 +73,9 @@ function StageDetail({ phase, items, today, isAdmin, id }: { phase: ProgressPhas
     <Box id={id} sx={{ mt: 1, mb: 1.5, px: 2, py: 1.75, borderRadius: 1.5, bgcolor: "var(--fill-track)" }}>
       <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1 }}>
         <Typography sx={{ ...figureSx, fontSize: 12, color: "text.secondary" }}>
-          {phase.start_date && phase.end_date ? `${short(toMs(phase.start_date))} – ${short(toMs(phase.end_date))} · ` : ""}
-          {phase.progress_pct}%
+          {phase.start_date && phase.end_date ? `${short(toMs(phase.start_date))} – ${short(toMs(phase.end_date))}` : ""}
         </Typography>
+        <LinearPercent value={phase.progress_pct} height={5} label={`${phase.name}: ${phase.progress_pct}% complete`} sx={{ width: 160 }} />
         {schedule && tone && (
           <Box component="span" sx={{ px: 1, height: 22, display: "inline-flex", alignItems: "center", borderRadius: 999, fontSize: 12, fontWeight: 700, bgcolor: tone.bg, color: tone.text }}>
             {schedule.label}

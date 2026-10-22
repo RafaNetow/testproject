@@ -87,7 +87,7 @@ export function InvoicesView({
       {!invoices.length ? (
         <Typography sx={{ fontSize: 14, color: "text.muted" }}>No invoices yet.</Typography>
       ) : (
-        <Stack spacing={1.5}>
+        <Stack spacing={1.5} className="stagger">
           {invoices.map((inv) => {
             const updateThis = updateInvoiceStatus.bind(null, inv.id, revalidatePaths);
             const deleteThis = deleteInvoice.bind(null, inv.id, inv.pdf_storage_path, revalidatePaths);

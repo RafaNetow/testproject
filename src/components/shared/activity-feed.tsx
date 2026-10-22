@@ -42,7 +42,7 @@ export function ActivityFeed({
         <Typography sx={{ px: 3, pt: 2, pb: 4, fontSize: 14, color: "text.muted" }}>{emptyText}</Typography>
       ) : (
         <>
-          <List disablePadding sx={{ px: 1, pb: 1 }}>
+          <List disablePadding className="stagger" sx={{ px: 1, pb: 1 }}>
             {items.map((item, i) => {
               const ItemIcon = ICONS[item.type];
               return (

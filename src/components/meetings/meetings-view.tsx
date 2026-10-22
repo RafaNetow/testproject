@@ -83,7 +83,7 @@ export function MeetingsView({
       {!meetings.length ? (
         <Typography sx={{ fontSize: 14, color: "text.muted" }}>No meetings scheduled yet.</Typography>
       ) : (
-        <Stack spacing={1.5}>
+        <Stack spacing={1.5} className="stagger">
           {meetings.map((m) => {
             const updateThis = updateMeeting.bind(null, m.id, revalidatePaths);
             const deleteThis = deleteMeeting.bind(null, m.id, revalidatePaths);

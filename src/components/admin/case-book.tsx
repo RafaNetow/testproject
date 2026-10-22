@@ -101,7 +101,7 @@ export function CaseBook({ cases, projects, aiReady }: { cases: Case[]; projects
       {cases.length === 0 ? (
         <Typography sx={{ fontSize: 14, color: "text.muted" }}>No cases yet. The first one you save will start the case book.</Typography>
       ) : (
-        <Box component="ul" sx={{ listStyle: "none", m: 0, p: 0, display: "grid", gap: 1.5 }}>
+        <Box component="ul" className="stagger" sx={{ listStyle: "none", m: 0, p: 0, display: "grid", gap: 1.5 }}>
           {cases.map((c) => (
             <Paper component="li" key={c.id} variant="outlined" sx={{ p: 2.5 }}>
               <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>

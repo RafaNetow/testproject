@@ -85,7 +85,7 @@ export default async function ProspectsPage() {
                 {byStage(stage.value).length}
               </Typography>
             </Box>
-            <Stack spacing={1}>
+            <Stack spacing={1} className="stagger">
               {byStage(stage.value).map((p) => {
                 const updateThis = updateProspectStage.bind(null, p.id);
                 const deleteThis = deleteProspect.bind(null, p.id);

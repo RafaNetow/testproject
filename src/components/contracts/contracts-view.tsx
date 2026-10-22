@@ -137,7 +137,7 @@ export function ContractsView({
           {!visibleContracts.length ? (
             <Typography sx={{ fontSize: 14, color: "text.muted" }}>No contracts in this view.</Typography>
           ) : (
-            <div>
+            <div className="stagger">
               {visibleContracts.map((c) => {
                 const updateThis = updateContractStatus.bind(null, c.id, revalidatePaths);
                 const deleteThis = deleteContract.bind(null, c.id, c.signed_pdf_storage_path, revalidatePaths);

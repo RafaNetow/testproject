@@ -73,7 +73,7 @@ export function DecisionsView({
       {!decisions.length ? (
         <Typography sx={{ fontSize: 14, color: "text.muted" }}>No decisions logged yet.</Typography>
       ) : (
-        <Box sx={{ borderTop: 1, borderColor: "divider" }}>
+        <Box className="stagger" sx={{ borderTop: 1, borderColor: "divider" }}>
           {decisions.map((d) => {
             const deleteThis = deleteDecision.bind(null, d.id, revalidatePaths);
             return (

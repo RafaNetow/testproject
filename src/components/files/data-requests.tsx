@@ -4,7 +4,6 @@ import { useActionState, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import LinearProgress from "@mui/material/LinearProgress";
 import MuiLink from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
@@ -24,6 +23,7 @@ import {
   type FulfillResult,
 } from "@/lib/actions/data-requests";
 import { Add, CheckCircleOutlined, DeleteOutlined, ScheduleOutlined } from "@/components/icons";
+import { LinearPercent } from "@/components/shared/percent";
 import { SubmitButton } from "@/components/shared/submit-button";
 
 export type DataRequestRow = {
@@ -81,18 +81,7 @@ export function DataRequests({
         )}
       </Box>
       {requests.length > 0 && (
-        <LinearProgress
-          variant="determinate"
-          value={pct}
-          aria-label={`${received} of ${requests.length} data requests received`}
-          sx={{
-            mt: 1.5,
-            height: 6,
-            borderRadius: 999,
-            bgcolor: "var(--fill-neutral)",
-            "& .MuiLinearProgress-bar": { borderRadius: 999, bgcolor: pct === 100 ? STATUS_TONE.success.solid : "primary.main" },
-          }}
-        />
+        <LinearPercent value={pct} label={`${received} of ${requests.length} data requests received`} sx={{ mt: 1.5 }} />
       )}
       {!canManage && (
         <Typography sx={{ mt: 1.5, fontSize: 14, color: "text.secondary" }}>
@@ -101,7 +90,7 @@ export function DataRequests({
       )}
 
       {requests.length > 0 && (
-        <Stack component="ul" spacing={1} sx={{ listStyle: "none", m: 0, mt: 2, p: 0 }}>
+        <Stack component="ul" spacing={1} className="stagger" sx={{ listStyle: "none", m: 0, mt: 2, p: 0 }}>
           {requests.map((r) => (
             <RequestRow
               key={r.id}

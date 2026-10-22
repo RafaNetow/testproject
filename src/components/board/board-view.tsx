@@ -308,6 +308,7 @@ export function BoardView({
         <Box
           ref={stripRef}
           data-full-bleed
+          className="stagger"
           sx={{
             display: "flex",
             alignItems: "stretch",

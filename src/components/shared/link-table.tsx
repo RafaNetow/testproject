@@ -38,7 +38,7 @@ export function LinkTable({
             ))}
           </TableRow>
         </TableHead>
-        <TableBody>
+        <TableBody className="stagger">
           {rows.map((row) => (
             <TableRow key={row.key} hover sx={{ "&:last-child td": { borderBottom: 0 } }}>
               {row.cells.map((cell, i) => (

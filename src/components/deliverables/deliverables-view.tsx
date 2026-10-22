@@ -214,7 +214,7 @@ function ClientDeliverables({
   ];
 
   return (
-    <Stack spacing={5}>
+    <Stack spacing={5} className="stagger">
       {sections
         .filter((s) => s.items.length)
         .map((s) => (
@@ -307,7 +307,7 @@ function AdminDeliverables({
       {!deliverables.length ? (
         <Typography sx={{ fontSize: 14, color: "text.muted" }}>No deliverables yet.</Typography>
       ) : (
-        <Stack spacing={2}>
+        <Stack spacing={2} className="stagger">
           {deliverables.map((d) => {
             const update = updateDeliverable.bind(null, d.id);
             const attach = attachDeliverableFile.bind(null, d.id);

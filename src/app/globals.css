@@ -353,6 +353,40 @@ section[id] {
   }
 }
 
+/* ---------- Page-change loader (shared/route-loader.tsx, lib/route-loader.ts) ---------- */
+.route-loader {
+  display: none;
+}
+
+[data-route-loading="on"] .route-loader,
+[data-route-loading="splash"] .route-loader {
+  display: flex;
+}
+
+[data-route-loading="leaving"] .route-loader {
+  display: flex;
+  animation: route-loader-out 0.26s ease-out forwards;
+}
+
+/* While the loader covers the page, entrances wait, then play as it lifts. */
+[data-route-loading="on"] .app-shell-main,
+[data-route-loading="splash"] .app-shell-main,
+[data-route-loading="on"] .stagger > *,
+[data-route-loading="splash"] .stagger > *,
+[data-route-loading="on"] .bar-fill .MuiLinearProgress-bar,
+[data-route-loading="splash"] .bar-fill .MuiLinearProgress-bar,
+[data-route-loading="on"] .bar-grow,
+[data-route-loading="splash"] .bar-grow {
+  animation-play-state: paused;
+}
+
+@keyframes route-loader-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
 /* ---------- Gear loader (shared/gear-loader.tsx) ---------- */
 @keyframes gear-spin {
   to {

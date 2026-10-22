@@ -48,7 +48,7 @@ function Gear({ d, size, spin, sx }: { d: string; size: number; spin: string; sx
  * stand still and the line stays put (the global reduced-motion rule and the
  * check below).
  */
-export function GearLoader({ label = "Alchemica" }: { label?: string }) {
+export function GearLoader({ label = "Alchemica", delayMs = 200 }: { label?: string; delayMs?: number }) {
   const [line, setLine] = useState(0);
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export function GearLoader({ label = "Alchemica" }: { label?: string }) {
         justifyContent: "center",
         gap: 2,
         opacity: 0,
-        animation: "loader-in 0.3s 0.2s ease-out forwards",
+        animation: `loader-in 0.3s ${delayMs}ms ease-out forwards`,
       }}
     >
       <Box sx={{ position: "relative", width: 132, height: 104, color: "primary.main" }}>

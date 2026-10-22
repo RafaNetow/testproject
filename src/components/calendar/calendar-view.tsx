@@ -319,7 +319,7 @@ function AgendaView({ byDay, today, onOpen, empty }: { byDay: Map<string, Calend
   const days = [...byDay.keys()].sort();
   if (!days.length) return <Paper variant="outlined" sx={{ p: 4, textAlign: "center" }}>{empty}</Paper>;
   return (
-    <Stack spacing={2}>
+    <Stack spacing={2} className="stagger">
       {days.map((day) => (
         <Box key={day} component="section" aria-label={formatDay(day, { weekday: "long", day: "numeric", month: "long" })}>
           <Typography

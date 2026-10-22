@@ -328,6 +328,7 @@ export function FilesView({
           <section>
             <SectionTitle title="Folders" count={subfolders.length} />
             <Box
+              className="stagger"
               sx={{
                 display: "grid",
                 gap: 2,
@@ -351,8 +352,8 @@ export function FilesView({
                       sx={{
                         position: "relative",
                         p: 2.5,
-                        transition: "box-shadow 200ms",
-                        "&:hover": { boxShadow: "var(--shadow-dropdown)" },
+                        transition: "box-shadow 200ms, transform 150ms",
+                        "&:hover": { boxShadow: "var(--shadow-dropdown)", transform: "translateY(-2px)" },
                       }}
                     >
                       <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
@@ -450,7 +451,7 @@ export function FilesView({
                     </TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
+                <TableBody className="stagger">
                   {visibleFiles.map((f) => {
                     const deleteThis = deleteFile.bind(null, f.id, f.storage_path, revalidatePaths);
                     const renameThis = renameFile.bind(null, f.id, revalidatePaths);

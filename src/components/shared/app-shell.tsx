@@ -22,6 +22,7 @@ import { NotificationBell, type NotificationItem } from "@/components/shared/not
 import { AccentSwitcher } from "@/components/shared/accent-switcher";
 import { ChatDrawer } from "@/components/messages/chat-drawer";
 import { NavigationProgress } from "@/components/shared/navigation-progress";
+import { RouteLoaderController, RouteLoaderOverlay } from "@/components/shared/route-loader";
 import { PORTAL_NAV, ADMIN_NAV } from "@/lib/nav-items";
 import { Menu as MenuIcon, LogoutOutlined, HomeOutlined } from "@/components/icons";
 
@@ -214,7 +215,9 @@ export function AppShell({
     <Box className="app-shell" sx={{ display: "flex", minHeight: "100dvh", bgcolor: "background.default" }}>
       <Suspense fallback={null}>
         <NavigationProgress />
+        <RouteLoaderController />
       </Suspense>
+      <RouteLoaderOverlay top={HEADER_HEIGHT} left={{ xs: 0, lg: SIDEBAR_WIDTH }} />
       <Box
         component="aside"
         sx={{

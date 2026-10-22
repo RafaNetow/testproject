@@ -56,7 +56,7 @@ export function UpdatesView({
       {!updates.length ? (
         <Typography sx={{ fontSize: 14, color: "text.muted" }}>No updates published yet.</Typography>
       ) : (
-        <Box sx={{ borderTop: 1, borderColor: "divider" }}>
+        <Box className="stagger" sx={{ borderTop: 1, borderColor: "divider" }}>
           {updates.map((u) => {
             const deleteThis = deleteUpdate.bind(null, u.id, revalidatePaths);
             return (
