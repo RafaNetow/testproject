@@ -1,3 +1,4 @@
+import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import { createClient } from "@/lib/supabase/server";
 import { getPortalProjectContext } from "@/lib/portal-context";
@@ -13,7 +14,13 @@ import { loadWaiting } from "@/lib/waiting";
 import { loadStageItems } from "@/lib/stage-items";
 import { requireSessionUser } from "@/lib/dal";
 import { firstName } from "@/lib/first-name";
-import { FolderOpenOutlined, ForumOutlined, VideocamOutlined, ViewKanbanOutlined } from "@/components/icons";
+import { FolderOpenOutlined, ForumOutlined, SummarizeOutlined, VideocamOutlined, ViewKanbanOutlined } from "@/components/icons";
+import { CountdownCard } from "@/components/shared/countdown-card";
+import { LiveActivity, type ActivityEntry } from "@/components/shared/live-activity";
+import { notificationHref, type NotificationRow } from "@/lib/notification-links";
+import { weeklyCounts, weeksAgo } from "@/lib/weekly";
+
+const TREND_WEEKS = 8;
 
 /** Request time; kept out of the component body so render stays pure. */
 function currentTime() {
@@ -57,6 +64,9 @@ export default async function PortalHome() {
     { data: progressRows },
     { data: deliverableRows },
     { data: upcomingMeetings },
+    { data: cardDates },
+    { data: decisionDates },
+    { data: fileDates },
   ] = await Promise.all([
     supabase
       .from("board_cards")
@@ -72,7 +82,7 @@ export default async function PortalHome() {
       .in("project_id", projectIds),
     supabase
       .from("meetings")
-      .select("title, scheduled_at")
+      .select("title, scheduled_at, zoom_url")
       .in("project_id", projectIds)
       .eq("status", "upcoming")
       .gte("scheduled_at", new Date().toISOString())
@@ -96,6 +106,10 @@ export default async function PortalHome() {
       .in("project_id", projectIds)
       .eq("status", "upcoming")
       .gte("scheduled_at", new Date().toISOString()),
+    // Weekly trend lines for the stat tiles.
+    supabase.from("board_cards").select("created_at").in("project_id", projectIds).gte("created_at", weeksAgo(TREND_WEEKS, new Date(currentTime()))),
+    supabase.from("decisions").select("decided_at").in("project_id", projectIds).gte("decided_at", weeksAgo(TREND_WEEKS, new Date(currentTime()))),
+    supabase.from("files").select("created_at").in("project_id", projectIds).gte("created_at", weeksAgo(TREND_WEEKS, new Date(currentTime()))),
   ]);
 
   const today = new Date(currentTime()).toISOString().slice(0, 10);
@@ -130,11 +144,31 @@ export default async function PortalHome() {
     ? Math.max(1, Math.floor((currentTime() - new Date(`${main.start_date}T00:00:00`).getTime()) / 86_400_000) + 1)
     : null;
   const user = await requireSessionUser();
-  const [waiting, greetName] = await Promise.all([
+  const [waiting, greetName, { data: recent }] = await Promise.all([
     loadWaiting(supabase, { orgId: org.id, projects, userId: user.id }),
     firstName(supabase, user.id),
+    supabase
+      .from("notifications")
+      .select("id, message, kind, project_id, org_id, read_at, created_at")
+      .eq("recipient_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(5),
   ]);
   const nextDeliverable = (deliverableRows ?? []).find((d) => d.due_date && d.status !== "approved");
+  const activity: ActivityEntry[] = ((recent ?? []) as NotificationRow[]).map((n) => ({
+    id: n.id,
+    message: n.message,
+    href: notificationHref(n, "portal"),
+    created_at: n.created_at,
+  }));
+
+  // The next thing with a date that isn't a meeting: an upcoming deliverable, else the end of the current stage.
+  const upcomingDeliverable = (deliverableRows ?? []).find((d) => d.due_date && d.due_date >= today && d.status !== "approved");
+  const milestone = upcomingDeliverable
+    ? { title: upcomingDeliverable.title, eyebrow: "Next deliverable due", at: `${upcomingDeliverable.due_date}T17:00:00`, href: `/portal/deliverables?project=${upcomingDeliverable.project_id}` }
+    : currentStage?.end_date
+      ? { title: `${currentStage.name} ends`, eyebrow: "Current stage", at: `${currentStage.end_date.slice(0, 10)}T17:00:00`, href: "/portal" }
+      : null;
   const shortDate = (iso: string) =>
     new Date(iso.length === 10 ? `${iso}T00:00:00` : iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
@@ -151,25 +185,36 @@ export default async function PortalHome() {
             : "Your engagement is on track.",
   };
 
+  const now = new Date(currentTime());
   const KPI_TILES = [
-    { label: "Board items", value: cardCount ?? 0, icon: <ViewKanbanOutlined /> },
-    { label: "Decisions logged", value: decisionCount ?? 0, icon: <ForumOutlined /> },
-    { label: "Files", value: fileCount ?? 0, icon: <FolderOpenOutlined /> },
-    {
-      label: "Next meeting",
-      icon: <VideocamOutlined />,
-      value: nextMeeting
-        ? new Date(nextMeeting.scheduled_at).toLocaleDateString("en-GB", {
-            month: "short",
-            day: "numeric",
-          })
-        : "None",
-    },
+    { label: "Board items", value: cardCount ?? 0, icon: <ViewKanbanOutlined />, spark: weeklyCounts((cardDates ?? []).map((r) => r.created_at), TREND_WEEKS, now), hint: "New per week, last 8 weeks" },
+    { label: "Decisions logged", value: decisionCount ?? 0, icon: <ForumOutlined />, spark: weeklyCounts((decisionDates ?? []).map((r) => r.decided_at), TREND_WEEKS, now), hint: "Per week, last 8 weeks" },
+    { label: "Files", value: fileCount ?? 0, icon: <FolderOpenOutlined />, spark: weeklyCounts((fileDates ?? []).map((r) => r.created_at), TREND_WEEKS, now), hint: "Uploaded per week, last 8 weeks" },
   ];
 
   return (
     <Stack spacing={5} className="stagger">
       <DashboardHero eyebrow={hero.eyebrow} title={hero.title} subtitle={hero.subtitle} greetName={greetName} />
+
+      <Box sx={{ display: "grid", gap: 3, gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "repeat(2, minmax(0, 1fr))", lg: "repeat(3, minmax(0, 1fr))" } }}>
+        <CountdownCard
+          eyebrow="Next meeting"
+          title={nextMeeting?.title}
+          at={nextMeeting?.scheduled_at ?? null}
+          icon={<VideocamOutlined />}
+          action={nextMeeting?.zoom_url ? { label: "Join", href: nextMeeting.zoom_url, external: true } : { label: "All meetings", href: "/portal/meetings" }}
+          empty="No meeting scheduled yet."
+        />
+        <CountdownCard
+          eyebrow={milestone?.eyebrow ?? "Next milestone"}
+          title={milestone?.title}
+          at={milestone?.at ?? null}
+          icon={<SummarizeOutlined />}
+          action={milestone ? { label: "Open", href: milestone.href } : undefined}
+          empty="No upcoming milestones."
+        />
+        <LiveActivity initial={activity} userId={user.id} />
+      </Box>
 
       <WaitingOnYou items={waiting} showProject={projects.length > 1} today={today} />
 
@@ -188,7 +233,7 @@ export default async function PortalHome() {
         ))}
       </Stack>
 
-      <StatTiles tiles={KPI_TILES} animate />
+      <StatTiles tiles={KPI_TILES} columns={3} animate />
     </Stack>
   );
 }

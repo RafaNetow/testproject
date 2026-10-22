@@ -4,8 +4,17 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import { STATUS_TONE, figureSx } from "@/lib/palette";
 import { CountUp } from "@/components/shared/count-up";
+import { Sparkline } from "@/components/shared/sparkline";
 
-export type StatTile = { label: string; value: string | number; hint?: string; tone?: "error"; icon?: ReactNode };
+export type StatTile = {
+  label: string;
+  value: string | number;
+  hint?: string;
+  tone?: "error";
+  icon?: ReactNode;
+  /** Counts per week, oldest first, drawn as a small trend line beside the number. */
+  spark?: number[];
+};
 
 /**
  * A row of headline numbers — client count, open items, next meeting…
@@ -59,6 +68,7 @@ export function StatTiles({
               </Box>
             )}
           </Box>
+          <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 1.5 }}>
           <Typography
             sx={{
               ...figureSx,
@@ -71,6 +81,8 @@ export function StatTiles({
           >
             {animate && typeof tile.value === "number" ? <CountUp value={tile.value} delay={450} /> : tile.value}
           </Typography>
+          {tile.spark && <Sparkline values={tile.spark} />}
+          </Box>
           {tile.hint && <Typography sx={{ mt: 0.75, fontSize: 13, color: "text.secondary" }}>{tile.hint}</Typography>}
         </Paper>
       ))}
