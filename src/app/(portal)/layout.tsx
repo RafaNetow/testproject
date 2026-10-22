@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/shared/app-shell";
 import { notificationHref } from "@/lib/notification-links";
 import { loadUnread } from "@/lib/messages";
-import { aiConfigured } from "@/lib/ai/provider";
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const user = await requireSessionUser();
@@ -18,7 +17,7 @@ export default async function PortalLayout({ children }: { children: React.React
       .limit(30),
     supabase
       .from("org_memberships")
-      .select("role, org_id, organizations(ai_enabled)")
+      .select("role, org_id")
       .eq("user_id", user.id)
       .not("accepted_at", "is", null)
       .limit(1)
@@ -66,8 +65,6 @@ export default async function PortalLayout({ children }: { children: React.React
       chat={{
         unread: unreadMessages,
         projects: projects ?? [],
-        // The assistant tab shows only when AI is configured AND the admin enabled it for this client.
-        aiEnabled: aiConfigured() && Boolean((membership?.organizations as unknown as { ai_enabled: boolean } | null)?.ai_enabled),
       }}
     >
       {children}

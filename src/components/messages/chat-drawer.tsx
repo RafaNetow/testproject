@@ -12,16 +12,13 @@ import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Select from "@mui/material/Select";
-import Tab from "@mui/material/Tab";
-import Tabs from "@mui/material/Tabs";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import { ArrowBackIcon, AssistantIcon, ChatOutlined, Close, ForumOutlined } from "@/components/icons";
+import { ArrowBackIcon, ChatOutlined, Close, ForumOutlined } from "@/components/icons";
 import { createClient } from "@/lib/supabase/client";
 import { getThread, listThreads } from "@/lib/actions/messages";
 import type { ThreadMessage, ThreadRead, ThreadSummary } from "@/lib/messages";
 import { MessageThread } from "./message-thread";
-import { AssistantPanel } from "./assistant-panel";
 
 type Project = { id: string; name: string };
 
@@ -52,7 +49,7 @@ export function ChatDrawer({
   /** The client's projects (portal only). */
   projects?: Project[];
   unread: number;
-  /** Portal: show the "Ask Alchemica" tab. Admin: offer "Suggest reply" drafts. */
+  /** Admin: offer "Suggest reply" drafts (AI is configured). */
   aiEnabled?: boolean;
 }) {
   const router = useRouter();
@@ -66,10 +63,6 @@ export function ChatDrawer({
   const [projectId, setProjectId] = useState<string | null>(null);
   const [thread, setThread] = useState<{ messages: ThreadMessage[]; reads: ThreadRead[] } | null>(null);
   const [threads, setThreads] = useState<ThreadSummary[] | null>(null);
-  const [tab, setTab] = useState<"axel" | "assistant">("axel");
-  // A question the client chose to send to Axel instead of the assistant.
-  const [prefill, setPrefill] = useState<string | null>(null);
-  const showAssistant = !isAdmin && aiEnabled;
 
   // A ?chat= link opens the panel on that conversation. Done after mount (not
   // during render) so a fresh page load can't lose it to hydration.
@@ -267,32 +260,10 @@ export function ChatDrawer({
           </IconButton>
         </Box>
 
-        {showAssistant && projectId && (
-          <Tabs
-            value={tab}
-            onChange={(_, v) => setTab(v)}
-            variant="fullWidth"
-            aria-label="Who to ask"
-            sx={{ minHeight: 44, borderBottom: 1, borderColor: "divider", "& .MuiTabs-list": { gap: 0 } }}
-          >
-            <Tab value="axel" label="Axel" icon={<ChatOutlined sx={{ fontSize: 18 }} />} iconPosition="start" sx={{ minHeight: 44, fontSize: 13 }} />
-            <Tab value="assistant" label="Ask Alchemica" icon={<AssistantIcon sx={{ fontSize: 18 }} />} iconPosition="start" sx={{ minHeight: 44, fontSize: 13 }} />
-          </Tabs>
-        )}
-
-        {projectId && showAssistant && tab === "assistant" ? (
-          <AssistantPanel
-            key={`assistant-${projectId}`}
-            projectId={projectId}
-            onAskAxel={(question) => {
-              setPrefill(question);
-              setTab("axel");
-            }}
-          />
-        ) : projectId ? (
+        {projectId ? (
           thread ? (
             <MessageThread
-              key={`${projectId}-${prefill ?? ""}`}
+              key={projectId}
               projectId={projectId}
               viewerId={viewerId}
               isAdmin={isAdmin}
@@ -300,7 +271,6 @@ export function ChatDrawer({
               reads={thread.reads}
               onRefresh={refreshThread}
               onRead={onRead}
-              initialText={prefill ?? undefined}
               canSuggest={isAdmin && aiEnabled}
             />
           ) : (
