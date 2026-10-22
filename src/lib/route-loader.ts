@@ -11,7 +11,7 @@
  */
 
 /** The loader stays at least this long on every page change, so it can be seen. */
-export const MIN_LOADER_MS = 1200;
+export const MIN_LOADER_MS = 600;
 
 /** How long the first-visit splash stays. */
 export const SPLASH_MS = 1400;
