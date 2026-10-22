@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Alchemica portal — what's new</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  :root {
+    --ink: #17201e; --muted: #4a5a56; --faint: #627069; --accent: #2f7d6d;
+    --fill: #f2f5f4; --line: rgb(134 156 149 / 0.32); --warn: #8a5a00; --warn-bg: #fff6e0;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font-family: "Segoe UI", "Public Sans", system-ui, sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.55; }
+  h1, h2, h3 { line-height: 1.2; margin: 0; }
+  p { margin: 0 0 3mm; }
+  ul { margin: 0 0 3mm; padding-left: 5mm; }
+  li { margin-bottom: 1mm; }
+  .eyebrow { font: 600 8.5pt/1 "Cascadia Mono", Consolas, monospace; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 3mm; }
+  .page-break { break-before: page; }
+
+  /* Cover */
+  .cover { height: 258mm; display: flex; flex-direction: column; justify-content: space-between; padding: 4mm 2mm; }
+  .brand { display: flex; align-items: center; gap: 4mm; font-size: 16pt; font-weight: 700; }
+  .cover h1 { font-size: 34pt; letter-spacing: -0.02em; margin: 0 0 5mm; }
+  .cover .sub { font-size: 13pt; color: var(--muted); max-width: 150mm; margin-bottom: 9mm; }
+  .list { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm 8mm; counter-reset: n; }
+  .list div { display: flex; gap: 3mm; align-items: baseline; font-size: 10.5pt; padding: 2mm 0; border-bottom: 0.3mm solid var(--line); }
+  .list div::before { counter-increment: n; content: counter(n, decimal-leading-zero); font: 700 9pt Consolas, monospace; color: var(--accent); }
+  .cover .foot { font-size: 8.5pt; color: var(--faint); border-top: 0.3mm solid var(--line); padding-top: 3mm; }
+
+  /* One change per page */
+  .change { break-before: page; display: flex; flex-direction: column; gap: 4mm; }
+  .change .num { font: 700 40pt/1 Consolas, monospace; color: rgb(47 125 109 / 0.22); }
+  .change h2 { font-size: 21pt; letter-spacing: -0.01em; }
+  .change .one { font-size: 12pt; color: var(--muted); margin: 0; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .box { background: var(--fill); border-radius: 3mm; padding: 4mm 4.5mm; }
+  .box h3 { font-size: 9pt; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 2mm; }
+  .box ul { margin: 0; }
+  .where { font-size: 9.5pt; color: var(--muted); }
+  .where b { color: var(--ink); }
+  figure { margin: 0; break-inside: avoid; }
+  figure img { display: block; width: 100%; border: 0.3mm solid var(--line); border-radius: 3mm; }
+  figure.tall img { max-height: 120mm; object-fit: cover; object-position: top; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .phone { display: grid; grid-template-columns: 2fr 1fr; gap: 4mm; align-items: start; }
+  figcaption { font-size: 8.5pt; color: var(--faint); margin-top: 1.5mm; }
+
+  .next { background: var(--fill); border-left: 1.2mm solid var(--accent); border-radius: 0 3mm 3mm 0; padding: 5mm 6mm; margin: 6mm 0; }
+  .next h3 { font-size: 14pt; margin-bottom: 2mm; }
+  .note { background: var(--warn-bg); border-left: 1.2mm solid #e69f00; border-radius: 0 3mm 3mm 0; padding: 4mm 5mm; margin: 5mm 0; font-size: 10pt; }
+  .demo { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 3mm 0; }
+  .demo td, .demo th { text-align: left; padding: 2mm 2.5mm; border-bottom: 0.3mm solid var(--line); vertical-align: top; }
+  .demo th { font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="brand">
+    <svg width="44" height="48" viewBox="0 0 44 48" aria-hidden="true"><path d="M22 1 43 13v22L22 47 1 35V13z" fill="#2f7d6d"/><text x="22" y="32" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="20" font-weight="700" fill="#fff">A</text></svg>
+    Alchemica
+  </div>
+  <div>
+    <div class="eyebrow">What's new · October 2026</div>
+    <h1>Ten changes that matter for you and your clients</h1>
+    <p class="sub">The portal now carries an engagement from the signed contract to the final report: your clients always know where things stand and what you need from them, and you run every client from one place instead of a dozen email threads.</p>
+    <div class="list">
+      <div>A calm, modern portal on any screen</div>
+      <div>"Waiting on you" and the engagement timeline</div>
+      <div>Chat with Axel, bottom right</div>
+      <div>Contracts signed inside the portal</div>
+      <div>Deliverables your clients approve</div>
+      <div>Data requests and labelled files</div>
+      <div>One calendar for every client</div>
+      <div>Your AI copilot for replies</div>
+      <div>Nobody misses anything</div>
+      <div>Safer and smoother</div>
+    </div>
+  </div>
+  <div class="foot">Screens show demo clients — Nordic Polymers, Fjordline Packaging and Baltic BioCoat. Names, projects and numbers are illustrative, not real client data.</div>
+</section>
+
+<!-- 1 -->
+<section class="change">
+  <div class="num">01</div>
+  <h2>A calm, modern portal on any screen</h2>
+  <p class="one">Rebuilt on Material UI with a quiet, minimal look: colour only appears where something needs attention.</p>
+  <div class="cols">
+    <div class="box"><h3>What it is</h3><ul><li>Clean, readable pages in plain language, with lab-style figures.</li><li>Works on phones and tablets; follows dark mode.</li><li>Each person picks the accent colour they like.</li><li>A thin bar shows a page is loading; buttons show when they're saving.</li></ul></div>
+    <div class="box"><h3>Why it matters</h3><ul><li>Clients find their way without training.</li><li>It looks like a serious, current product — it reflects on Alchemica.</li><li>Your clients can check progress from the lab floor on their phone.</li></ul></div>
+  </div>
+  <div class="phone">
+    <figure><img src="img/w-summary.png" alt="Client Executive Summary" /><figcaption>The client's Executive Summary.</figcaption></figure>
+    <figure><img src="img/w-phone.png" alt="The same page on a phone" /><figcaption>The same page on a phone.</figcaption></figure>
+  </div>
+  <p class="where"><b>Where:</b> everywhere. Colour: the palette icon in the top bar.</p>
+</section>
+
+<!-- 2 -->
+<section class="change">
+  <div class="num">02</div>
+  <h2>"Waiting on you" and the engagement timeline</h2>
+  <p class="one">The first thing a client sees is what you need from them, and where the engagement stands.</p>
+  <div class="cols">
+    <div class="box"><h3>What it is</h3><ul><li>A list of everything waiting on the client — answers, data, reviews, signatures — with due dates and overdue flags.</li><li>A timeline of the stages; each stage opens to show what happens in it, whether it's on time, and its items.</li></ul></div>
+    <div class="box"><h3>Why it matters</h3><ul><li>Fewer "where are we?" emails and calls.</li><li>Clients answer faster when they see exactly what is blocking the work.</li><li>Delays on their side become visible without you chasing.</li></ul></div>
+  </div>
+  <figure class="tall"><img src="img/w-timeline.png" alt="Engagement timeline with a stage opened" /><figcaption>The timeline with a stage opened.</figcaption></figure>
+  <p class="where"><b>Where:</b> client → Executive Summary. You set stages, dates and descriptions under Clients → client → Progress &amp; stages.</p>
+</section>
+
+<!-- 3 -->
+<section class="change">
+  <div class="num">03</div>
+  <h2>Chat with Axel, bottom right</h2>
+  <p class="one">A conversation per project, in the round bubble in the corner — where people expect chat on any website.</p>
+  <div class="cols">
+    <div class="box"><h3>What it is</h3><ul><li>Live messages both ways, with read receipts and attachments.</li><li>Opens over any page; full screen on phones.</li><li>For you: one list of every client conversation, and any message can become a <b>decision</b> or a <b>board card</b> in one click.</li></ul></div>
+    <div class="box"><h3>Why it matters</h3><ul><li>Agreements stop getting lost in inboxes.</li><li>Files sent in chat land in the right project automatically.</li><li>Clients feel close to you without more meetings.</li></ul></div>
+  </div>
+  <figure class="tall"><img src="img/w-chat.png" alt="Chat window open from the bubble" /><figcaption>The chat window, opened from the bubble.</figcaption></figure>
+  <p class="where"><b>Where:</b> the bubble in the bottom-right corner of every page.</p>
+</section>
+
+<!-- 4 -->
+<section class="change">
+  <div class="num">04</div>
+  <h2>Contracts signed inside the portal</h2>
+  <p class="one">Send an NDA, SOW or MSA and the client signs it in the portal — no external account needed.</p>
+  <div class="cols">
+    <div class="box"><h3>What it is</h3><ul><li>Upload the PDF and send it for signature.</li><li>The client reads it, confirms and signs.</li><li>The signed PDF gets a certificate page: who signed, when, from where, and a fingerprint of the document.</li></ul></div>
+    <div class="box"><h3>Why it matters</h3><ul><li>Engagements start days sooner.</li><li>Everything signed sits next to the project, easy to find later.</li><li>For contracts that need a stronger signature (MitID), Documenso can be connected.</li></ul></div>
+  </div>
+  <div class="pair">
+    <figure><img src="img/t-sign-dialog.png" alt="Signing dialog" /><figcaption>The client signs in the portal.</figcaption></figure>
+    <figure><img src="img/t-signed.png" alt="Signed contract" /><figcaption>Signed, with the certificate attached.</figcaption></figure>
+  </div>
+  <p class="where"><b>Where:</b> you → project → Contracts. Client → Contracts.</p>
+</section>
+
+<!-- 5 -->
+<section class="change">
+  <div class="num">05</div>
+  <h2>Deliverables your clients approve</h2>
+  <p class="one">Reports and plans go to the client for review, and their answer is recorded.</p>
+  <div class="cols">
+    <div class="box"><h3>What it is</h3><ul><li>Each deliverable moves from draft to "awaiting client" to approved or changes requested.</li><li>Drafts stay hidden until you send them.</li><li>The client's comments are kept with the deliverable.</li></ul></div>
+    <div class="box"><h3>Why it matters</h3><ul><li>A clear sign-off for every piece of work — useful at invoice time.</li><li>Change requests come in writing, not by phone.</li></ul></div>
+  </div>
+  <figure class="tall"><img src="img/w-deliverables.png" alt="Deliverables awaiting review" /><figcaption>A deliverable waiting for the client's review.</figcaption></figure>
+  <p class="where"><b>Where:</b> Deliverables, for you and for the client.</p>
+</section>
+
+<!-- 6 -->
+<section class="change">
+  <div class="num">06</div>
+  <h2>Data requests and labelled files</h2>
+  <p class="one">Ask for exactly the data you need, and keep every file labelled by technique.</p>
+  <div class="cols">
+    <div class="box"><h3>What it is</h3><ul><li>A checklist of requested data with due dates; the client uploads straight into the request.</li><li>Files labelled FTIR, DSC, GC-MS, NMR…, with folders and filters.</li></ul></div>
+    <div class="box"><h3>Why it matters</h3><ul><li>No more "which spreadsheet did you mean?".</li><li>Data arrives in the right folder, named and dated.</li><li>Anyone can find the spectra months later.</li></ul></div>
+  </div>
+  <figure class="tall"><img src="img/w-files.png" alt="Data requests and files" /><figcaption>Data requests on top, labelled files below.</figcaption></figure>
+  <p class="where"><b>Where:</b> Files.</p>
+</section>
+
+<!-- 7 -->
+<section class="change">
+  <div class="num">07</div>
+  <h2>One calendar for every client</h2>
+  <p class="one">Meetings, due dates, stages and invoices across all your clients, on one calendar.</p>
+  <div class="cols">
+    <div class="box"><h3>What it is</h3><ul><li>Month, week and agenda views, with a small date picker to jump around.</li><li>Filter by kind; click anything to see details or open it.</li><li>Overdue items are flagged. All times are Copenhagen time.</li></ul></div>
+    <div class="box"><h3>Why it matters</h3><ul><li>See a busy week coming before it arrives.</li><li>No deadline hides in a project you haven't opened for a while.</li></ul></div>
+  </div>
+  <figure class="tall"><img src="img/w-calendar.png" alt="Admin calendar, month view" /><figcaption>The month view, across three clients.</figcaption></figure>
+  <p class="where"><b>Where:</b> admin → Calendar.</p>
+</section>
+
+<!-- 8 -->
+<section class="change">
+  <div class="num">08</div>
+  <h2>Your AI copilot for replies</h2>
+  <p class="one">An assistant that only you see: it drafts replies to clients in your own style and learns from your corrections.</p>
+  <div class="cols">
+    <div class="box"><h3>What it is</h3><ul><li>"Suggest reply" in any conversation drafts an answer from the project's facts; you edit it and press Send.</li><li>It learns your rules ("always end with…") and from how you change its drafts.</li><li>It writes anonymised case studies from finished projects, for you to review.</li></ul></div>
+    <div class="box"><h3>Why it matters</h3><ul><li>You answer clients faster, still in your own words.</li><li>Nothing is ever sent without you, and clients never talk to an AI.</li><li>Your experience turns into a reusable case book.</li></ul></div>
+  </div>
+  <div class="pair">
+    <figure><img src="img/t-assistant.png" alt="Assistant rules and corrections" /><figcaption>Your rules and corrections.</figcaption></figure>
+    <figure><img src="img/t-case.png" alt="Anonymised case study" /><figcaption>A case study drafted without names.</figcaption></figure>
+  </div>
+  <p class="where"><b>Where:</b> chat → "Suggest reply", and admin → Assistant.</p>
+</section>
+
+<!-- 9 -->
+<section class="change">
+  <div class="num">09</div>
+  <h2>Nobody misses anything</h2>
+  <p class="one">Every action tells the people involved — in the portal, live, and in a weekly email.</p>
+  <div class="cols">
+    <div class="box"><h3>What it is</h3><ul><li>A notification for every relevant action: new deliverable, comment, data received, signature.</li><li>The bell updates live, without reloading.</li><li>A Monday email summary for each client contact (they can switch it off).</li></ul></div>
+    <div class="box"><h3>Why it matters</h3><ul><li>Clients who rarely log in still stay up to date.</li><li>You see the moment a client approves, uploads or replies.</li></ul></div>
+  </div>
+  <figure class="tall"><img src="img/w-bell.png" alt="Notifications" /><figcaption>The notifications bell.</figcaption></figure>
+  <p class="where"><b>Where:</b> the bell in the top bar. Email: client → Team → "Email me a weekly summary".</p>
+</section>
+
+<!-- 10 -->
+<section class="change">
+  <div class="num">10</div>
+  <h2>Safer and smoother</h2>
+  <p class="one">Under the hood, the portal was reviewed and tested page by page.</p>
+  <div class="cols">
+    <div class="box"><h3>Security</h3><ul><li>Each client sees only their own organisation — enforced in the database, not just the screens.</li><li>A gap that could let a client give themselves admin rights is closed.</li><li>Only owners see invoices and contracts; collaborators don't.</li><li>The AI is for you only, with guards against prompt tricks and a log of every draft.</li></ul></div>
+    <div class="box"><h3>Quality</h3><ul><li>Every page checked as admin, as client and signed out, on desktop and phone.</li><li>The app's own dropdown menus instead of the browser's.</li><li>Meeting times always in Copenhagen time, whatever the server.</li><li>Three demo clients to show the portal without real data.</li></ul></div>
+  </div>
+  <figure class="tall"><img src="img/w-clients.png" alt="Admin client list" /><figcaption>Your client list with the three demo clients.</figcaption></figure>
+</section>
+
+<!-- Next -->
+<section class="page-break">
+  <div class="eyebrow">What comes next</div>
+  <h2 style="font-size:21pt;margin-bottom:4mm">Next step and honest notes</h2>
+  <div class="next">
+    <h3>Next: two-way Google Calendar sync</h3>
+    <p>Meetings scheduled in the portal will appear in your Google Calendar and invite the client automatically, with a Google Meet link if you want one. If you move or cancel a meeting in Google, the portal follows. Your own Google events will show on the portal calendar, visible only to you.</p>
+    <p style="margin:0">It is designed and partly built; it needs a Google Cloud project for Alchemica (about 15 minutes, with you) before it can be switched on.</p>
+  </div>
+  <h3 style="font-size:12.5pt;margin:6mm 0 2mm">Worth knowing</h3>
+  <ul>
+    <li><b>Signatures.</b> Signing in the portal is a simple electronic signature — fine for NDAs and most SOWs. For contracts that require MitID or an advanced signature, Documenso can be connected.</li>
+    <li><b>AI provider.</b> The copilot currently uses DeepSeek's API, which processes data outside the EU. Before real client data, it should move to an EU provider with a data processing agreement. Only you use it; clients never see it.</li>
+    <li><b>Environment.</b> What you see runs in a local test environment. Going live means publishing the database and setting up email, signing and AI with EU-hosted services.</li>
+  </ul>
+  <h3 style="font-size:12.5pt;margin:6mm 0 2mm">Try it with the demo clients</h3>
+  <table class="demo">
+    <tr><th>Client</th><th>Project</th><th>Shows</th></tr>
+    <tr><td>Nordic Polymers</td><td>Bio-based adhesive bond failures · Water-resistant coating · Adhesion on recycled PET film</td><td>A client with three projects at different stages, overdue items, a contract to sign</td></tr>
+    <tr><td>Fjordline Packaging</td><td>Odour from recycled HDPE bottles</td><td>Halfway: a deliverable awaiting review, an active chat</td></tr>
+    <tr><td>Baltic BioCoat</td><td>Shelf-life of a bio-based varnish</td><td>Nearly done: final report in review, contracts signed, invoices paid</td></tr>
+  </table>
+</section>
+
+</body>
+</html>

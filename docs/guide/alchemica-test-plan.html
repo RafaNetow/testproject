@@ -41,6 +41,7 @@
   .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:4mm; }
   .grid2 figure { margin:2mm 0 3mm; }
   .grid2 figure img { width:84%; }
+  pre.cmd { white-space:pre-wrap; word-break:break-all; font:8pt/1.45 Consolas,monospace; background:var(--fill, #f2f5f4); border-radius:2mm; padding:2.5mm 3mm; margin:2mm 0 4mm; }
 </style>
 </head>
 <body>
@@ -54,10 +55,11 @@
     <div class="eyebrow">Plan de pruebas · octubre 2026</div>
     <h1>Probar lo más importante del sistema</h1>
     <p class="sub">Un recorrido paso a paso, con el resultado esperado de cada paso y una casilla para marcar si pasó. Pensado para ensayar la demo antes de mostrársela a Axel.</p>
-    <div class="box"><b>Cuánto tarda</b>Unos 45 minutos completo. El guion de demo de 10 minutos está en la última sección.</div>
+    <div class="box"><b>Cuánto tarda</b>Una hora completo. El guion de demo de 10 minutos está en la última sección.</div>
+    <div class="box"><b>Qué hay de nuevo en esta versión</b>Chat en la burbuja de abajo a la derecha, calendario del admin, tres clientes de demostración, menús desplegables propios, indicadores de carga y la corrección de seguridad del rol de administrador.</div>
     <div class="box"><b>Cómo marcar</b>Cada prueba tiene <span class="k">☐ ✔ ✘</span>: marca ✔ si el resultado esperado ocurrió y ✘ si no, y anota qué viste en el margen. Los textos de pantalla están en inglés porque el portal lo está.</div>
   </div>
-  <div class="foot">Todo se prueba con el espacio demo "Nordic Polymers ApS (demo)". Los datos y las cuentas son de ejemplo, no reales.</div>
+  <div class="foot">Se prueba con los clientes demo "Nordic Polymers", "Fjordline Packaging" y "Baltic BioCoat". Los datos y las cuentas son de ejemplo, no reales.</div>
 </section>
 
 <section class="pb">
@@ -76,7 +78,10 @@
     <tr><td><b>Axel</b> (admin)</td><td><code>http://localhost:3000</code></td><td><code>admin@alchemica.test</code></td><td>Administrador</td></tr>
     <tr><td><b>Maja</b> (cliente)</td><td><code>http://127.0.0.1:3000</code></td><td><code>owner@cliente.test</code></td><td>Dueña del workspace: ve todo, incluido contratos y facturas</td></tr>
     <tr><td><b>Lars</b> (cliente)</td><td><code>http://127.0.0.1:3000</code></td><td><code>colab@cliente.test</code></td><td>Colaborador: no ve contratos ni facturas</td></tr>
+    <tr><td><b>Henrik</b> (cliente 2)</td><td><code>http://127.0.0.1:3000</code> en otra ventana privada</td><td><code>owner@fjordline.test</code></td><td>Dueño de <i>Fjordline Packaging</i></td></tr>
+    <tr><td><b>Ieva</b> (cliente 3)</td><td><code>http://127.0.0.1:3000</code> en otra ventana privada</td><td><code>owner@balticbiocoat.test</code></td><td>Dueña de <i>Baltic BioCoat</i></td></tr>
   </table>
+  <p>Una misma dirección guarda una sola sesión: para Henrik e Ieva usa una ventana privada (o otro navegador).</p>
   <h3>3 · Cómo entrar (sin contraseña)</h3>
   <ol>
     <li>Abre <code>/login</code> en la dirección de esa persona y escribe su correo; pulsa <b>Send magic link</b>.</li>
@@ -137,11 +142,13 @@
   <h2>Chat entre cliente y Axel</h2>
   <table>
     <tr><th>#</th><th>Pasos</th><th>Resultado esperado</th><th>OK</th></tr>
-    <tr><td class="n">4.1</td><td><b>Axel:</b> ícono de chat de la barra superior.</td><td>Lista de conversaciones por cliente; al tocar una se abre al lado, sin salir de la página.</td><td class="ok">☐ ✔ ✘</td></tr>
-    <tr><td class="n">4.2</td><td>Escribe un mensaje y pulsa <span class="k">Enter</span>.</td><td>Aparece en la conversación. En la otra pestaña, el ícono de Maja muestra un <b>contador</b> y la campana sube, <b>sin recargar</b>.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">4.1</td><td><b>Axel:</b> la <b>burbuja redonda abajo a la derecha</b>.</td><td>Se abre una ventana de chat encima de la burbuja con la lista de conversaciones por cliente (ahora también Fjordline y Baltic BioCoat); la página de atrás sigue usable.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">4.2</td><td>Abre la de Nordic Polymers, escribe un mensaje y pulsa <span class="k">Enter</span>.</td><td>Aparece en la conversación. En la otra pestaña, la burbuja de Maja muestra un <b>contador</b> y la campana sube, <b>sin recargar</b>.</td><td class="ok">☐ ✔ ✘</td></tr>
     <tr><td class="n">4.3</td><td><b>Maja:</b> abre el chat y responde (prueba también adjuntar un archivo con el clip).</td><td>La respuesta llega al panel abierto de Axel en vivo. El adjunto queda en <b>Files › Chat attachments</b>.</td><td class="ok">☐ ✔ ✘</td></tr>
     <tr><td class="n">4.4</td><td><b>Axel:</b> menú <b>⋮</b> de un mensaje → <b>Log as decision</b> y luego <b>Add to board</b>.</td><td>Se crea la decisión y una tarjeta en la primera columna del board; queda una nota en el chat.</td><td class="ok">☐ ✔ ✘</td></tr>
-    <tr><td class="n">4.5</td><td>Abre <code>/portal?chat=20000000-0000-0000-0000-000000000002</code> como Maja.</td><td>El panel se abre solo en esa conversación.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">4.5</td><td>Abre <code>/portal?chat=20000000-0000-0000-0000-000000000002</code> como Maja.</td><td>La ventana de chat se abre sola en esa conversación.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">4.6</td><td>Con el chat abierto, pulsa <span class="k">Esc</span>; luego vuelve a abrirlo y pulsa la burbuja (ahora una ✕).</td><td>Las dos formas cierran la ventana.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">4.7</td><td>Achica la ventana a tamaño celular y abre el chat.</td><td>Ocupa toda la pantalla, la burbuja se esconde y arriba hay una ✕ para cerrar.</td><td class="ok">☐ ✔ ✘</td></tr>
   </table>
 
   <div class="eyebrow" style="margin-top:8mm">Prueba 5</div>
@@ -156,18 +163,15 @@
 
 <section class="pb">
   <div class="eyebrow">Prueba 6</div>
-  <h2>El asistente de IA</h2>
-  <p class="lead">Necesita tu clave en <code>.env.local</code> y el interruptor del cliente encendido. Los datos viajan a DeepSeek: úsalo solo con datos demo.</p>
+  <h2>El copiloto de IA (solo admin)</h2>
+  <p class="lead">Solo Axel lo usa; los clientes no tienen IA. Necesita tu clave en <code>.env.local</code>. Los datos viajan a DeepSeek: úsalo solo con datos demo.</p>
   <table>
     <tr><th>#</th><th>Pasos</th><th>Resultado esperado</th><th>OK</th></tr>
-    <tr><td class="n">6.1</td><td><b>Axel:</b> ficha del cliente → engranaje → <b>AI assistant for this client</b>: actívalo.</td><td>El interruptor queda encendido y no muestra el aviso "not configured".</td><td class="ok">☐ ✔ ✘</td></tr>
-    <tr><td class="n">6.2</td><td><b>Maja:</b> chat → pestaña <b>Ask Alchemica</b> → "Where are we, and what's next?".</td><td>Responde con datos reales del proyecto (avance, pendientes, decisión de 140 °C), etiqueta <b>AI</b> y fuentes en enlaces.</td><td class="ok">☐ ✔ ✘</td></tr>
-    <tr><td class="n">6.3</td><td>Pregunta algo técnico: "What temperature should we use?".</td><td>No inventa: dice que es una decisión de Axel y ofrece <b>Ask Axel instead</b>.</td><td class="ok">☐ ✔ ✘</td></tr>
-    <tr><td class="n">6.4</td><td><b>Axel:</b> en un chat, pulsa <b>Suggest reply</b>.</td><td>Aparece un borrador en la caja. <b>No se envía</b> hasta que pulses Send.</td><td class="ok">☐ ✔ ✘</td></tr>
-    <tr><td class="n">6.5</td><td><b>Axel:</b> edita el borrador y envíalo. Abre el menú <b>Assistant</b>.</td><td>En <b>Your corrections</b> aparecen el borrador de la IA y lo que enviaste.</td><td class="ok">☐ ✔ ✘</td></tr>
-    <tr><td class="n">6.6</td><td>En <b>Your rules</b> escribe una regla ("Siempre termina con 'Saludos'"), guarda, y pide otro borrador.</td><td>El nuevo borrador cumple la regla.</td><td class="ok">☐ ✔ ✘</td></tr>
-    <tr><td class="n">6.7</td><td>En <b>Case book</b>: elige un proyecto, <b>Draft with AI</b>, revisa y <b>Save</b>.</td><td>El borrador no trae nombres de cliente ni de personas; queda guardado en la lista.</td><td class="ok">☐ ✔ ✘</td></tr>
-    <tr><td class="n">6.8</td><td>Apaga el interruptor del cliente (6.1) y recarga el portal de Maja.</td><td>La pestaña <b>Ask Alchemica</b> desaparece.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">6.1</td><td><b>Axel:</b> burbuja de chat → una conversación con un mensaje del cliente → <b>Suggest reply</b>.</td><td>Aparece un borrador en la caja. <b>No se envía</b> hasta que pulses Send.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">6.2</td><td><b>Axel:</b> edita el borrador y envíalo. Abre el menú <b>Assistant</b>.</td><td>En <b>Your corrections</b> aparecen el borrador de la IA y lo que enviaste.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">6.3</td><td>En <b>Your rules</b> escribe una regla ("Siempre termina con 'Saludos'"), guarda, y pide otro borrador.</td><td>El nuevo borrador cumple la regla.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">6.4</td><td>En <b>Case book</b>: elige un proyecto, <b>Draft with AI</b>, revisa y <b>Save</b>.</td><td>El borrador no trae nombres de cliente ni de personas; queda guardado en la lista.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">6.5</td><td><b>Maja:</b> abre su chat.</td><td>Solo está la conversación con Axel: no hay pestaña de IA ni botón <b>Suggest reply</b>.</td><td class="ok">☐ ✔ ✘</td></tr>
   </table>
   <div class="grid2">
     <figure><img src="img/t-assistant.png" alt="Página Assistant" /><figcaption>Reglas y correcciones: lo que el copiloto aprende de Axel.</figcaption></figure>
@@ -183,8 +187,11 @@
     <tr><td class="n">7.1</td><td><b>Maja:</b> abre <code>http://127.0.0.1:3000/admin</code>.</td><td>No entra al admin: la devuelven a su portal.</td><td class="ok">☐ ✔ ✘</td></tr>
     <tr><td class="n">7.2</td><td><b>Lars</b> (colaborador): intenta abrir <b>Invoices</b> y <b>Contracts</b>.</td><td>Muestra "Owner-only"; no ve importes ni contratos.</td><td class="ok">☐ ✔ ✘</td></tr>
     <tr><td class="n">7.3</td><td><b>Maja:</b> busca en su portal algo de otro cliente o proyecto.</td><td>Solo ve su organización.</td><td class="ok">☐ ✔ ✘</td></tr>
-    <tr><td class="n">7.4</td><td><b>Maja:</b> mira si tiene la pestaña/menú <b>Assistant</b> o las reglas de Axel.</td><td>No existe para ella: esa parte es solo del admin.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">7.4</td><td><b>Maja:</b> mira si tiene el menú <b>Assistant</b> o alguna IA.</td><td>No existe para ella: la IA es solo del admin.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">7.5</td><td><b>Henrik</b> (Fjordline): revisa Board, Files, Deliverables y el chat.</td><td>Solo ve su proyecto <i>Odour from recycled HDPE bottles</i>; nada de Nordic Polymers ni Baltic BioCoat.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">7.6</td><td><b>Desarrollador:</b> intenta que un cliente se haga administrador (comando abajo).</td><td>La base de datos lo rechaza con <b>Only Alchemica can change platform roles</b>.</td><td class="ok">☐ ✔ ✘</td></tr>
   </table>
+  <pre class="cmd">docker exec -i supabase_db_alchemica psql -U postgres -c "begin; set local role authenticated; select set_config('request.jwt.claims','{\"sub\":\"00000000-0000-0000-0000-0000000000c1\",\"role\":\"authenticated\"}',true); update profiles set platform_role='axel_admin' where id='00000000-0000-0000-0000-0000000000c1'; rollback;"</pre>
 
   <div class="eyebrow" style="margin-top:8mm">Prueba 8</div>
   <h2>Detalles que suman</h2>
@@ -194,7 +201,40 @@
     <tr><td class="n">8.2</td><td>Reduce la ventana al tamaño de un celular.</td><td>El menú pasa a un botón ☰, el chat ocupa toda la pantalla y nada se sale de la pantalla.</td><td class="ok">☐ ✔ ✘</td></tr>
     <tr><td class="n">8.3</td><td><b>Axel:</b> abre <code>/admin/digest-preview</code>.</td><td>Muestra el resumen semanal que recibiría cada cliente (no envía nada).</td><td class="ok">☐ ✔ ✘</td></tr>
     <tr><td class="n">8.4</td><td><b>Maja:</b> <b>Team</b> → interruptor "Email me a weekly summary".</td><td>Se puede apagar y encender; apagado, deja de recibir el correo de los lunes.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">8.5</td><td>Pasa de una página a otra del menú lateral.</td><td>Mientras carga aparece una <b>barra fina arriba</b>, que desaparece al llegar.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">8.6</td><td>Guarda algo (por ejemplo, <b>Create</b> en Contracts o <b>Save</b> en una reunión).</td><td>El botón muestra un <b>círculo girando</b> y no se puede pulsar dos veces.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">8.7</td><td>Abre cualquier desplegable (estado de una reunión, tipo de contrato) y muévete con <span class="k">↑</span> <span class="k">↓</span> <span class="k">Enter</span>.</td><td>Es el menú propio del portal (no el del navegador), se ve bien en modo oscuro y funciona con teclado.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">8.8</td><td><b>Axel:</b> proyecto → <b>Hours</b>. Luego, en tamaño celular, <b>Files</b>.</td><td>Hours abre sin error; Files no se desplaza hacia los lados (la tabla se desliza por dentro).</td><td class="ok">☐ ✔ ✘</td></tr>
   </table>
+</section>
+
+<section class="pb">
+  <div class="eyebrow">Prueba 9</div>
+  <h2>Calendario (admin)</h2>
+  <p class="lead">Reuniones, entregas, pedidos de datos, etapas, tarjetas y facturas de todos los clientes en un solo lugar. Las horas son de Copenhague.</p>
+  <table>
+    <tr><th>#</th><th>Pasos</th><th>Resultado esperado</th><th>OK</th></tr>
+    <tr><td class="n">9.1</td><td><b>Axel:</b> menú <b>Calendar</b>.</td><td>Vista <b>Month</b> del mes actual con eventos de los tres clientes; hoy marcado; a la derecha un calendario pequeño con puntos en los días con algo.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">9.2</td><td>Pulsa <b>‹</b> y <b>›</b>, luego <b>Today</b>.</td><td>Cambia de mes y vuelve al actual. La dirección guarda la vista (se puede compartir el enlace).</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">9.3</td><td>Cambia a <b>Week</b> y luego a <b>Agenda</b>.</td><td>Week: horario con las reuniones en su hora y lo de todo el día arriba. Agenda: lista día por día.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">9.4</td><td>Pulsa un evento (por ejemplo una reunión).</td><td>Se abre una ficha con hora, cliente y proyecto, estado, <b>Join</b> (si tiene enlace) y <b>Open</b>, que lleva a su página.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">9.5</td><td>Pulsa los filtros de arriba (Meetings, Deliverables…) para apagar uno.</td><td>Ese tipo desaparece del calendario; al volver a pulsar reaparece.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">9.6</td><td>En el calendario pequeño, pulsa otro día.</td><td>La vista salta a esa fecha.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">9.7</td><td>Un día con muchas cosas: pulsa <b>+N more</b>.</td><td>Se abre la lista completa de ese día.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">9.8</td><td>En un proyecto → <b>Meetings</b>, programa una reunión a las <b>10:00</b>.</td><td>En el calendario aparece a las <b>10:00</b> (hora de Copenhague), no corrida.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">9.9</td><td>Achica a tamaño celular.</td><td>Cualquier vista se muestra como agenda, sin desplazarse hacia los lados.</td><td class="ok">☐ ✔ ✘</td></tr>
+  </table>
+
+  <div class="eyebrow" style="margin-top:8mm">Prueba 10</div>
+  <h2>Clientes de demostración</h2>
+  <table>
+    <tr><th>#</th><th>Pasos</th><th>Resultado esperado</th><th>OK</th></tr>
+    <tr><td class="n">10.1</td><td><b>Axel:</b> menú <b>Clients</b>.</td><td>Aparecen <b>Nordic Polymers</b>, <b>Fjordline Packaging</b> y <b>Baltic BioCoat</b>, cada uno con su avance.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">10.2</td><td><b>Maja:</b> el selector de proyecto.</td><td>Tiene tres proyectos; <i>Adhesion on recycled PET film</i> recién empieza (etapa Onboarding).</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">10.3</td><td><b>Henrik:</b> entra y mira su resumen y <b>Deliverables</b>.</td><td>Proyecto a mitad de camino; la nota <i>Interim note: 2-MIB traced…</i> espera su revisión.</td><td class="ok">☐ ✔ ✘</td></tr>
+    <tr><td class="n">10.4</td><td><b>Ieva:</b> entra y mira su resumen, <b>Contracts</b> e <b>Invoices</b>.</td><td>Proyecto casi terminado (~93 %): informe final en revisión, contratos firmados, una factura pagada y otra enviada.</td><td class="ok">☐ ✔ ✘</td></tr>
+  </table>
+  <div class="tip"><b>Para recrearlos</b> (por ejemplo después de probar): <code>docker exec -i supabase_db_alchemica psql -U postgres &lt; supabase/seed-showcase.sql</code>. Borra y vuelve a crear solo esos datos; también se cargan solos con <code>npm run db:reset</code>.</div>
 </section>
 
 <section class="pb">
@@ -205,24 +245,27 @@
     <tr><th>Min</th><th>Qué mostrar</th><th>Qué decir</th></tr>
     <tr><td class="n">0–2</td><td><b>Maja:</b> Executive Summary, <b>Waiting on you</b> y el timeline con una etapa abierta.</td><td>"El cliente entiende en 10 segundos dónde estamos y qué le toca a él, sin términos técnicos."</td></tr>
     <tr><td class="n">2–4</td><td><b>Maja:</b> Contracts → <b>Review &amp; sign</b> → firmar. Descarga el PDF y enseña la página del certificado.</td><td>"Firma dentro del portal, sin cuentas externas. Queda un certificado con quién, cuándo y la huella del documento."</td></tr>
-    <tr><td class="n">4–6</td><td><b>Maja</b> pregunta en el chat; <b>Axel</b> responde en vivo. Axel pasa un mensaje a <b>Log as decision</b>.</td><td>"Nada se pierde en correos: lo acordado queda como decisión."</td></tr>
+    <tr><td class="n">4–6</td><td><b>Maja</b> abre la burbuja de abajo a la derecha y pregunta; <b>Axel</b> responde en vivo. Axel pasa un mensaje a <b>Log as decision</b>.</td><td>"Nada se pierde en correos: lo acordado queda como decisión."</td></tr>
     <tr><td class="n">6–8</td><td><b>Axel:</b> <b>Suggest reply</b>, edita y envía; abre <b>Assistant</b> y enseña las reglas, las correcciones y el caso anonimizado.</td><td>"El copiloto aprende cómo escribe Axel. Siempre propone, nunca envía solo, y es solo suyo."</td></tr>
-    <tr><td class="n">8–10</td><td><b>Axel:</b> Progress &amp; stages (fechas y descripción), pedido de datos, y el cambio de color.</td><td>"Axel configura el proyecto en un par de clics y el cliente lo ve al instante."</td></tr>
+    <tr><td class="n">8–9</td><td><b>Axel:</b> <b>Clients</b> con los tres clientes y el <b>Calendar</b> del mes; abre un evento.</td><td>"Todos los clientes y todas las fechas en una sola vista; nada se esconde en un proyecto olvidado."</td></tr>
+    <tr><td class="n">9–10</td><td><b>Axel:</b> Progress &amp; stages (fechas y descripción), pedido de datos, y el cambio de color.</td><td>"Axel configura el proyecto en un par de clics y el cliente lo ve al instante."</td></tr>
   </table>
   <h3>Antes de entrar a la sala</h3>
   <ul>
     <li>Docker, Supabase y <code>npm run dev</code> funcionando; las dos sesiones (Axel y Maja) ya iniciadas.</li>
     <li>El contrato <b>Services agreement — ready for your signature</b> sigue esperando firma (si lo firmaste en el ensayo, crea otro con el paso 1.7).</li>
-    <li>El interruptor de IA del cliente demo encendido y tu clave puesta.</li>
+    <li>Tu clave de IA puesta en <code>.env.local</code> (para el copiloto de Axel).</li>
+    <li>Los tres clientes demo cargados (Prueba 10). Si ensayaste mucho, recréalos con el comando del recuadro.</li>
     <li>Cierra pestañas con datos que no quieras mostrar.</li>
   </ul>
   <h3>Lo que conviene decir con honestidad</h3>
   <ul>
     <li>La firma del portal es una firma electrónica simple. Para contratos que exijan más (MitID, firma avanzada) se usa Documenso, que se conecta con una clave.</li>
-    <li>La IA usa hoy la API de DeepSeek, que procesa datos fuera de la UE: con clientes reales hay que moverla a un proveedor europeo con contrato de datos. Cada cliente se activa por separado.</li>
+    <li>La IA (solo para Axel) usa hoy la API de DeepSeek, que procesa datos fuera de la UE: con clientes reales hay que moverla a un proveedor europeo con contrato de datos. Los clientes no usan IA.</li>
     <li>Esto corre en un entorno local de pruebas; para producción hace falta publicar la base de datos y configurar los servicios (correo, firma, IA) en la UE.</li>
+    <li><b>Próximo paso:</b> sincronizar en ambos sentidos con Google Calendar (las reuniones del portal llegan a su calendario e invitan al cliente). Está diseñado y avanzado; falta crear el proyecto de Google de Alchemica con él.</li>
   </ul>
-  <div class="note"><b>Pendiente de seguridad antes de publicar:</b> hoy cualquier usuario con sesión podría cambiar su propio rol a administrador. Está documentado en <code>docs/AUDITORIA.md</code> y se corrige con una migración corta; conviene hacerlo antes de usar datos reales.</div>
+  <div class="tip"><b>Seguridad:</b> el problema por el que un usuario podía darse el rol de administrador ya está corregido (migración <code>0028_protect_platform_role.sql</code>); se comprueba en el paso 7.6.</div>
 </section>
 
 </body>
