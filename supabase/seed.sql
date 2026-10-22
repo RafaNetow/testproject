@@ -5,6 +5,8 @@
 --   admin@alchemica.test   platform admin (/admin)
 --   owner@cliente.test     client owner   (/portal, sees invoices & contracts)
 --   colab@cliente.test     client collaborator (/portal, no invoices)
+--   owner@fjordline.test   second demo client (seed-showcase.sql)
+--   owner@balticbiocoat.test  third demo client (seed-showcase.sql)
 --
 -- owner@cliente.test is the "has everything" demo user: two projects, deliverables
 -- in every status (three awaiting their review), a populated board, decisions,
