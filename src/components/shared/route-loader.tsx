@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import Box from "@mui/material/Box";
 import { GearLoader } from "@/components/shared/gear-loader";
 import { MIN_LOADER_MS, ROUTE_LOADING_ATTR, SPLASH_MS, SPLASH_SEEN_KEY } from "@/lib/route-loader";
+import { prefersReducedMotion } from "@/lib/motion-pref";
 
 const SAFETY_MS = 15_000;
 const FADE_MS = 260;
@@ -32,7 +33,7 @@ function hide() {
   }, FADE_MS);
 }
 function reducedMotion() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return prefersReducedMotion();
 }
 
 /**

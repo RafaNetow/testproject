@@ -24,7 +24,7 @@ export const SPLASH_SEEN_KEY = "alchemica-splash-seen";
  * browser session it turns the splash on, so the loader is there from the very
  * first frame instead of popping in after hydration. Skipped with "reduce motion".
  */
-export const SPLASH_BOOT_SCRIPT = `(function(){try{if(!/^\\/(portal|admin)(\\/|$)/.test(location.pathname))return;if(window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;if(sessionStorage.getItem("${SPLASH_SEEN_KEY}"))return;document.documentElement.setAttribute("${ROUTE_LOADING_ATTR}","splash");}catch(e){}})();`;
+export const SPLASH_BOOT_SCRIPT = `(function(){try{if(!/^\\/(portal|admin)(\\/|$)/.test(location.pathname))return;if(window.matchMedia("(prefers-reduced-motion: reduce)").matches||document.documentElement.getAttribute("data-motion")==="reduced")return;if(sessionStorage.getItem("${SPLASH_SEEN_KEY}"))return;document.documentElement.setAttribute("${ROUTE_LOADING_ATTR}","splash");}catch(e){}})();`;
 
 /** True while the loader covers the page (entrances should wait). */
 export function routeIsLoading(): boolean {

@@ -1,5 +1,5 @@
 /**
- * Brand accents anyone can pick for their own view (accent-switcher.tsx). The CSS for each
+ * Brand accents anyone can pick for their own view (Settings drawer, settings-drawer.tsx). The CSS for each
  * lives in globals.css under `:root[data-accent=…]`; verdigris is the default.
  */
 export const ACCENTS = [

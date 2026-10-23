@@ -139,7 +139,7 @@
 }
 
 /*
- * Accent comparison (admin colour switcher, src/components/shared/accent-switcher.tsx).
+ * Accent comparison (the Settings drawer, src/components/shared/settings-drawer.tsx).
  * Verdigris is the default and needs no attribute. Each alternative is a historic
  * pigment; borders and fills take a matching low-chroma tint.
  */
@@ -529,6 +529,16 @@ section[id] {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Settings → Animations off (lib/motion-pref.ts): the same as the system setting. */
+:root[data-motion="reduced"] *,
+:root[data-motion="reduced"] *::before,
+:root[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 
 /* ---------- Invoice print / "Save as PDF" ---------- */

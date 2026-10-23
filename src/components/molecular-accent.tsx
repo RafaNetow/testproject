@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Box from "@mui/material/Box";
+import { prefersReducedMotion } from "@/lib/motion-pref";
 
 type Particle = { x: number; y: number; vx: number; vy: number };
 
@@ -49,7 +50,7 @@ export function MolecularAccent({
     // running it forever off-screen.
     if (desktopOnly && !window.matchMedia("(min-width: 1024px)").matches) return;
 
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduceMotion = prefersReducedMotion();
     const { line: lineRgb, dot: dotRgb } = TONES[tone];
     let particles: Particle[] = [];
     let raf = 0;

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import { prefersReducedMotion } from "@/lib/motion-pref";
 
 const LINES = ["Mixing your data", "Heating the samples", "Reading the spectra", "Almost ready"];
 
@@ -52,7 +53,7 @@ export function GearLoader({ label = "Alchemica", delayMs = 200 }: { label?: str
   const [line, setLine] = useState(0);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (prefersReducedMotion()) return;
     const id = window.setInterval(() => setLine((n) => (n + 1) % LINES.length), 700);
     return () => window.clearInterval(id);
   }, []);

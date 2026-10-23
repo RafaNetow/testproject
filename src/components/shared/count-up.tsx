@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { whenRevealed } from "@/lib/route-loader";
+import { prefersReducedMotion } from "@/lib/motion-pref";
 
 /**
  * A number that counts up from 0 when it first appears. The server renders
@@ -22,7 +23,7 @@ export function CountUp({
   const [shown, setShown] = useState(value);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || value === 0) return;
+    if (prefersReducedMotion() || value === 0) return;
     let raf = 0;
     const cancelReveal = whenRevealed((revealedAt) => {
       const start = revealedAt + delay;

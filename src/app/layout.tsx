@@ -5,6 +5,7 @@ import { DevEnvironmentBadge } from "@/components/dev-environment-badge";
 import { MuiProvider } from "@/components/providers/mui-provider";
 import { ACCENT_BOOT_SCRIPT } from "@/lib/accents";
 import { SPLASH_BOOT_SCRIPT } from "@/lib/route-loader";
+import { MOTION_BOOT_SCRIPT } from "@/lib/motion-pref";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -70,6 +71,7 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: ACCENT_BOOT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: MOTION_BOOT_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: SPLASH_BOOT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground font-body">
