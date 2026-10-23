@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { whenRevealed } from "@/lib/route-loader";
 import { prefersReducedMotion } from "@/lib/motion-pref";
+import { formatMoney } from "@/lib/money";
 
 /**
  * A number that counts up from 0 when it first appears. The server renders
@@ -14,9 +15,15 @@ export function CountUp({
   suffix = "",
   duration = 1100,
   delay = 250,
+  currency,
+  decimals = 0,
 }: {
+  /** With `currency`, the value is in cents and shows as money ("DKK 12,500"). */
   value: number;
   suffix?: string;
+  currency?: string;
+  /** Digits after the decimal point (e.g. 1 for "12.5" hours). */
+  decimals?: number;
   duration?: number;
   delay?: number;
 }) {
@@ -29,7 +36,8 @@ export function CountUp({
       const start = revealedAt + delay;
       const tick = (now: number) => {
         const p = Math.min(1, Math.max(0, (now - start) / duration));
-        setShown(Math.round(value * (1 - Math.pow(1 - p, 3))));
+        const f = Math.pow(10, decimals);
+        setShown(Math.round(value * (1 - Math.pow(1 - p, 3)) * f) / f);
         if (p < 1) raf = requestAnimationFrame(tick);
       };
       raf = requestAnimationFrame(tick);
@@ -38,11 +46,11 @@ export function CountUp({
       cancelReveal();
       cancelAnimationFrame(raf);
     };
-  }, [value, duration, delay]);
+  }, [value, duration, delay, decimals]);
 
   return (
     <>
-      {shown}
+      {currency ? formatMoney(shown, currency, { whole: true }) : decimals ? shown.toFixed(decimals) : shown}
       {suffix}
     </>
   );

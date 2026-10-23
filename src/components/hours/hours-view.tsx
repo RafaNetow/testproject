@@ -12,6 +12,15 @@ import { EditableHoursRow } from "./editable-hours-row";
 import { HOUR_CATEGORIES } from "@/lib/hour-categories";
 import { Add } from "@/components/icons";
 import { SubmitButton } from "@/components/shared/submit-button";
+import { GaugeMeter, WeeklyBars } from "@/components/charts/charts";
+import { weekLabels, weeklySums } from "@/lib/weekly";
+
+const WEEKS = 8;
+
+/** Request time; kept out of the component body so render stays pure. */
+function currentTime() {
+  return new Date();
+}
 
 type HoursEntry = {
   id: string;
@@ -38,16 +47,49 @@ export function HoursView({
 
   const totalHours = entries.reduce((sum, e) => sum + Number(e.hours), 0);
   const billableHours = entries.filter((e) => e.billable).reduce((sum, e) => sum + Number(e.hours), 0);
+  const now = currentTime();
+  const labels = weekLabels(WEEKS, now);
+  const perWeek = (billable: boolean) =>
+    weeklySums(entries.filter((e) => e.billable === billable).map((e) => ({ date: e.entry_date, value: Number(e.hours) })), WEEKS, now);
 
   return (
     <Stack spacing={3}>
       <StatTiles
         columns={2}
+        animate
         tiles={[
-          { label: "Total hours logged", value: totalHours.toFixed(1) },
-          { label: "Billable hours", value: billableHours.toFixed(1) },
+          { label: "Total hours logged", value: Math.round(totalHours * 10) / 10, decimals: 1 },
+          { label: "Billable hours", value: Math.round(billableHours * 10) / 10, decimals: 1 },
         ]}
       />
+
+      {entries.length > 0 && (
+        <Paper variant="outlined" sx={{ p: 3, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 3 }}>
+          <Box sx={{ flex: 1, minWidth: 260 }}>
+            <Typography sx={{ fontSize: 14, fontWeight: 700 }}>Hours per week</Typography>
+            <Typography sx={{ fontSize: 12, color: "text.muted" }}>Last {WEEKS} weeks</Typography>
+            <WeeklyBars
+              labels={labels}
+              stacked
+              unit="h"
+              height={220}
+              label={`Hours per week for the last ${WEEKS} weeks, billable and non-billable`}
+              series={[
+                { id: "billable", label: "Billable", data: perWeek(true), token: "--color-accent" },
+                { id: "other", label: "Not billable", data: perWeek(false), token: "--color-muted-foreground" },
+              ]}
+            />
+          </Box>
+          <Box sx={{ mx: "auto", display: "grid", justifyItems: "center", gap: 1 }}>
+            <GaugeMeter
+              value={totalHours ? (billableHours / totalHours) * 100 : 0}
+              size={170}
+              caption="billable"
+              label={`${totalHours ? Math.round((billableHours / totalHours) * 100) : 0}% of hours are billable`}
+            />
+          </Box>
+        </Paper>
+      )}
 
       {canLog && (
         <Paper

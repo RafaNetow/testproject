@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { weeklyCounts, weeksAgo } from "./weekly";
+import { weekLabels, weeklyCounts, weeklySums, weeksAgo } from "./weekly";
 
 const now = new Date("2026-10-22T12:00:00Z");
 
@@ -16,6 +16,14 @@ describe("weeklyCounts", () => {
 
   it("ignores missing, future and too-old dates, and accepts plain days", () => {
     expect(weeklyCounts([null, undefined, "2026-11-01T00:00:00Z", "2025-01-01T00:00:00Z", "2026-10-21"], 3, now)).toEqual([0, 0, 1]);
+  });
+
+  it("adds values per week", () => {
+    expect(weeklySums([{ date: "2026-10-21", value: 2.5 }, { date: "2026-10-20", value: 1 }, { date: "2026-10-12", value: 4 }, { date: null, value: 9 }], 3, now)).toEqual([0, 4, 3.5]);
+  });
+
+  it("labels each week by its first day", () => {
+    expect(weekLabels(2, now)).toEqual(["9 Oct", "16 Oct"]);
   });
 
   it("gives the start of the window", () => {

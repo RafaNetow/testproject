@@ -6,6 +6,7 @@ import { SectionHeader } from "@/components/shared/section-header";
 import { StatTiles } from "@/components/shared/stat-tiles";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LinkTable } from "@/components/shared/link-table";
+import { formatMoney } from "@/lib/money";
 import Stack from "@mui/material/Stack";
 
 type InvoiceRow = {
@@ -27,10 +28,6 @@ type HoursRow = {
   project_id: string;
   projects: { org_id: string; organizations: { name: string } | null } | null;
 };
-
-function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency }).format(cents / 100);
-}
 
 /** Sums cents per currency — invoices span DKK/EUR/USD, so totals must never be added across currencies. */
 function sumByCurrency(rows: { amount_cents: number; currency: string }[]) {

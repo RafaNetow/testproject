@@ -14,6 +14,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { Close } from "@/components/icons";
 import { signContract, type SignContractResult } from "@/lib/actions/contracts";
+import { notifySuccess } from "@/components/shared/success-toast";
 
 /**
  * The workspace owner reads the contract and signs it: type your full name and
@@ -32,7 +33,13 @@ export function SignContractDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [state, formAction, pending] = useActionState<SignContractResult | null, FormData>(
-    (prev, formData) => signContract(contractId, revalidatePaths, prev, formData),
+    async (prev, formData) => {
+      const result = await signContract(contractId, revalidatePaths, prev, formData);
+      // The page refreshes with the signed copy and this dialog goes away, so
+      // the confirmation (a check that draws itself) is the app-wide toast.
+      if (result?.success) notifySuccess(`Signed "${title}"`);
+      return result;
+    },
     null
   );
   // Once the signature is recorded the dialog closes; the page refreshes with the signed copy.

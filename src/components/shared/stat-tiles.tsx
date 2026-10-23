@@ -14,6 +14,8 @@ export type StatTile = {
   icon?: ReactNode;
   /** Counts per week, oldest first, drawn as a small trend line beside the number. */
   spark?: number[];
+  /** Digits after the decimal point when the value counts up. */
+  decimals?: number;
 };
 
 /**
@@ -79,7 +81,7 @@ export function StatTiles({
               color: tile.tone === "error" ? STATUS_TONE.error.text : "text.primary",
             }}
           >
-            {animate && typeof tile.value === "number" ? <CountUp value={tile.value} delay={450} /> : tile.value}
+            {animate && typeof tile.value === "number" ? <CountUp value={tile.value} delay={450} decimals={tile.decimals} /> : tile.value}
           </Typography>
           {tile.spark && <Sparkline values={tile.spark} />}
           </Box>

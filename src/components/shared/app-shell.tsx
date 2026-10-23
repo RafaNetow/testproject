@@ -20,6 +20,7 @@ import { useSignOut } from "@/components/sign-out-button";
 import { AdminSearch } from "@/components/shared/admin-search";
 import { NotificationBell, type NotificationItem } from "@/components/shared/notification-bell";
 import { SettingsDrawer } from "@/components/shared/settings-drawer";
+import { SuccessToaster } from "@/components/shared/success-toast";
 import { ChatDrawer } from "@/components/messages/chat-drawer";
 import { NavigationProgress } from "@/components/shared/navigation-progress";
 import { RouteLoaderController, RouteLoaderOverlay } from "@/components/shared/route-loader";
@@ -218,6 +219,7 @@ export function AppShell({
         <RouteLoaderController />
       </Suspense>
       <RouteLoaderOverlay top={HEADER_HEIGHT} left={{ xs: 0, lg: SIDEBAR_WIDTH }} />
+      <SuccessToaster />
       <Box
         component="aside"
         sx={{

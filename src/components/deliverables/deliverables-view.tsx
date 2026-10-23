@@ -31,6 +31,22 @@ import {
 } from "@/lib/actions/deliverables";
 import { AttachFile, Close, DeleteOutlined, DescriptionOutlined, ExpandMore } from "@/components/icons";
 import { SubmitButton } from "@/components/shared/submit-button";
+import { DueChip } from "@/components/shared/due-chip";
+import { PipelineBar, type PipelineStep } from "@/components/deliverables/pipeline-bar";
+import { daysUntil } from "@/lib/due";
+
+/** Segment colours for the pipeline bar, from the shared tokens. */
+const PIPELINE_COLOR: Record<DeliverableStatus, string> = {
+  draft: "var(--border-outline)",
+  in_progress: "color-mix(in srgb, var(--color-accent) 45%, var(--color-muted-foreground))",
+  in_review: "var(--color-warning)",
+  changes_requested: "var(--color-error)",
+  approved: "var(--color-accent)",
+};
+
+function pipelineSteps(deliverables: DeliverableRow[], labels: Record<DeliverableStatus, string>): PipelineStep[] {
+  return DELIVERABLE_STATUSES.map((s) => ({ key: s, label: labels[s], count: deliverables.filter((d) => d.status === s).length, color: PIPELINE_COLOR[s] }));
+}
 
 export type DeliverableFile = {
   id: string;
@@ -112,13 +128,16 @@ function DueDate({ d, today }: { d: DeliverableRow; today?: string }) {
   if (!d.due_date) return null;
   const overdue = isOverdue(d.due_date, d.status, today);
   return (
-    <Typography
-      component="span"
-      sx={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: overdue ? 500 : 400, color: overdue ? "error.main" : "text.muted" }}
-    >
-      {overdue ? "Overdue · " : "Due "}
-      {formatDateOnly(d.due_date)}
-    </Typography>
+    <>
+      <Typography
+        component="span"
+        sx={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: overdue ? 500 : 400, color: overdue ? "error.main" : "text.muted" }}
+      >
+        {overdue ? "Overdue · " : "Due "}
+        {formatDateOnly(d.due_date)}
+      </Typography>
+      {today && d.status !== "approved" && daysUntil(d.due_date, today) <= 7 && <DueChip days={daysUntil(d.due_date, today)} />}
+    </>
   );
 }
 
@@ -215,6 +234,7 @@ function ClientDeliverables({
 
   return (
     <Stack spacing={5} className="stagger">
+      <PipelineBar steps={pipelineSteps(deliverables, CLIENT_STATUS_LABEL)} />
       {sections
         .filter((s) => s.items.length)
         .map((s) => (
@@ -303,6 +323,8 @@ function AdminDeliverables({
           </Box>
         </Stack>
       </Paper>
+
+      <PipelineBar steps={pipelineSteps(deliverables, ADMIN_STATUS_LABEL)} />
 
       {!deliverables.length ? (
         <Typography sx={{ fontSize: 14, color: "text.muted" }}>No deliverables yet.</Typography>

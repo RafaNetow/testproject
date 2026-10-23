@@ -8,13 +8,10 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import { BUSINESS_INFO } from "@/lib/business-info";
+import { formatMoney } from "@/lib/money";
 import { computeInvoiceTotals, type PreviewLineItem, type VatTreatment } from "@/lib/invoice-totals";
 
 export type { PreviewLineItem, VatTreatment };
-
-function formatMoney(cents: number, currency: string) {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency }).format(cents / 100);
-}
 
 function formatDate(value: string | null) {
   if (!value) return "—";

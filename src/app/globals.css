@@ -353,6 +353,41 @@ section[id] {
   }
 }
 
+/* ---------- Success check (shared/success-toast.tsx) ---------- */
+.check-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .check-draw {
+    animation: check-draw 0.5s var(--ease-out) 0.15s backwards;
+  }
+}
+
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+/* ---------- Overdue chips (shared/due-chip.tsx) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .due-pulse {
+    animation: due-pulse 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes due-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-error) 40%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-error) 0%, transparent);
+  }
+}
+
 /* ---------- Executive Summary: trend lines ---------- */
 @media (prefers-reduced-motion: no-preference) {
   .spark-line {

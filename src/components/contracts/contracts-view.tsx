@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SigningSteps } from "./signing-steps";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
@@ -207,6 +208,7 @@ export function ContractsView({
                       </Box>
                     </Box>
 
+                    <SigningSteps status={c.signing_status} />
                     {awaitingPortalSignature && canManage && (
                       <Typography sx={{ mt: 0.75, fontSize: 13, color: "text.secondary" }}>
                         Waiting for the client&apos;s workspace owner to review and sign it in the portal.

@@ -12,6 +12,10 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { figureSx } from "@/lib/palette";
 import { updateInvoiceStatus, deleteInvoice } from "@/lib/actions/invoices";
 import { deriveInvoiceStatus } from "@/lib/invoice-status";
+import { daysUntil, invoiceTotals } from "@/lib/due";
+import { todayInCopenhagen } from "@/lib/deliverables";
+import { DueChip } from "@/components/shared/due-chip";
+import { InvoiceSummary } from "./invoice-summary";
 import { InvoiceBuilder, type DuplicateFrom, type UnbilledHoursEntry } from "./invoice-builder";
 import { InvoicePreview, type PreviewLineItem, type VatTreatment } from "./invoice-preview";
 import { AttachFile, ContentCopy, DeleteOutlined, Download, ExpandMore } from "@/components/icons";
@@ -69,8 +73,11 @@ export function InvoicesView({
   basePath?: string;
   duplicateFrom?: (DuplicateFrom & { sourceId: string }) | null;
 }) {
+  const totals = invoiceTotals(invoices);
+  const today = todayInCopenhagen();
   return (
     <Stack spacing={3}>
+      {totals && <InvoiceSummary totals={totals} />}
       {canManage && (
         <InvoiceBuilder
           key={duplicateFrom?.sourceId ?? "new"}
@@ -106,9 +113,10 @@ export function InvoicesView({
                   }}
                 >
                   <div>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1 }}>
                       <Typography sx={{ fontSize: 14, fontWeight: 500 }}>{inv.invoice_number}</Typography>
                       <StatusBadge status={displayStatus} />
+                      {inv.due_date && displayStatus !== "paid" && inv.status !== "draft" && <DueChip days={daysUntil(inv.due_date, today)} />}
                     </Box>
                     <Typography sx={{ mt: 0.5, fontSize: 14, color: "text.muted" }}>
                       <Box component="span" sx={{ ...figureSx, color: "text.primary", fontWeight: 600 }}>

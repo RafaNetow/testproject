@@ -8,6 +8,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import { reviewDeliverable, type ReviewState } from "@/lib/actions/deliverables";
+import { notifySuccess } from "@/components/shared/success-toast";
 
 /**
  * The client owner's response to a deliverable: approve it, or send it back
@@ -15,10 +16,13 @@ import { reviewDeliverable, type ReviewState } from "@/lib/actions/deliverables"
  * reviewed) are shown inline instead of crashing the page.
  */
 export function ReviewControls({ deliverableId, title }: { deliverableId: string; title: string }) {
-  const [state, formAction, pending] = useActionState<ReviewState, FormData>(
-    reviewDeliverable.bind(null, deliverableId),
-    null
-  );
+  const [state, formAction, pending] = useActionState<ReviewState, FormData>(async (prev, formData) => {
+    const result = await reviewDeliverable(deliverableId, prev, formData);
+    // The card moves to another section once the page refreshes, so the toast
+    // is raised here, before this form unmounts.
+    if (result?.ok) notifySuccess(formData.get("decision") === "approved" ? `Approved "${title}"` : `Changes requested on "${title}"`);
+    return result;
+  }, null);
 
   return (
     <Stack component="form" action={formAction} spacing={1.5} sx={{ mt: 2.5, borderTop: 1, borderColor: "divider", pt: 2.5 }}>
