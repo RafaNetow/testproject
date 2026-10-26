@@ -20,6 +20,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     : { data: [] };
 
   const unread = user ? await loadUnread(supabase, user.id) : {};
+  const { data: profile } = user
+    ? await supabase.from("profiles").select("tour_completed_at").eq("id", user.id).maybeSingle()
+    : { data: null };
   const unreadMessages = Object.values(unread).reduce((a, b) => a + b, 0);
 
   const notifications = (rows ?? []).map((n) => ({
@@ -40,6 +43,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       userId={user?.id ?? ""}
       notifications={notifications}
       chat={{ unread: unreadMessages, aiEnabled: aiConfigured() }}
+      tourPending={Boolean(user && profile && !profile.tour_completed_at)}
     >
       {children}
     </AppShell>

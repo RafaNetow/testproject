@@ -180,9 +180,11 @@ export default async function PortalHome() {
 
   return (
     <Stack spacing={5} className="stagger">
-      <DashboardHero eyebrow={hero.eyebrow} title={hero.title} subtitle={hero.subtitle} greetName={greetName} />
+      <Box data-tour="summary-hero">
+        <DashboardHero eyebrow={hero.eyebrow} title={hero.title} subtitle={hero.subtitle} greetName={greetName} />
+      </Box>
 
-      <Box sx={{ display: "grid", gap: 3, gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "repeat(2, minmax(0, 1fr))" } }}>
+      <Box data-tour="countdowns" sx={{ display: "grid", gap: 3, gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "repeat(2, minmax(0, 1fr))" } }}>
         <CountdownCard
           eyebrow="Next meeting"
           title={nextMeeting?.title}
@@ -201,9 +203,11 @@ export default async function PortalHome() {
         />
       </Box>
 
-      <WaitingOnYou items={waiting} showProject={projects.length > 1} today={today} />
+      <Box data-tour="waiting">
+        <WaitingOnYou items={waiting} showProject={projects.length > 1} today={today} />
+      </Box>
 
-      <Stack spacing={3}>
+      <Stack spacing={3} data-tour="progress">
         {progress.map((p) => (
           <ProjectProgress
             key={p.id}

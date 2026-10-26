@@ -21,6 +21,7 @@ import { AdminSearch } from "@/components/shared/admin-search";
 import { NotificationBell, type NotificationItem } from "@/components/shared/notification-bell";
 import { SettingsDrawer } from "@/components/shared/settings-drawer";
 import { SuccessToaster } from "@/components/shared/success-toast";
+import { OnboardingTour } from "@/components/shared/onboarding-tour";
 import { ChatDrawer } from "@/components/messages/chat-drawer";
 import { NavigationProgress } from "@/components/shared/navigation-progress";
 import { RouteLoaderController, RouteLoaderOverlay } from "@/components/shared/route-loader";
@@ -41,6 +42,8 @@ type AppShellProps = {
   badges?: Record<string, number>;
   /** Chat bubble: unread count, and the client's projects for the project picker. */
   chat?: { unread: number; projects?: { id: string; name: string }[]; aiEnabled?: boolean };
+  /** The person hasn't seen the welcome tour yet: it opens on the home page. */
+  tourPending?: boolean;
   children: ReactNode;
 };
 
@@ -70,6 +73,7 @@ export function AppShell({
   notifications,
   badges,
   chat,
+  tourPending = false,
   children,
 }: AppShellProps) {
   const pathname = usePathname();
@@ -217,6 +221,7 @@ export function AppShell({
       <Suspense fallback={null}>
         <NavigationProgress />
         <RouteLoaderController />
+        <OnboardingTour surface={variant} autoStart={tourPending} />
       </Suspense>
       <RouteLoaderOverlay top={HEADER_HEIGHT} left={{ xs: 0, lg: SIDEBAR_WIDTH }} />
       <SuccessToaster />

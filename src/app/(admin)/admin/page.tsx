@@ -170,6 +170,7 @@ export default async function AdminDashboard() {
     <Stack spacing={5} className="stagger">
       <DashboardHero eyebrow={hero.eyebrow} title={hero.title} subtitle={hero.subtitle} greetName={greetName} />
 
+      <Box data-tour="dashboard-stats">
       <StatTiles
         animate
         columns={3}
@@ -179,6 +180,7 @@ export default async function AdminDashboard() {
           { label: "Upcoming meetings", value: upcomingMeetingsCount ?? "—", icon: <CalendarMonthOutlined /> },
         ]}
       />
+      </Box>
 
       <div>
         <Typography variant="h2" sx={{ fontSize: 18 }}>

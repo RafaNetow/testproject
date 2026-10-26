@@ -14,6 +14,8 @@ import Typography from "@mui/material/Typography";
 import { Check, Close, SettingsOutlined } from "@/components/icons";
 import { ACCENTS, ACCENT_COOKIE, type AccentKey } from "@/lib/accents";
 import { MOTION_ATTR, setAnimationsEnabled } from "@/lib/motion-pref";
+import Button from "@mui/material/Button";
+import { startTour } from "@/components/shared/onboarding-tour";
 
 function currentAccent(): AccentKey {
   return (document.documentElement.dataset.accent as AccentKey | undefined) ?? "verdigris";
@@ -140,6 +142,26 @@ export function SettingsDrawer({ surface = "admin" }: { surface?: "portal" | "ad
               />
             }
           />
+        </Box>
+        <Divider />
+
+        <Box sx={{ px: 2.5, py: 2.5 }}>
+          <Typography sx={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "text.secondary" }}>
+            Help
+          </Typography>
+          <Typography sx={{ mt: 0.5, mb: 1.5, fontSize: 12, color: "text.muted" }}>A one-minute walk through every part of the portal.</Typography>
+          <Button
+            variant="outlined"
+            color="secondary"
+            fullWidth
+            onClick={() => {
+              setOpen(false);
+              // Let the drawer close before the spotlight starts.
+              window.setTimeout(startTour, 250);
+            }}
+          >
+            Take the tour
+          </Button>
         </Box>
       </Drawer>
     </>
