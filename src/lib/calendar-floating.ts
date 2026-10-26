@@ -30,6 +30,21 @@ export function floatingDay(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
+export type TimeState = "past" | "now" | "future";
+
+/**
+ * Whether an item (FullCalendar Dates, UTC mode) is over, happening or still
+ * ahead at `now` (a floating Copenhagen wall time). All-day ends are
+ * exclusive; a missing end means one day (all-day) or an instant (timed).
+ */
+export function timeState(start: Date, end: Date | null, allDay: boolean, now: string): TimeState {
+  const at = Date.parse(`${now}Z`);
+  const from = start.getTime();
+  const to = end ? end.getTime() : allDay ? from + 86_400_000 : from;
+  if (from > at) return "future";
+  return to > at ? "now" : "past";
+}
+
 /** What can be moved or stretched on the calendar, per kind. */
 export const EDITABLE: Record<CalendarEventKind, { move: boolean; resize: boolean }> = {
   event: { move: true, resize: true },

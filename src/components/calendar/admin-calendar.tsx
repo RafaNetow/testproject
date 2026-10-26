@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import FullCalendar from "@fullcalendar/react";
-import type { DateSelectArg, DatesSetArg, EventApi, EventClickArg, EventDropArg, EventSourceFuncArg } from "@fullcalendar/core";
+import type { DateSelectArg, DatesSetArg, EventApi, EventClickArg, EventContentArg, EventDropArg, EventSourceFuncArg } from "@fullcalendar/core";
 import enGb from "@fullcalendar/core/locales/en-gb";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin, { type EventResizeDoneArg } from "@fullcalendar/interaction";
@@ -44,7 +44,7 @@ import { SectionHeader } from "@/components/shared/section-header";
 import { notifySuccess } from "@/components/shared/success-toast";
 import { getCalendarRange, moveCalendarItem } from "@/lib/actions/calendar";
 import { addDays, formatDay, formatTime, type CalendarEvent, type CalendarEventKind } from "@/lib/calendar";
-import { EVENT_COLORS, KIND_COLOR, floatingDay, floatingLocal, toFloating, toFullCalendar, type EventColor } from "@/lib/calendar-floating";
+import { EVENT_COLORS, KIND_COLOR, floatingDay, floatingLocal, timeState, toFloating, toFullCalendar, type EventColor } from "@/lib/calendar-floating";
 import { KIND_META, KIND_ORDER, isOverdue } from "./event-kinds";
 import { EventPopover } from "./event-popover";
 import { CalendarEventDialog, type DialogDraft } from "./calendar-event-dialog";
@@ -59,6 +59,13 @@ type ViewKey = (typeof VIEWS)[number]["key"];
 
 const noSubscribe = () => () => {};
 
+// A clock that ticks each minute, so past / "Now" / upcoming styling stays current on an open page.
+const everyMinute = (onTick: () => void) => {
+  const id = window.setInterval(onTick, 60_000);
+  return () => window.clearInterval(id);
+};
+const currentMinute = () => Math.floor(Date.now() / 60_000);
+
 /**
  * The admin calendar, after the Minimal dashboard's: Month / Week / Day /
  * Agenda, Today and arrows, a Filters drawer, "New event", click or drag
@@ -69,6 +76,17 @@ const noSubscribe = () => () => {};
 export function AdminCalendar({ projects, today }: { projects: { id: string; label: string }[]; today: string }) {
   const ref = useRef<FullCalendar>(null);
   const mounted = useSyncExternalStore(noSubscribe, () => true, () => false);
+  const minute = useSyncExternalStore(everyMinute, currentMinute, () => 0);
+  // Copenhagen "now" for the grid, renewed each minute. Each event is tagged
+  // is-past / is-now / is-future from it (FullCalendar's own past/future
+  // classes only compare whole days in month and agenda views).
+  // (The server snapshot is 0, but the calendar only renders once mounted.)
+  const nowFloating = toFloating(new Date(minute * 60_000).toISOString());
+  const now = useCallback(() => nowFloating, [nowFloating]);
+  const stateClass = useCallback(
+    ({ event }: EventContentArg) => (event.start ? [`is-${timeState(event.start, event.end, event.allDay, nowFloating)}`] : []),
+    [nowFloating]
+  );
   const [view, setView] = useState<ViewKey>("dayGridMonth");
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
@@ -289,7 +307,8 @@ export function AdminCalendar({ projects, today }: { projects: { id: string; lab
               headerToolbar={false}
               locale={enGb}
               timeZone="UTC"
-              now={() => toFloating(new Date().toISOString())}
+              now={now}
+              eventClassNames={stateClass}
               firstDay={1}
               height={view.startsWith("timeGrid") ? 760 : "auto"}
               dayMaxEventRows={3}

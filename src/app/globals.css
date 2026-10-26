@@ -687,6 +687,94 @@ section[id] {
 .mcal .fc .fc-event-mirror { opacity: 0.85; }
 .mcal .fc .fc-highlight { border-radius: 6px; }
 
+/* Time states. The colour still says what an item is; the weight says when.
+   admin-calendar.tsx tags each event is-past / is-now / is-future against
+   Copenhagen "now", renewed every minute. */
+
+/* Past: neutral grey, the kind kept as a thin left edge. Overdue (red) and
+   cancelled items keep their own look. */
+.mcal .fc .fc-event.is-past:not(.fc-ev-error):not(.fc-ev-cancelled) {
+  --fc-event-bg-color: var(--fill-track);
+  --fc-event-text-color: var(--color-muted-foreground);
+}
+.mcal .fc :is(.fc-h-event, .fc-v-event).is-past:not(.fc-ev-error):not(.fc-ev-cancelled) {
+  box-shadow: inset 3px 0 0 var(--ev);
+}
+.mcal .fc .fc-daygrid-dot-event.is-past:not(.fc-ev-error) .fc-event-title,
+.mcal .fc .fc-daygrid-dot-event.is-past:not(.fc-ev-error) .fc-event-time,
+.mcal .fc .fc-list-event.is-past:not(.fc-ev-error) td {
+  color: var(--color-muted-foreground);
+}
+
+/* Happening now, meetings and own events: the only solid fill on the
+   calendar, with a pulsing dot and a "Now" tag. */
+.mcal .fc :is(.fc-kind-meeting, .fc-kind-event).fc-event.is-now {
+  --fc-event-bg-color: var(--ev);
+  --fc-event-text-color: #fff;
+  box-shadow: 0 6px 14px -6px color-mix(in srgb, var(--ev) 70%, transparent);
+}
+.mcal .fc :is(.fc-kind-meeting, .fc-kind-event).fc-ev-warning.is-now {
+  --fc-event-text-color: #2a1d00;
+}
+.mcal .fc :is(.fc-kind-meeting, .fc-kind-event).fc-daygrid-dot-event.is-now {
+  background: var(--ev);
+  color: var(--fc-event-text-color);
+}
+.mcal .fc :is(.fc-kind-meeting, .fc-kind-event).fc-daygrid-dot-event.is-now :is(.fc-event-title, .fc-event-time) {
+  color: inherit;
+}
+.mcal .fc :is(.fc-kind-meeting, .fc-kind-event).fc-daygrid-dot-event.is-now .fc-daygrid-event-dot {
+  border-color: currentColor;
+}
+.mcal .fc :is(.fc-kind-meeting, .fc-kind-event).is-now :is(.fc-event-title, .fc-list-event-title)::after {
+  content: "Now";
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 16px;
+  vertical-align: 1px;
+  background: color-mix(in srgb, currentColor 22%, transparent);
+}
+.mcal .fc .fc-list-event:is(.fc-kind-meeting, .fc-kind-event).is-now .fc-list-event-title::after {
+  color: var(--ev);
+}
+.mcal .fc .fc-list-event:is(.fc-kind-meeting, .fc-kind-event).is-now td {
+  background: color-mix(in srgb, var(--ev) 8%, transparent);
+  font-weight: 600;
+}
+.mcal .fc :is(.fc-kind-meeting, .fc-kind-event).is-now .fc-event-title::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: 1px;
+  animation: mcal-now-pulse 1.6s ease-out infinite;
+}
+.mcal .fc .fc-list-event:is(.fc-kind-meeting, .fc-kind-event).is-now .fc-list-event-dot {
+  animation: mcal-now-pulse 1.6s ease-out infinite;
+  color: var(--ev);
+}
+@keyframes mcal-now-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 55%, transparent); }
+  100% { box-shadow: 0 0 0 7px transparent; }
+}
+
+/* Long items in progress (stages, due dates, cards): stay soft, with a
+   thicker edge, so the month isn't a wall of solid bars. */
+.mcal .fc :is(.fc-h-event, .fc-v-event):not(.fc-kind-meeting):not(.fc-kind-event).is-now {
+  box-shadow: inset 4px 0 0 var(--ev);
+}
+
 /* Agenda list */
 .mcal .fc .fc-list { border: 0; }
 .mcal .fc .fc-list-day-cushion { background: var(--fill-track); font-size: 13px; }
