@@ -1,19 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
 import ButtonBase from "@mui/material/ButtonBase";
 import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import IconButton from "@mui/material/IconButton";
-import Switch from "@mui/material/Switch";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import { Check, Close, SettingsOutlined } from "@/components/icons";
+import { Check, Close, PlayArrow, SettingsOutlined } from "@/components/icons";
+import { GearsMini } from "@/components/shared/gear-loader";
 import { ACCENTS, ACCENT_COOKIE, DEFAULT_ACCENT, type AccentKey } from "@/lib/accents";
-import { MOTION_ATTR, setAnimationsEnabled } from "@/lib/motion-pref";
+import { getMotionChoice, setMotionChoice, type MotionChoice } from "@/lib/motion-pref";
+import { ROUTE_LOADING_ATTR } from "@/lib/route-loader";
 import Button from "@mui/material/Button";
 import { startTour } from "@/components/shared/onboarding-tour";
 
@@ -33,20 +33,62 @@ function applyAccent(key: AccentKey) {
   }
 }
 
+/** The three loader choices, each with a tiny live preview. */
+const MOTION_OPTIONS: { key: MotionChoice; name: string; note: string; preview: ReactNode }[] = [
+  { key: "gears", name: "Gears", note: "Turning gears", preview: <GearsMini /> },
+  {
+    key: "bar",
+    name: "Bar & messages",
+    note: "Just the bar",
+    preview: (
+      <Box aria-hidden sx={{ display: "grid", gap: 0.75, justifyItems: "center" }}>
+        <Box sx={{ width: 30, height: 4, borderRadius: 999, bgcolor: "var(--fill-neutral)" }} />
+        <Box sx={{ width: 48, height: 4, borderRadius: 999, bgcolor: "var(--fill-track)", overflow: "hidden" }}>
+          <Box sx={{ width: "40%", height: "100%", borderRadius: 999, bgcolor: "primary.main", animation: "loader-slide 1.1s ease-in-out infinite" }} />
+        </Box>
+      </Box>
+    ),
+  },
+  {
+    key: "off",
+    name: "Off",
+    note: "Nothing moves",
+    preview: (
+      <Box aria-hidden sx={{ display: "flex", gap: 0.75 }}>
+        <Box sx={{ width: 6, height: 20, borderRadius: 1, bgcolor: "text.muted" }} />
+        <Box sx={{ width: 6, height: 20, borderRadius: 1, bgcolor: "text.muted" }} />
+      </Box>
+    ),
+  },
+];
+
+/** Shows the page loader for a moment, as if changing page. */
+function previewLoader() {
+  const root = document.documentElement;
+  root.setAttribute(ROUTE_LOADING_ATTR, "on");
+  window.setTimeout(() => {
+    if (root.getAttribute(ROUTE_LOADING_ATTR) !== "on") return;
+    root.setAttribute(ROUTE_LOADING_ATTR, "leaving");
+    window.setTimeout(() => {
+      if (root.getAttribute(ROUTE_LOADING_ATTR) === "leaving") root.removeAttribute(ROUTE_LOADING_ATTR);
+    }, 260);
+  }, 1600);
+}
+
 /**
  * The Settings button in the top bar — a slowly turning gear with a dot, as
  * on the Minimal dashboard — and the drawer it opens: the brand colour for
- * your own view, and animations on or off. Both are remembered on this
- * browser only; nobody else is affected.
+ * your own view, and the loading animation (gears, bar and messages, or off).
+ * Both are remembered on this browser only; nobody else is affected.
  */
 export function SettingsDrawer({ surface = "admin" }: { surface?: "portal" | "admin" }) {
   const [open, setOpen] = useState(false);
   const [accent, setAccent] = useState<AccentKey>(DEFAULT_ACCENT);
-  const [animations, setAnimations] = useState(true);
+  const [motion, setMotion] = useState<MotionChoice>("gears");
 
   function show() {
     setAccent(currentAccent());
-    setAnimations(document.documentElement.getAttribute(MOTION_ATTR) !== "reduced");
+    setMotion(getMotionChoice());
     setOpen(true);
   }
 
@@ -121,27 +163,58 @@ export function SettingsDrawer({ surface = "admin" }: { surface?: "portal" | "ad
 
         <Box sx={{ px: 2.5, py: 2.5 }}>
           <Typography sx={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "text.secondary" }}>
-            Motion
+            Loading animation
           </Typography>
-          <FormControlLabel
-            sx={{ mt: 1, mx: 0, width: "100%", justifyContent: "space-between" }}
-            labelPlacement="start"
-            label={
-              <Box>
-                <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Animations</Typography>
-                <Typography sx={{ fontSize: 12, color: "text.muted" }}>Loaders, charts and counters that move. Off shows everything at once.</Typography>
-              </Box>
-            }
-            control={
-              <Switch
-                checked={animations}
-                onChange={(e) => {
-                  setAnimationsEnabled(e.target.checked);
-                  setAnimations(e.target.checked);
-                }}
-              />
-            }
-          />
+          <Typography sx={{ mt: 0.5, mb: 1.5, fontSize: 12, color: "text.muted" }}>How pages load. Off also stops charts and counters from moving.</Typography>
+          <Box role="radiogroup" aria-label="Loading animation" sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1 }}>
+            {MOTION_OPTIONS.map((o) => {
+              const selected = o.key === motion;
+              return (
+                <ButtonBase
+                  key={o.key}
+                  role="radio"
+                  aria-checked={selected}
+                  aria-label={`${o.name}: ${o.note}`}
+                  onClick={() => {
+                    setMotionChoice(o.key);
+                    setMotion(o.key);
+                  }}
+                  sx={{
+                    flexDirection: "column",
+                    gap: 1,
+                    pt: 1.75,
+                    pb: 1.25,
+                    borderRadius: 1.5,
+                    border: 1,
+                    borderColor: selected ? "primary.main" : "var(--border-outline)",
+                    bgcolor: selected ? "color-mix(in srgb, var(--color-accent) 8%, transparent)" : "transparent",
+                    transition: "border-color 150ms, background-color 150ms",
+                    "&:hover": { bgcolor: "action.hover" },
+                    "&.Mui-focusVisible": { outline: "2px solid", outlineColor: "primary.main" },
+                  }}
+                >
+                  <Box sx={{ height: 34, display: "grid", placeItems: "center" }}>{o.preview}</Box>
+                  <Box>
+                    <Typography sx={{ fontSize: 12, fontWeight: 600, lineHeight: 1.2, textAlign: "center", px: 0.75 }}>{o.name}</Typography>
+                    <Typography sx={{ fontSize: 11, color: "text.muted", lineHeight: 1.3, textAlign: "center", px: 0.5 }}>{o.note}</Typography>
+                  </Box>
+                </ButtonBase>
+              );
+            })}
+          </Box>
+          <Button
+            size="small"
+            color="secondary"
+            startIcon={<PlayArrow sx={{ fontSize: 16 }} />}
+            onClick={() => {
+              // Close the drawer, then show the chosen loader for a moment.
+              setOpen(false);
+              window.setTimeout(previewLoader, 250);
+            }}
+            sx={{ mt: 1.25 }}
+          >
+            Preview
+          </Button>
         </Box>
         <Divider />
 

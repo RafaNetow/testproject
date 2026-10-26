@@ -61,6 +61,7 @@ import {
   MagnifyingGlass,
   NotePencil,
   Package,
+  Play,
   Palette as PhPalette,
   PaperPlaneRight,
   Paperclip,
@@ -245,6 +246,7 @@ export const Inventory = icon(Package);
 export const Inventory2Outlined = icon(Package);
 export const VideocamOutlined = icon(VideoCamera);
 export const ViewKanbanOutlined = icon(Kanban);
+export const PlayArrow = icon(Play);
 // Calendar views (as on Minimal's calendar toolbar)
 export const ViewMonthOutlined = icon(CalendarDots);
 export const ViewWeekOutlined = icon(WeekGlyph as unknown as ComponentType<PhosphorProps>);

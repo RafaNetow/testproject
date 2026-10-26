@@ -9,8 +9,15 @@
 export const MOTION_KEY = "alchemica-motion";
 export const MOTION_ATTR = "data-motion";
 
-/** Runs in <head> before the first paint, so a saved choice never flashes animations. */
-export const MOTION_BOOT_SCRIPT = `(function(){try{if(localStorage.getItem("${MOTION_KEY}")==="reduced")document.documentElement.setAttribute("${MOTION_ATTR}","reduced");}catch(e){}})();`;
+/** Which loading animation: the gears (default, no attribute) or just the bar and messages. */
+export const LOADER_KEY = "alchemica-loader";
+export const LOADER_ATTR = "data-loader";
+
+/** The Settings choice: gears, bar and messages, or nothing moving. */
+export type MotionChoice = "gears" | "bar" | "off";
+
+/** Runs in <head> before the first paint, so a saved choice never flashes animations or the wrong loader. */
+export const MOTION_BOOT_SCRIPT = `(function(){try{var r=document.documentElement;if(localStorage.getItem("${MOTION_KEY}")==="reduced")r.setAttribute("${MOTION_ATTR}","reduced");if(localStorage.getItem("${LOADER_KEY}")==="bar")r.setAttribute("${LOADER_ATTR}","bar");}catch(e){}})();`;
 
 /** True when animations should be skipped: the system setting or the Settings switch. */
 export function prefersReducedMotion(): boolean {
@@ -29,6 +36,28 @@ export function setAnimationsEnabled(enabled: boolean) {
   try {
     if (enabled) localStorage.removeItem(MOTION_KEY);
     else localStorage.setItem(MOTION_KEY, "reduced");
+  } catch {
+    // Private mode: the choice lasts for this page only.
+  }
+}
+
+/** The choice currently applied to the page. */
+export function getMotionChoice(): MotionChoice {
+  const root = document.documentElement;
+  if (root.getAttribute(MOTION_ATTR) === "reduced") return "off";
+  return root.getAttribute(LOADER_ATTR) === "bar" ? "bar" : "gears";
+}
+
+/** Saves the Settings choice and applies it right away. "Off" keeps the loader style for when motion comes back. */
+export function setMotionChoice(choice: MotionChoice) {
+  setAnimationsEnabled(choice !== "off");
+  if (choice === "off") return;
+  const root = document.documentElement;
+  if (choice === "bar") root.setAttribute(LOADER_ATTR, "bar");
+  else root.removeAttribute(LOADER_ATTR);
+  try {
+    if (choice === "bar") localStorage.setItem(LOADER_KEY, "bar");
+    else localStorage.removeItem(LOADER_KEY);
   } catch {
     // Private mode: the choice lasts for this page only.
   }

@@ -42,6 +42,21 @@ function Gear({ d, size, spin, sx }: { d: string; size: number; spin: string; sx
   );
 }
 
+/** The two gears at thumbnail size, for the loader picker in Settings. */
+export function GearsMini() {
+  return (
+    <Box aria-hidden sx={{ position: "relative", width: 44, height: 34, color: "primary.main" }}>
+      <Gear d={BIG} size={29} spin="gear-spin 3s linear infinite" sx={{ left: 0, top: 5 }} />
+      <Gear
+        d={SMALL}
+        size={20}
+        spin="gear-spin-back 2.4s linear infinite"
+        sx={{ left: 24, top: 0, color: "color-mix(in srgb, var(--color-accent) 70%, var(--color-foreground))" }}
+      />
+    </Box>
+  );
+}
+
 /**
  * The loading screen: two meshing gears in the brand accent, a lab line that
  * changes while you wait, and a thin running bar. It fades in after a short
@@ -73,7 +88,8 @@ export function GearLoader({ label = "Alchemica", delayMs = 200 }: { label?: str
         animation: `loader-in 0.3s ${delayMs}ms ease-out forwards`,
       }}
     >
-      <Box sx={{ position: "relative", width: 132, height: 104, color: "primary.main" }}>
+      {/* Hidden by globals.css when Settings picks "Bar & messages" (<html data-loader="bar">). */}
+      <Box className="loader-gears" sx={{ position: "relative", width: 132, height: 104, color: "primary.main" }}>
         {/* Speeds follow the tooth count (10 : 8) so the two gears mesh. */}
         <Gear d={BIG} size={88} spin="gear-spin 3s linear infinite" sx={{ left: 0, top: 16 }} />
         <Gear
@@ -87,7 +103,7 @@ export function GearLoader({ label = "Alchemica", delayMs = 200 }: { label?: str
       <Typography aria-hidden sx={{ fontSize: 13, color: "text.secondary", minHeight: 20 }}>
         {LINES[line]}…
       </Typography>
-      <Box aria-hidden sx={{ width: 180, height: 3, borderRadius: 999, bgcolor: "var(--fill-track)", overflow: "hidden" }}>
+      <Box aria-hidden className="loader-bar" sx={{ width: 180, height: 3, borderRadius: 999, bgcolor: "var(--fill-track)", overflow: "hidden" }}>
         <Box sx={{ width: "40%", height: "100%", borderRadius: 999, bgcolor: "primary.main", animation: "loader-slide 1.1s ease-in-out infinite" }} />
       </Box>
     </Box>

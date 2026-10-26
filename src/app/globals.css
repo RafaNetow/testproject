@@ -513,6 +513,16 @@ section[id] {
   }
 }
 
+/* Settings → "Bar & messages" (lib/motion-pref.ts): no gears; the bar carries
+   the screen. Set on <html> before first paint, so the splash follows it too. */
+:root[data-loader="bar"] .loader-gears {
+  display: none;
+}
+:root[data-loader="bar"] .loader-bar {
+  width: 240px;
+  height: 4px;
+}
+
 /* ---------- Client settings drawer ---------- */
 @media (prefers-reduced-motion: no-preference) {
   .client-settings-drawer[open] {
