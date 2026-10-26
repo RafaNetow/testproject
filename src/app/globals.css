@@ -48,6 +48,7 @@
   --cat-6: #d55e00; /* vermillion */
   --cat-7: #f0e442; /* yellow */
   --cat-8: #009e73; /* bluish green */
+  --color-violet: #8e33ff; /* Minimal's secondary; calendar stages and cards */
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -674,7 +675,7 @@ section[id] {
 .mcal .fc .fc-ev-success { --ev: var(--color-success); }
 .mcal .fc .fc-ev-warning { --ev: var(--color-warning); }
 .mcal .fc .fc-ev-error { --ev: var(--color-error); }
-.mcal .fc .fc-ev-secondary { --ev: var(--cat-4); }
+.mcal .fc .fc-ev-secondary { --ev: var(--color-violet); }
 .mcal .fc [class*="fc-ev-"] {
   --fc-event-bg-color: color-mix(in srgb, var(--ev) 16%, var(--color-card));
   --fc-event-border-color: var(--ev);

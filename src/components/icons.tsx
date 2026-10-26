@@ -9,7 +9,7 @@
  * Each icon sizes from `font-size` like an MUI SvgIcon, so `sx={{ fontSize }}`,
  * `fontSize="small"` and MUI's icon slots (Chip, ListItemIcon, Alert…) keep working.
  */
-import { forwardRef, type ComponentType } from "react";
+import { forwardRef, type ComponentType, type ReactNode } from "react";
 import Box from "@mui/material/Box";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { IconProps as PhosphorProps, IconWeight } from "@phosphor-icons/react";
@@ -21,8 +21,6 @@ import {
   ArrowUp,
   Article,
   BookOpen,
-  Columns,
-  Rows,
   Bell,
   Briefcase,
   Buildings,
@@ -127,6 +125,40 @@ function icon(Glyph: ComponentType<PhosphorProps>, weight: IconWeight = "light")
 }
 
 /**
+ * Calendar view glyphs after Minimal's toolbar: a rounded frame with three
+ * columns (week) or one wide band (day), on Phosphor's 256 grid.
+ */
+function viewGlyph(name: string, inner: ReactNode) {
+  const Glyph = forwardRef<SVGSVGElement, PhosphorProps>(function Glyph(
+    { size = "1em", weight = "light", color: _color, mirrored: _mirrored, alt: _alt, ...rest },
+    ref
+  ) {
+    void _color;
+    void _mirrored;
+    void _alt;
+    const stroke = weight === "bold" ? 20 : weight === "regular" ? 16 : 12;
+    return (
+      <svg ref={ref} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width={size} height={size} fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" {...rest}>
+        <rect x="32" y="40" width="192" height="176" rx="28" />
+        {inner}
+      </svg>
+    );
+  });
+  Glyph.displayName = name;
+  return Glyph;
+}
+
+const WeekGlyph = viewGlyph(
+  "WeekGlyph",
+  <>
+    <rect x="76" y="80" width="20" height="96" rx="10" fill="currentColor" stroke="none" />
+    <rect x="118" y="80" width="20" height="96" rx="10" fill="currentColor" stroke="none" />
+    <rect x="160" y="80" width="20" height="96" rx="10" fill="currentColor" stroke="none" />
+  </>
+);
+const DayGlyph = viewGlyph("DayGlyph", <rect x="72" y="100" width="112" height="56" rx="14" fill="currentColor" fillOpacity="0.9" stroke="none" />);
+
+/**
  * The Alchemica Assistant's mark: an alembic (the alchemist's still) with a
  * spark, drawn on Phosphor's 256 grid so it sits with the rest of the set.
  * "light" is the outline; "fill" tints the flask for the active state.
@@ -215,8 +247,8 @@ export const VideocamOutlined = icon(VideoCamera);
 export const ViewKanbanOutlined = icon(Kanban);
 // Calendar views (as on Minimal's calendar toolbar)
 export const ViewMonthOutlined = icon(CalendarDots);
-export const ViewWeekOutlined = icon(Columns);
-export const ViewDayOutlined = icon(Rows);
+export const ViewWeekOutlined = icon(WeekGlyph as unknown as ComponentType<PhosphorProps>);
+export const ViewDayOutlined = icon(DayGlyph as unknown as ComponentType<PhosphorProps>);
 export const ViewAgendaOutlined = icon(Article);
 export const BuildOutlined = icon(Wrench);
 export const WorkOutlineOutlined = icon(Briefcase);
