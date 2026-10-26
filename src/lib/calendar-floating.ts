@@ -49,7 +49,7 @@ export const EVENT_COLORS = {
   success: "--color-success",
   warning: "--color-warning",
   error: "--color-error",
-  secondary: "--color-violet",
+  secondary: "--color-accent-muted",
 } as const;
 export type EventColor = keyof typeof EVENT_COLORS;
 

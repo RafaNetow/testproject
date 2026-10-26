@@ -195,13 +195,6 @@ export function AdminCalendar({ projects, today }: { projects: { id: string; lab
               const start = `${today}T09:00`;
               openCreate(start, `${today}T10:00`, false);
             }}
-            // Minimal's dark "Add event" button.
-            sx={{
-              bgcolor: "text.primary",
-              color: "background.paper",
-              boxShadow: "none",
-              "&:hover": { bgcolor: "color-mix(in srgb, var(--color-primary) 82%, transparent)", boxShadow: "none" },
-            }}
           >
             Add event
           </Button>
@@ -258,7 +251,18 @@ export function AdminCalendar({ projects, today }: { projects: { id: string; lab
             </IconButton>
           </Box>
 
-          <Button variant="contained" color="error" size="small" onClick={() => api()?.today()} sx={{ boxShadow: "none" }}>
+          {/* Soft button in the Settings accent. */}
+          <Button
+            size="small"
+            onClick={() => api()?.today()}
+            sx={{
+              fontWeight: 700,
+              // Deeper in light mode, lighter in dark (mixes toward the text colour).
+              color: "color-mix(in srgb, var(--color-accent) 75%, var(--color-primary))",
+              bgcolor: "color-mix(in srgb, var(--color-accent) 14%, transparent)",
+              "&:hover": { bgcolor: "color-mix(in srgb, var(--color-accent) 24%, transparent)" },
+            }}
+          >
             Today
           </Button>
           <Tooltip title="Filters">
