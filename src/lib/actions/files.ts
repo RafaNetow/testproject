@@ -198,6 +198,62 @@ export async function renameFolder(folderId: string, paths: string[], formData: 
   revalidateAll(paths);
 }
 
+/** Stars or unstars a file or folder for the signed-in person (RLS keeps it to items they can see). */
+export async function toggleFavorite(kind: "file" | "folder", id: string, paths: string[]): Promise<{ starred: boolean }> {
+  const user = await requireSessionUser();
+  const supabase = await createClient();
+  const column = kind === "file" ? "file_id" : "folder_id";
+  const { data: existing } = await supabase.from("file_favorites").select("id").eq("user_id", user.id).eq(column, id).maybeSingle();
+  if (existing) {
+    const { error } = await supabase.from("file_favorites").delete().eq("id", existing.id);
+    if (error) throw new Error(`Couldn't remove the star: ${error.message}`);
+  } else {
+    const { error } = await supabase.from("file_favorites").insert({ user_id: user.id, [column]: id });
+    if (error) throw new Error(`Couldn't star it: ${error.message}`);
+  }
+  revalidateAll(paths);
+  return { starred: !existing };
+}
+
+/** Admin: moves several files at once (null = the top level). */
+export async function moveFiles(fileIds: string[], folderId: string | null, paths: string[]) {
+  await requireAxelAdmin();
+  if (!fileIds.length) return;
+  const supabase = await createClient();
+  const { error } = await supabase.from("files").update({ folder_id: folderId }).in("id", fileIds);
+  if (error) throw new Error(`Couldn't move the files: ${error.message}`);
+  const [first, folder] = await Promise.all([
+    entityInfo("files", fileIds[0], "filename"),
+    folderId ? entityInfo("folders", folderId, "name") : Promise.resolve({ projectId: null, name: null }),
+  ]);
+  await recordActivity({
+    kind: "file",
+    projectId: first.projectId,
+    message: `moved ${fileIds.length === 1 ? quoted(first.name) : `${fileIds.length} files`} to ${folder.name ? quoted(folder.name) : "the top level"}`,
+  });
+  revalidateAll(paths);
+}
+
+/** Admin: deletes several files at once, storage objects first. */
+export async function deleteFiles(fileIds: string[], paths: string[]) {
+  await requireAxelAdmin();
+  if (!fileIds.length) return;
+  const supabase = await createClient();
+  const { data: rows, error: readError } = await supabase.from("files").select("id, filename, storage_path, project_id").in("id", fileIds);
+  if (readError) throw new Error(`Couldn't read the files: ${readError.message}`);
+  if (!rows?.length) return;
+  const { error: removeError } = await supabase.storage.from(BUCKET).remove(rows.map((r) => r.storage_path));
+  if (removeError) throw new Error(`Couldn't delete the files from storage: ${removeError.message}`);
+  const { error } = await supabase.from("files").delete().in("id", rows.map((r) => r.id));
+  if (error) throw new Error(`Couldn't delete the file records: ${error.message}`);
+  await recordActivity({
+    kind: "file",
+    projectId: rows[0].project_id,
+    message: rows.length === 1 ? `deleted ${quoted(rows[0].filename)}` : `deleted ${rows.length} files`,
+  });
+  revalidateAll(paths);
+}
+
 /** Deleting a folder cascades to its subfolders; files inside move to the top level. */
 export async function deleteFolder(folderId: string, paths: string[]) {
   await requireAxelAdmin();

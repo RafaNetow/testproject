@@ -72,6 +72,10 @@ import {
   SignOut,
   Signature,
   SquaresFour,
+  Star,
+  ListBullets,
+  FunnelSimple,
+  ArrowsLeftRight,
   Target,
   Timer as PhTimer,
   Trash,
@@ -247,6 +251,13 @@ export const Inventory2Outlined = icon(Package);
 export const VideocamOutlined = icon(VideoCamera);
 export const ViewKanbanOutlined = icon(Kanban);
 export const PlayArrow = icon(Play);
+// File Manager
+export const StarOutline = icon(Star);
+export const StarFilled = icon(Star, "fill");
+export const ViewListOutlined = icon(ListBullets);
+export const GridViewOutlined = icon(SquaresFour);
+export const FilterListOutlined = icon(FunnelSimple);
+export const DriveFileMoveOutlined = icon(ArrowsLeftRight);
 // Calendar views (as on Minimal's calendar toolbar)
 export const ViewMonthOutlined = icon(CalendarDots);
 export const ViewWeekOutlined = icon(WeekGlyph as unknown as ComponentType<PhosphorProps>);
