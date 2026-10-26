@@ -1,9 +1,10 @@
 /**
  * Brand accents anyone can pick for their own view (Settings drawer, settings-drawer.tsx). The CSS for each
- * lives in globals.css under `:root[data-accent=…]`; verdigris is the default.
+ * lives in globals.css under `:root[data-accent=…]`; green (Minimal UI's) is the default.
  */
 export const ACCENTS = [
-  { key: "verdigris", name: "Verdigris", note: "Copper patina — current brand", swatch: "#2f7d6d" },
+  { key: "green", name: "Green", note: "Minimal UI green — the default", swatch: "#00a76f" },
+  { key: "verdigris", name: "Verdigris", note: "Copper patina — Alchemica's original", swatch: "#2f7d6d" },
   { key: "prussian", name: "Prussian blue", note: "The first synthetic pigment, 1706", swatch: "#1f4e79" },
   { key: "blue", name: "Blue", note: "Classic, calm and familiar", swatch: "#1f6fb2" },
   { key: "cobalt", name: "Cobalt violet", note: "Cobalt phosphate pigment", swatch: "#6a4c93" },
@@ -14,10 +15,13 @@ export type AccentKey = (typeof ACCENTS)[number]["key"];
 
 export const ACCENT_COOKIE = "alchemica-accent";
 
+/** The accent with no attribute and no cookie. */
+export const DEFAULT_ACCENT: AccentKey = "green";
+
 /**
  * Runs in <head> before first paint so a saved accent never flashes the default.
  * Only known keys are applied.
  */
 export const ACCENT_BOOT_SCRIPT = `(function(){try{var m=document.cookie.match(/(?:^|; )${ACCENT_COOKIE}=([a-z]+)/);var k=m&&m[1];if(k&&${JSON.stringify(
-  ACCENTS.filter((a) => a.key !== "verdigris").map((a) => a.key)
+  ACCENTS.filter((a) => a.key !== DEFAULT_ACCENT).map((a) => a.key)
 )}.indexOf(k)>-1)document.documentElement.setAttribute("data-accent",k);}catch(e){}})();`;

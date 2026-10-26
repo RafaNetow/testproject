@@ -12,19 +12,19 @@ import Switch from "@mui/material/Switch";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { Check, Close, SettingsOutlined } from "@/components/icons";
-import { ACCENTS, ACCENT_COOKIE, type AccentKey } from "@/lib/accents";
+import { ACCENTS, ACCENT_COOKIE, DEFAULT_ACCENT, type AccentKey } from "@/lib/accents";
 import { MOTION_ATTR, setAnimationsEnabled } from "@/lib/motion-pref";
 import Button from "@mui/material/Button";
 import { startTour } from "@/components/shared/onboarding-tour";
 
 function currentAccent(): AccentKey {
-  return (document.documentElement.dataset.accent as AccentKey | undefined) ?? "verdigris";
+  return (document.documentElement.dataset.accent as AccentKey | undefined) ?? DEFAULT_ACCENT;
 }
 
 /** Applies the accent to the page and remembers it for the next load. */
 function applyAccent(key: AccentKey) {
   const root = document.documentElement;
-  if (key === "verdigris") {
+  if (key === DEFAULT_ACCENT) {
     root.removeAttribute("data-accent");
     document.cookie = `${ACCENT_COOKIE}=; path=/; max-age=0; samesite=lax`;
   } else {
@@ -41,7 +41,7 @@ function applyAccent(key: AccentKey) {
  */
 export function SettingsDrawer({ surface = "admin" }: { surface?: "portal" | "admin" }) {
   const [open, setOpen] = useState(false);
-  const [accent, setAccent] = useState<AccentKey>("verdigris");
+  const [accent, setAccent] = useState<AccentKey>(DEFAULT_ACCENT);
   const [animations, setAnimations] = useState(true);
 
   function show() {

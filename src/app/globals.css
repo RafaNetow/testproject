@@ -15,6 +15,7 @@
   /* Brand primary: verdigris — the patina of copper, a classic alchemical
      pigment. Green-teal rather than generic SaaS blue. */
   --color-accent: #2f7d6d;
+  --color-accent-dark: color-mix(in srgb, var(--color-accent) 78%, black);
   --color-accent-foreground: #ffffff;
   --color-muted: #eef1f5;
   --color-muted-foreground: #5b6675;
@@ -78,6 +79,11 @@
 
   --color-primary: #17201e;
   --color-primary-foreground: #ffffff;
+  /* The accent is Minimal UI's green (palette primary: main #00A76F, dark #007867). */
+  --color-accent: #00a76f;
+  --color-accent-dark: #007867;
+  --color-accent-foreground: #ffffff;
+  --color-ring: #00a76f;
   /* Both text greys pass WCAG AA (4.5:1) on white and on the muted fill. */
   --color-secondary: #4a5a56;
   --color-muted: #f2f5f4;
@@ -113,13 +119,14 @@
     --color-primary: #ffffff;
     --color-primary-foreground: #17201e;
     --color-secondary: #aab8b3;
-    --color-accent: #5fbfa9;
-    --color-accent-foreground: #04201a;
+    --color-accent: #00a76f;
+    --color-accent-dark: #007867;
+    --color-accent-foreground: #ffffff;
     --color-muted: #243030;
     --color-muted-foreground: #919f9a;
     --color-border: rgb(var(--grey-channel) / 0.2);
     --color-card: #18211f;
-    --color-ring: #5fbfa9;
+    --color-ring: #00a76f;
     --color-destructive: var(--color-error);
     --color-destructive-foreground: #2a0a0a;
 
@@ -140,11 +147,18 @@
 
 /*
  * Accent comparison (the Settings drawer, src/components/shared/settings-drawer.tsx).
- * Verdigris is the default and needs no attribute. Each alternative is a historic
- * pigment; borders and fills take a matching low-chroma tint.
+ * Minimal UI's green is the default and needs no attribute. Verdigris (Alchemica's
+ * original) and each alternative are historic pigments; borders and fills take a
+ * matching low-chroma tint.
  */
+:root[data-accent="verdigris"]:has(.app-shell) {
+  --color-accent: #2f7d6d;
+  --color-accent-dark: color-mix(in srgb, var(--color-accent) 78%, black);
+  --color-ring: #2f7d6d;
+}
 :root[data-accent="prussian"] {
   --color-accent: #1f4e79;
+  --color-accent-dark: color-mix(in srgb, var(--color-accent) 78%, black);
   --color-accent-foreground: #ffffff;
 }
 :root[data-accent="prussian"]:has(.app-shell) {
@@ -152,6 +166,7 @@
 }
 :root[data-accent="blue"] {
   --color-accent: #1f6fb2;
+  --color-accent-dark: color-mix(in srgb, var(--color-accent) 78%, black);
   --color-accent-foreground: #ffffff;
 }
 :root[data-accent="blue"]:has(.app-shell) {
@@ -159,6 +174,7 @@
 }
 :root[data-accent="cobalt"] {
   --color-accent: #6a4c93;
+  --color-accent-dark: color-mix(in srgb, var(--color-accent) 78%, black);
   --color-accent-foreground: #ffffff;
 }
 :root[data-accent="cobalt"]:has(.app-shell) {
@@ -166,6 +182,7 @@
 }
 :root[data-accent="graphite"] {
   --color-accent: #2f3a38;
+  --color-accent-dark: color-mix(in srgb, var(--color-accent) 78%, black);
   --color-accent-foreground: #ffffff;
 }
 :root[data-accent="graphite"]:has(.app-shell) {
@@ -173,6 +190,11 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  :root[data-accent="verdigris"]:has(.app-shell) {
+    --color-accent: #5fbfa9;
+    --color-accent-foreground: #04201a;
+    --color-ring: #5fbfa9;
+  }
   :root[data-accent="prussian"]:has(.app-shell) {
     --color-accent: #7fb0de;
     --color-accent-foreground: #0a1a2a;

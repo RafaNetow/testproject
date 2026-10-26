@@ -43,7 +43,7 @@ export const theme = createTheme({
   palette: {
     primary: {
       main: v("color-accent"),
-      dark: `color-mix(in srgb, ${v("color-accent")} 78%, black)`,
+      dark: v("color-accent-dark"),
       light: `color-mix(in srgb, ${v("color-accent")} 70%, white)`,
       contrastText: v("color-accent-foreground"),
     },
@@ -77,7 +77,7 @@ export const theme = createTheme({
     divider: v("color-border"),
     action: {
       hover: `color-mix(in srgb, ${v("color-primary")} 6%, transparent)`,
-      selected: `color-mix(in srgb, ${v("color-accent")} 10%, transparent)`,
+      selected: `color-mix(in srgb, ${v("color-accent")} 8%, transparent)`,
       focus: `color-mix(in srgb, ${v("color-accent")} 14%, transparent)`,
     },
   },
@@ -108,7 +108,26 @@ export const theme = createTheme({
     MuiButton: {
       defaultProps: { disableElevation: true },
       styleOverrides: {
-        root: { borderRadius: 8, paddingInline: 16 },
+        // Hover states follow the Minimal UI dashboard (minimals.cc): filled buttons
+        // darken and lift with a soft shadow in their own colour; outlined ones get
+        // an 8% tint and a solid edge; text buttons an 8% tint.
+        root: {
+          borderRadius: 8,
+          paddingInline: 16,
+          transition: "background-color 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1), border-color 250ms cubic-bezier(0.4, 0, 0.2, 1), color 250ms cubic-bezier(0.4, 0, 0.2, 1)",
+          "&.MuiButton-contained.MuiButton-colorPrimary:hover": {
+            backgroundColor: v("color-accent-dark"),
+            boxShadow: `0 8px 16px 0 color-mix(in srgb, ${v("color-accent")} 24%, transparent)`,
+          },
+          "&.MuiButton-outlined.MuiButton-colorPrimary": { borderColor: `color-mix(in srgb, ${v("color-accent")} 48%, transparent)` },
+          "&.MuiButton-outlined.MuiButton-colorPrimary:hover": {
+            backgroundColor: `color-mix(in srgb, ${v("color-accent")} 8%, transparent)`,
+            borderColor: v("color-accent"),
+            boxShadow: `0 0 0 0.75px ${v("color-accent")}`,
+          },
+          "&.MuiButton-text.MuiButton-colorPrimary:hover": { backgroundColor: `color-mix(in srgb, ${v("color-accent")} 8%, transparent)` },
+          "&.MuiButton-outlined.MuiButton-colorSecondary:hover": { backgroundColor: "var(--fill-track)", borderColor: "currentColor", boxShadow: "0 0 0 0.75px currentColor" },
+        },
         sizeSmall: { paddingInline: 10 },
         sizeLarge: { paddingBlock: 11, paddingInline: 22, fontSize: 15 },
         outlined: { borderColor: "var(--border-outline, rgb(145 158 171 / 0.32))" },
