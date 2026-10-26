@@ -20,6 +20,7 @@ import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import LinearProgress from "@mui/material/LinearProgress";
 import Paper from "@mui/material/Paper";
+import Skeleton from "@mui/material/Skeleton";
 import Snackbar from "@mui/material/Snackbar";
 import Stack from "@mui/material/Stack";
 import ToggleButton from "@mui/material/ToggleButton";
@@ -48,6 +49,7 @@ import { EVENT_COLORS, KIND_COLOR, floatingDay, floatingLocal, timeState, toFloa
 import { KIND_META, KIND_ORDER, isOverdue } from "./event-kinds";
 import { EventPopover } from "./event-popover";
 import { CalendarEventDialog, type DialogDraft } from "./calendar-event-dialog";
+import { CalendarSkeleton } from "./calendar-skeleton";
 
 const VIEWS = [
   { key: "dayGridMonth", label: "Month", Icon: ViewMonthOutlined },
@@ -90,6 +92,11 @@ export function AdminCalendar({ projects, today }: { projects: { id: string; lab
   const [view, setView] = useState<ViewKey>("dayGridMonth");
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
+  // False until the first events arrive: the skeleton shows until then.
+  const [ready, setReady] = useState(false);
+  // Events mounted soon after a fetch enter in a cascade; later re-renders (minute tick, drags) don't replay it.
+  const animateUntil = useRef(0);
+  const enterIndex = useRef(0);
   const [hidden, setHidden] = useState<Set<CalendarEventKind>>(() => new Set());
   const [items, setItems] = useState<CalendarEvent[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -111,9 +118,15 @@ export function AdminCalendar({ projects, today }: { projects: { id: string; lab
       getCalendarRange(from, to)
         .then((list) => {
           setItems(list);
+          animateUntil.current = performance.now() + 1200;
+          enterIndex.current = 0;
           success(list.filter((e) => !hidden.has(e.kind)).map((e) => toFullCalendar(e, isOverdue(e, today))));
+          setReady(true);
         })
-        .catch((e: unknown) => failure(e instanceof Error ? e : new Error("Couldn't load the calendar")));
+        .catch((e: unknown) => {
+          failure(e instanceof Error ? e : new Error("Couldn't load the calendar"));
+          setReady(true);
+        });
     },
     [hidden, today]
   );
@@ -262,7 +275,7 @@ export function AdminCalendar({ projects, today }: { projects: { id: string; lab
               <ArrowBack sx={{ fontSize: 18 }} />
             </IconButton>
             <Typography component="h2" aria-live="polite" sx={{ fontSize: 18, fontWeight: 700, minWidth: 180, textAlign: "center" }}>
-              {title}
+              {title || <Skeleton animation="wave" width={150} height={26} sx={{ mx: "auto" }} />}
             </Typography>
             <IconButton aria-label="Next" onClick={() => api()?.next()} size="small">
               <NavigateNext sx={{ fontSize: 18 }} />
@@ -298,48 +311,81 @@ export function AdminCalendar({ projects, today }: { projects: { id: string; lab
         {loading && <LinearProgress sx={{ position: "absolute", left: 0, right: 0, top: 0, height: 2 }} />}
 
         {/* Styled in globals.css (.mcal): FullCalendar's own CSS sits outside MUI's layer. */}
-        <Box className="mcal" sx={{ px: { xs: 0, sm: 1 }, pb: 1 }}>
-          {mounted && (
-            <FullCalendar
-              ref={ref}
-              plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
-              initialView={startView}
-              headerToolbar={false}
-              locale={enGb}
-              timeZone="UTC"
-              now={now}
-              eventClassNames={stateClass}
-              firstDay={1}
-              height={view.startsWith("timeGrid") ? 760 : "auto"}
-              dayMaxEventRows={3}
-              nowIndicator
-              selectable
-              selectMirror
-              editable
-              eventResizableFromStart
-              slotMinTime="06:00:00"
-              slotMaxTime="22:00:00"
-              scrollTime="08:00:00"
-              allDayText="All day"
-              eventTimeFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
-              slotLabelFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
-              events={fetchEvents}
-              loading={setLoading}
-              datesSet={(arg: DatesSetArg) => {
-                setTitle(arg.view.title);
-                setView(arg.view.type as ViewKey);
-              }}
-              select={onSelect}
-              eventClick={onEventClick}
-              eventDrop={onMove}
-              eventResize={onMove}
-              eventAllow={(drop, dragged) => {
-                const item = dragged?.extendedProps.item as CalendarEvent | undefined;
-                // Own events may switch between all-day and timed; meetings stay timed, due dates stay whole days.
-                return item?.kind === "event" || drop.allDay === dragged?.allDay;
-              }}
-            />
-          )}
+        <Box sx={{ position: "relative" }}>
+          {/* Until FullCalendar reports its view (title set), draw the view it starts in. Before hydration
+              the width isn't known yet, so both are sent and CSS picks (phones open in the agenda). */}
+          {!ready &&
+            (title ? (
+              <CalendarSkeleton view={view} />
+            ) : (
+              <>
+                <Box sx={{ display: "none", "@media (min-width: 768px)": { display: "block" } }}>
+                  <CalendarSkeleton view="dayGridMonth" />
+                </Box>
+                <Box sx={{ "@media (min-width: 768px)": { display: "none" } }}>
+                  <CalendarSkeleton view="listWeek" />
+                </Box>
+              </>
+            ))}
+          {/* Laid out underneath while the skeleton shows, then fades in. */}
+          <Box
+            className="mcal"
+            sx={{
+              px: { xs: 0, sm: 1 },
+              pb: 1,
+              ...(ready
+                ? { animation: "mcal-fade-in 250ms ease-out" }
+                : { position: "absolute", left: 0, right: 0, top: 0, opacity: 0, pointerEvents: "none" }),
+            }}
+          >
+            {mounted && (
+              <FullCalendar
+                ref={ref}
+                plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+                initialView={startView}
+                headerToolbar={false}
+                locale={enGb}
+                timeZone="UTC"
+                now={now}
+                eventClassNames={stateClass}
+                eventDidMount={({ el }) => {
+                  if (performance.now() > animateUntil.current) return;
+                  el.style.setProperty("--i", String(Math.min(enterIndex.current++, 25)));
+                  el.classList.add("mcal-enter");
+                  el.addEventListener("animationend", () => el.classList.remove("mcal-enter"), { once: true });
+                }}
+                firstDay={1}
+                height={view.startsWith("timeGrid") ? 760 : "auto"}
+                dayMaxEventRows={3}
+                nowIndicator
+                selectable
+                selectMirror
+                editable
+                eventResizableFromStart
+                slotMinTime="06:00:00"
+                slotMaxTime="22:00:00"
+                scrollTime="08:00:00"
+                allDayText="All day"
+                eventTimeFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
+                slotLabelFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
+                events={fetchEvents}
+                loading={setLoading}
+                datesSet={(arg: DatesSetArg) => {
+                  setTitle(arg.view.title);
+                  setView(arg.view.type as ViewKey);
+                }}
+                select={onSelect}
+                eventClick={onEventClick}
+                eventDrop={onMove}
+                eventResize={onMove}
+                eventAllow={(drop, dragged) => {
+                  const item = dragged?.extendedProps.item as CalendarEvent | undefined;
+                  // Own events may switch between all-day and timed; meetings stay timed, due dates stay whole days.
+                  return item?.kind === "event" || drop.allDay === dragged?.allDay;
+                }}
+              />
+            )}
+          </Box>
         </Box>
       </Paper>
 

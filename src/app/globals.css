@@ -474,7 +474,9 @@ section[id] {
 [data-route-loading="on"] .bar-grow,
 [data-route-loading="splash"] .bar-grow,
 [data-route-loading="on"] :is(.spark-line, .spark-area, .spark-dot),
-[data-route-loading="splash"] :is(.spark-line, .spark-area, .spark-dot) {
+[data-route-loading="splash"] :is(.spark-line, .spark-area, .spark-dot),
+[data-route-loading="on"] .mcal .fc .mcal-enter,
+[data-route-loading="splash"] .mcal .fc .mcal-enter {
   animation-play-state: paused;
 }
 
@@ -783,6 +785,20 @@ section[id] {
    thicker edge, so the month isn't a wall of solid bars. */
 .mcal .fc :is(.fc-h-event, .fc-v-event):not(.fc-kind-meeting):not(.fc-kind-event).is-now {
   box-shadow: inset 4px 0 0 var(--ev);
+}
+
+/* Loading: the grid fades in as the skeleton goes, and events arrive in a
+   short cascade (admin-calendar.tsx sets .mcal-enter and --i only right after
+   a fetch). Reduced motion / Animations off stop both via the global rules. */
+@keyframes mcal-fade-in {
+  from { opacity: 0; }
+}
+@keyframes mcal-ev-in {
+  from { opacity: 0; transform: translateY(4px); }
+}
+.mcal .fc .mcal-enter {
+  animation: mcal-ev-in 280ms ease-out both;
+  animation-delay: calc(var(--i, 0) * 18ms);
 }
 
 /* Agenda list */
