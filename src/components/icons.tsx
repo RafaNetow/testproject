@@ -19,7 +19,10 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
+  Article,
   BookOpen,
+  Columns,
+  Rows,
   Bell,
   Briefcase,
   Buildings,
@@ -210,6 +213,11 @@ export const Inventory = icon(Package);
 export const Inventory2Outlined = icon(Package);
 export const VideocamOutlined = icon(VideoCamera);
 export const ViewKanbanOutlined = icon(Kanban);
+// Calendar views (as on Minimal's calendar toolbar)
+export const ViewMonthOutlined = icon(CalendarDots);
+export const ViewWeekOutlined = icon(Columns);
+export const ViewDayOutlined = icon(Rows);
+export const ViewAgendaOutlined = icon(Article);
 export const BuildOutlined = icon(Wrench);
 export const WorkOutlineOutlined = icon(Briefcase);
 

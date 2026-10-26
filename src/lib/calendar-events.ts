@@ -41,6 +41,7 @@ export async function loadCalendarEvents(
     scheduled_at: string;
     duration_minutes: number | null;
     zoom_url: string | null;
+    notes: string | null;
     project_id: string;
     projects: ProjectJoin;
   };
@@ -51,7 +52,7 @@ export async function loadCalendarEvents(
   const [meetings, deliverables, requests, phases, invoices, cards] = await Promise.all([
     supabase
       .from("meetings")
-      .select(`id, title, status, scheduled_at, duration_minutes, zoom_url, project_id, ${PROJECT}`)
+      .select(`id, title, status, scheduled_at, duration_minutes, zoom_url, notes, project_id, ${PROJECT}`)
       .gte("scheduled_at", fromInstant)
       .lt("scheduled_at", toInstant)
       .returns<Meeting[]>(),
@@ -92,6 +93,7 @@ export async function loadCalendarEvents(
       href: hrefFor(surface, "meetings", m.project_id, m.projects),
       context: context(m.projects, surface),
       joinUrl: m.status === "cancelled" ? null : m.zoom_url,
+      meeting: { projectId: m.project_id, durationMinutes: m.duration_minutes, zoomUrl: m.zoom_url, notes: m.notes },
     });
   }
 

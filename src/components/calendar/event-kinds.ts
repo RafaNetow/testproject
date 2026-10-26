@@ -11,6 +11,7 @@ import {
 } from "@/components/icons";
 
 export const KIND_META: Record<CalendarEventKind, { label: string; plural: string; Icon: IconComponent }> = {
+  event: { label: "Your event", plural: "Your events", Icon: CalendarMonthOutlined },
   meeting: { label: "Meeting", plural: "Meetings", Icon: EventNoteOutlined },
   deliverable: { label: "Deliverable due", plural: "Deliverables", Icon: SummarizeOutlined },
   request: { label: "Data request due", plural: "Data requests", Icon: DatasetOutlined },
@@ -20,13 +21,13 @@ export const KIND_META: Record<CalendarEventKind, { label: string; plural: strin
   google: { label: "Google Calendar", plural: "Google", Icon: CalendarMonthOutlined },
 };
 
-export const KIND_ORDER: CalendarEventKind[] = ["meeting", "deliverable", "request", "stage", "card", "invoice", "google"];
+export const KIND_ORDER: CalendarEventKind[] = ["event", "meeting", "deliverable", "request", "stage", "card", "invoice", "google"];
 
 const FINISHED = new Set(["approved", "received", "paid", "past", "done", "signed", "completed", "cancelled"]);
 
 /** A due item whose day has passed and that nobody has finished. */
 export function isOverdue(e: CalendarEvent, today: string): boolean {
-  if (!e.allDay || e.kind === "stage" || e.kind === "card" || e.kind === "google") return false;
+  if (!e.allDay || e.kind === "event" || e.kind === "stage" || e.kind === "card" || e.kind === "google") return false;
   return e.end < today && !FINISHED.has(e.status);
 }
 

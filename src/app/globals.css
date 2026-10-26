@@ -614,3 +614,83 @@ section[id] {
     border-radius: 0 !important;
   }
 }
+
+/* ---------- Admin calendar (FullCalendar), Minimal style ----------
+   FullCalendar injects its own unlayered CSS, which beats anything in the
+   `mui` layer, so its overrides live here, unlayered, scoped to .mcal. */
+.mcal .fc {
+  --fc-border-color: var(--color-border);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: var(--fill-track);
+  --fc-today-bg-color: color-mix(in srgb, var(--color-accent) 6%, transparent);
+  --fc-now-indicator-color: var(--color-error);
+  --fc-list-event-hover-bg-color: var(--fill-hover);
+  --fc-highlight-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  font-family: inherit;
+  font-size: 14px;
+}
+.mcal .fc .fc-scrollgrid { border-left: 0; border-right: 0; }
+.mcal .fc th { border-left: 0; border-right: 0; }
+.mcal .fc .fc-col-header-cell-cushion { padding: 10px 4px; font-size: 13px; font-weight: 600; color: var(--color-secondary); text-decoration: none; }
+.mcal .fc .fc-daygrid-day-number { padding: 8px; font-size: 13px; font-weight: 500; color: var(--color-primary); text-decoration: none; }
+.mcal .fc .fc-day-other .fc-daygrid-day-number { color: var(--color-muted-foreground); }
+.mcal .fc .fc-day-today .fc-daygrid-day-number {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin: 4px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-accent-foreground);
+  font-weight: 700;
+}
+.mcal .fc .fc-daygrid-more-link,
+.mcal .fc .fc-timegrid-more-link { font-size: 12px; font-weight: 600; color: var(--color-secondary); }
+.mcal .fc .fc-timegrid-slot-label-cushion,
+.mcal .fc .fc-timegrid-axis-cushion { font-size: 12px; color: var(--color-muted-foreground); }
+.mcal .fc .fc-timegrid-slot { height: 44px; }
+
+/* Events: soft tint, deeper text, no border (Minimal). Colour comes from the
+   fc-ev-<colour> class through FullCalendar's own variables. */
+.mcal .fc .fc-event {
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 6px;
+  box-shadow: none;
+  transition: filter 150ms;
+}
+.mcal .fc .fc-event:hover { filter: brightness(0.96); }
+.mcal .fc .fc-daygrid-block-event { margin-top: 2px; }
+.mcal .fc .fc-daygrid-dot-event { padding: 2px 4px; }
+.mcal .fc .fc-daygrid-dot-event .fc-event-title { font-weight: 600; }
+.mcal .fc .fc-daygrid-dot-event:hover { background: var(--fill-hover); }
+.mcal .fc .fc-ev-primary { --ev: var(--color-accent); }
+.mcal .fc .fc-ev-info { --ev: var(--color-info); }
+.mcal .fc .fc-ev-success { --ev: var(--color-success); }
+.mcal .fc .fc-ev-warning { --ev: var(--color-warning); }
+.mcal .fc .fc-ev-error { --ev: var(--color-error); }
+.mcal .fc .fc-ev-secondary { --ev: var(--cat-4); }
+.mcal .fc [class*="fc-ev-"] {
+  --fc-event-bg-color: color-mix(in srgb, var(--ev) 16%, var(--color-card));
+  --fc-event-border-color: var(--ev);
+  --fc-event-text-color: color-mix(in srgb, var(--ev) 72%, var(--color-primary));
+}
+.mcal .fc .fc-ev-cancelled { text-decoration: line-through; opacity: 0.6; }
+.mcal .fc .fc-event-mirror { opacity: 0.85; }
+.mcal .fc .fc-highlight { border-radius: 6px; }
+
+/* Agenda list */
+.mcal .fc .fc-list { border: 0; }
+.mcal .fc .fc-list-day-cushion { background: var(--fill-track); font-size: 13px; }
+.mcal .fc .fc-list-event { background: transparent; color: inherit; font-weight: 500; padding: 0; border-radius: 0; }
+.mcal .fc .fc-list-event td { border-color: var(--color-border); }
+.mcal .fc .fc-list-event-dot { border-color: var(--ev, var(--color-secondary)); }
+
+/* "+N more" popover */
+.mcal .fc .fc-popover { background: var(--color-card); border: 0; border-radius: 12px; box-shadow: var(--shadow-dropdown); overflow: hidden; }
+.mcal .fc .fc-popover-header { background: var(--fill-track); font-weight: 600; padding: 8px; }

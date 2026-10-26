@@ -13,7 +13,7 @@ export const STUDIO_TIMEZONE = "Europe/Copenhagen";
 export type CalendarView = "month" | "week" | "agenda";
 export const CALENDAR_VIEWS: CalendarView[] = ["month", "week", "agenda"];
 
-export type CalendarEventKind = "meeting" | "deliverable" | "request" | "stage" | "invoice" | "card" | "google";
+export type CalendarEventKind = "event" | "meeting" | "deliverable" | "request" | "stage" | "invoice" | "card" | "google";
 
 export type CalendarEvent = {
   id: string;
@@ -29,6 +29,11 @@ export type CalendarEvent = {
   /** "Client · Project", shown under the title. */
   context: string;
   joinUrl?: string | null;
+  /** Own events: the colour picked for it (primary, info, success, warning, error, secondary). */
+  color?: string;
+  description?: string | null;
+  /** Meetings: what the edit dialog needs. */
+  meeting?: { projectId: string; durationMinutes: number | null; zoomUrl: string | null; notes: string | null };
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");

@@ -1,28 +1,24 @@
-import Stack from "@mui/material/Stack";
 import { createClient } from "@/lib/supabase/server";
-import { SectionHeader } from "@/components/shared/section-header";
-import { CalendarView } from "@/components/calendar/calendar-view";
-import { loadCalendarEvents } from "@/lib/calendar-events";
-import { CALENDAR_VIEWS, dayKey, isDayKey, viewRange, type CalendarView as View } from "@/lib/calendar";
+import { AdminCalendar } from "@/components/calendar/admin-calendar";
+import { dayKey } from "@/lib/calendar";
 
 /** Today in the studio's zone; kept out of the component body so render stays pure. */
 function todayKey() {
   return dayKey(new Date());
 }
 
-export default async function CalendarPage({ searchParams }: { searchParams: Promise<{ view?: string; date?: string }> }) {
-  const params = await searchParams;
-  const today = todayKey();
-  const view: View = CALENDAR_VIEWS.includes(params.view as View) ? (params.view as View) : "month";
-  const date = isDayKey(params.date) ? params.date : today;
-
+export default async function CalendarPage() {
   const supabase = await createClient();
-  const events = await loadCalendarEvents(supabase, { ...viewRange(view, date), surface: "admin" });
+  // Projects a client meeting can be scheduled on, as "Client · Project".
+  const { data } = await supabase
+    .from("projects")
+    .select("id, name, status, organizations(name)")
+    .neq("status", "completed")
+    .order("name");
+  const projects = ((data ?? []) as unknown as { id: string; name: string; organizations: { name: string } | null }[]).map((p) => ({
+    id: p.id,
+    label: `${p.organizations?.name ?? "—"} · ${p.name}`,
+  }));
 
-  return (
-    <Stack spacing={3}>
-      <SectionHeader title="Calendar" subtitle="Meetings, due dates and project stages across every client. Times are Copenhagen time." />
-      <CalendarView view={view} date={date} today={today} events={events} basePath="/admin/calendar" />
-    </Stack>
-  );
+  return <AdminCalendar projects={projects} today={todayKey()} />;
 }
