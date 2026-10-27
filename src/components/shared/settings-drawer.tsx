@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
 import ButtonBase from "@mui/material/ButtonBase";
@@ -9,7 +9,8 @@ import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import { Check, Close, PlayArrow, SettingsOutlined } from "@/components/icons";
+import { Check, Close, DarkModeOutlined, LightModeOutlined, PlayArrow, SettingsOutlined, SystemModeOutlined } from "@/components/icons";
+import { followSystemMode, getModeChoice, setModeChoice, type ModeChoice } from "@/lib/color-mode";
 import { GearsMini } from "@/components/shared/gear-loader";
 import { ACCENTS, ACCENT_COOKIE, DEFAULT_ACCENT, type AccentKey } from "@/lib/accents";
 import { getMotionChoice, setMotionChoice, type MotionChoice } from "@/lib/motion-pref";
@@ -32,6 +33,12 @@ function applyAccent(key: AccentKey) {
     document.cookie = `${ACCENT_COOKIE}=${key}; path=/; max-age=31536000; samesite=lax`;
   }
 }
+
+const MODE_OPTIONS: { key: ModeChoice; name: string; Icon: typeof LightModeOutlined }[] = [
+  { key: "light", name: "Light", Icon: LightModeOutlined },
+  { key: "dark", name: "Dark", Icon: DarkModeOutlined },
+  { key: "system", name: "System", Icon: SystemModeOutlined },
+];
 
 /** The three loader choices, each with a tiny live preview. */
 const MOTION_OPTIONS: { key: MotionChoice; name: string; note: string; preview: ReactNode }[] = [
@@ -85,10 +92,15 @@ export function SettingsDrawer({ surface = "admin" }: { surface?: "portal" | "ad
   const [open, setOpen] = useState(false);
   const [accent, setAccent] = useState<AccentKey>(DEFAULT_ACCENT);
   const [motion, setMotion] = useState<MotionChoice>("gears");
+  const [mode, setMode] = useState<ModeChoice>("system");
+
+  // On "System", follow the computer's light/dark setting live (the drawer is in every page's top bar).
+  useEffect(() => followSystemMode(), []);
 
   function show() {
     setAccent(currentAccent());
     setMotion(getMotionChoice());
+    setMode(getModeChoice());
     setOpen(true);
   }
 
@@ -114,6 +126,47 @@ export function SettingsDrawer({ surface = "admin" }: { surface?: "portal" | "ad
           <IconButton aria-label="Close settings" onClick={() => setOpen(false)}>
             <Close sx={{ fontSize: 20 }} />
           </IconButton>
+        </Box>
+        <Divider />
+
+        <Box sx={{ px: 2.5, py: 2.5 }}>
+          <Typography sx={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "text.secondary" }}>
+            Mode
+          </Typography>
+          <Typography sx={{ mt: 0.5, mb: 1.5, fontSize: 12, color: "text.muted" }}>Light, dark, or follow your computer.</Typography>
+          <Box role="radiogroup" aria-label="Mode" sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1 }}>
+            {MODE_OPTIONS.map((o) => {
+              const selected = o.key === mode;
+              return (
+                <ButtonBase
+                  key={o.key}
+                  role="radio"
+                  aria-checked={selected}
+                  aria-label={o.name}
+                  onClick={() => {
+                    setModeChoice(o.key);
+                    setMode(o.key);
+                  }}
+                  sx={{
+                    flexDirection: "column",
+                    gap: 0.75,
+                    py: 1.5,
+                    borderRadius: 1.5,
+                    border: 1,
+                    borderColor: selected ? "primary.main" : "var(--border-outline)",
+                    bgcolor: selected ? "color-mix(in srgb, var(--color-accent) 8%, transparent)" : "transparent",
+                    color: selected ? "primary.main" : "text.secondary",
+                    transition: "border-color 150ms, background-color 150ms",
+                    "&:hover": { bgcolor: "action.hover" },
+                    "&.Mui-focusVisible": { outline: "2px solid", outlineColor: "primary.main" },
+                  }}
+                >
+                  <o.Icon sx={{ fontSize: 24 }} />
+                  <Typography sx={{ fontSize: 12, fontWeight: 600, lineHeight: 1.2, color: "text.primary" }}>{o.name}</Typography>
+                </ButtonBase>
+              );
+            })}
+          </Box>
         </Box>
         <Divider />
 

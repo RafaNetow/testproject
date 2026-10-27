@@ -113,39 +113,39 @@
   --inverse-foreground: #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:has(.app-shell) {
-    color-scheme: dark;
-    --background: #111816;
-    --foreground: #ffffff;
+/* Dark mode: <html data-mode="dark">, set before first paint from Settings →
+   Mode or, on "System", the OS preference (lib/color-mode.ts). */
+:root[data-mode="dark"]:has(.app-shell) {
+  color-scheme: dark;
+  --background: #111816;
+  --foreground: #ffffff;
 
-    --color-primary: #ffffff;
-    --color-primary-foreground: #17201e;
-    --color-secondary: #aab8b3;
-    --color-accent: #00a76f;
-    --color-accent-dark: #007867;
-    --color-accent-foreground: #ffffff;
-    --color-muted: #243030;
-    --color-muted-foreground: #919f9a;
-    --color-border: rgb(var(--grey-channel) / 0.2);
-    --color-card: #18211f;
-    --color-ring: #00a76f;
-    --color-destructive: var(--color-error);
-    --color-destructive-foreground: #2a0a0a;
+  --color-primary: #ffffff;
+  --color-primary-foreground: #17201e;
+  --color-secondary: #aab8b3;
+  --color-accent: #00a76f;
+  --color-accent-dark: #007867;
+  --color-accent-foreground: #ffffff;
+  --color-muted: #243030;
+  --color-muted-foreground: #919f9a;
+  --color-border: rgb(var(--grey-channel) / 0.2);
+  --color-card: #18211f;
+  --color-ring: #00a76f;
+  --color-destructive: var(--color-error);
+  --color-destructive-foreground: #2a0a0a;
 
-    /* Same hues, lifted for contrast on dark surfaces. */
-    --color-success: #6cc463;
-    --color-warning: #f0b43c;
-    --color-error: #ef7a3a;
-    --color-info: #3a9ad9;
+  /* Same hues, lifted for contrast on dark surfaces. */
+  --color-success: #6cc463;
+  --color-warning: #f0b43c;
+  --color-error: #ef7a3a;
+  --color-info: #3a9ad9;
 
-    --shadow-card: 0 0 2px 0 rgb(0 0 0 / 0.2), 0 12px 24px -4px rgb(0 0 0 / 0.12);
-    --shadow-dropdown: 0 0 2px 0 rgb(0 0 0 / 0.24), -20px 20px 40px -4px rgb(0 0 0 / 0.24);
-    --shadow-kanban: 0 1px 2px 0 rgb(0 0 0 / 0.24);
-    --color-success-foreground: #17201e;
-    --inverse-surface: #f2f5f4;
-    --inverse-foreground: #17201e;
-  }
+  --shadow-card: 0 0 2px 0 rgb(0 0 0 / 0.2), 0 12px 24px -4px rgb(0 0 0 / 0.12);
+  --shadow-dropdown: 0 0 2px 0 rgb(0 0 0 / 0.24), -20px 20px 40px -4px rgb(0 0 0 / 0.24);
+  --shadow-kanban: 0 1px 2px 0 rgb(0 0 0 / 0.24);
+  --color-success-foreground: #17201e;
+  --inverse-surface: #f2f5f4;
+  --inverse-foreground: #17201e;
 }
 
 /*
@@ -192,32 +192,34 @@
   --grey-channel: 145 150 149;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root[data-accent="verdigris"]:has(.app-shell) {
-    --color-accent: #5fbfa9;
-    --color-accent-foreground: #04201a;
-    --color-ring: #5fbfa9;
-  }
-  :root[data-accent="prussian"]:has(.app-shell) {
-    --color-accent: #7fb0de;
-    --color-accent-foreground: #0a1a2a;
-    --color-ring: #7fb0de;
-  }
-  :root[data-accent="blue"]:has(.app-shell) {
-    --color-accent: #78b4e6;
-    --color-accent-foreground: #0a1a2a;
-    --color-ring: #78b4e6;
-  }
-  :root[data-accent="cobalt"]:has(.app-shell) {
-    --color-accent: #b9a2dc;
-    --color-accent-foreground: #1d1230;
-    --color-ring: #b9a2dc;
-  }
-  :root[data-accent="graphite"]:has(.app-shell) {
-    --color-accent: #c9d2cf;
-    --color-accent-foreground: #141a19;
-    --color-ring: #c9d2cf;
-  }
+/* Each accent, lifted for dark surfaces. */
+:root[data-mode="dark"][data-accent]:not([data-accent="green"]):has(.app-shell) {
+  --color-accent-dark: color-mix(in srgb, var(--color-accent) 78%, black);
+}
+:root[data-mode="dark"][data-accent="verdigris"]:has(.app-shell) {
+  --color-accent: #5fbfa9;
+  --color-accent-foreground: #04201a;
+  --color-ring: #5fbfa9;
+}
+:root[data-mode="dark"][data-accent="prussian"]:has(.app-shell) {
+  --color-accent: #7fb0de;
+  --color-accent-foreground: #0a1a2a;
+  --color-ring: #7fb0de;
+}
+:root[data-mode="dark"][data-accent="blue"]:has(.app-shell) {
+  --color-accent: #78b4e6;
+  --color-accent-foreground: #0a1a2a;
+  --color-ring: #78b4e6;
+}
+:root[data-mode="dark"][data-accent="cobalt"]:has(.app-shell) {
+  --color-accent: #b9a2dc;
+  --color-accent-foreground: #1d1230;
+  --color-ring: #b9a2dc;
+}
+:root[data-mode="dark"][data-accent="graphite"]:has(.app-shell) {
+  --color-accent: #c9d2cf;
+  --color-accent-foreground: #141a19;
+  --color-ring: #c9d2cf;
 }
 
 @theme inline {

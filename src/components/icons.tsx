@@ -73,6 +73,9 @@ import {
   Signature,
   SquaresFour,
   Star,
+  Sun,
+  Moon,
+  Desktop,
   ListBullets,
   FunnelSimple,
   ArrowsLeftRight,
@@ -251,6 +254,10 @@ export const Inventory2Outlined = icon(Package);
 export const VideocamOutlined = icon(VideoCamera);
 export const ViewKanbanOutlined = icon(Kanban);
 export const PlayArrow = icon(Play);
+// Settings → Mode
+export const LightModeOutlined = icon(Sun);
+export const DarkModeOutlined = icon(Moon);
+export const SystemModeOutlined = icon(Desktop);
 // File Manager
 export const StarOutline = icon(Star);
 export const StarFilled = icon(Star, "fill");

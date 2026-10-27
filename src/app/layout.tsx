@@ -6,6 +6,7 @@ import { MuiProvider } from "@/components/providers/mui-provider";
 import { ACCENT_BOOT_SCRIPT } from "@/lib/accents";
 import { SPLASH_BOOT_SCRIPT } from "@/lib/route-loader";
 import { MOTION_BOOT_SCRIPT } from "@/lib/motion-pref";
+import { MODE_BOOT_SCRIPT } from "@/lib/color-mode";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -65,13 +66,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      // The accent boot script may set data-accent before React hydrates.
+      // The boot scripts may set data-accent / data-motion / data-mode before React hydrates.
       suppressHydrationWarning
       className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} ${publicSans.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: ACCENT_BOOT_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: MOTION_BOOT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: MODE_BOOT_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: SPLASH_BOOT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground font-body">

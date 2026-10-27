@@ -45,15 +45,12 @@ export function useTokenColors<K extends string>(tokens: Record<K, string>): Rec
       setColors(out);
     };
     const raf = requestAnimationFrame(read);
-    // The accent or dark mode can change while the page is open.
+    // The accent or the light/dark mode (both attributes on <html>) can change while the page is open.
     const observer = new MutationObserver(read);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-accent"] });
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    mq.addEventListener("change", read);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-accent", "data-mode"] });
     return () => {
       cancelAnimationFrame(raf);
       observer.disconnect();
-      mq.removeEventListener("change", read);
     };
     // `key` stands in for `tokens`, which callers usually pass inline.
     // eslint-disable-next-line react-hooks/exhaustive-deps

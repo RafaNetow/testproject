@@ -30,7 +30,7 @@ declare module "@mui/material/Button" {
  * alpha and contrast shades from them with CSS relative colors, so:
  *  - there is one source of truth for the brand colours, and
  *  - the portal/admin dark mode (which swaps those properties under
- *    `prefers-color-scheme: dark`) keeps working without a second theme.
+ *    `<html data-mode="dark">`, see lib/color-mode.ts) keeps working without a second theme.
  */
 const v = (name: string) => `var(--${name})`;
 
