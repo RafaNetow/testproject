@@ -7,8 +7,6 @@ import { createClient } from "@/lib/supabase/server";
 import { recordActivity, entityInfo, quoted } from "@/lib/activity";
 import { inviteRecordedMessage, sendInviteEmail, type InviteResult } from "@/lib/invite-email";
 
-export type { InviteResult };
-
 /**
  * Invites someone into an org by email. Doesn't create an auth account —
  * it just records the invite (org_memberships.invited_email), and the

@@ -6,7 +6,8 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import { SelectField } from "@/components/shared/select-field";
-import { inviteMember, type InviteResult } from "./actions";
+import { inviteMember } from "./actions";
+import type { InviteResult } from "@/lib/invite-email";
 
 export function InviteForm({ orgId }: { orgId: string }) {
   const [state, formAction, isPending] = useActionState<InviteResult | null, FormData>(
