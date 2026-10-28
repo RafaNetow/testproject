@@ -16,6 +16,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { DigestToggle } from "@/components/shared/digest-toggle";
 import { GroupsOutlined } from "@/components/icons";
 import { SubmitButton } from "@/components/shared/submit-button";
+import { InviteCollaboratorForm } from "@/components/team/invite-collaborator-form";
 
 export default async function TeamPage() {
   const { org, role } = await getPortalProjectContext();
@@ -32,12 +33,13 @@ export default async function TeamPage() {
   }
 
   const supabase = await createClient();
-  const { data: members } = await supabase
+  const { data: allMembers } = await supabase
     .from("org_memberships")
     .select("id, invited_email, role, accepted_at")
     .eq("org_id", org.id)
-    .not("accepted_at", "is", null)
     .order("role");
+  // Owners also see pending invites, since they can send them.
+  const members = role === "owner" ? allMembers : allMembers?.filter((m) => m.accepted_at);
 
   const {
     data: { user },
@@ -99,6 +101,18 @@ export default async function TeamPage() {
         )}
       </Paper>
 
+      {role === "owner" && (
+        <Paper variant="outlined" sx={{ p: 3 }}>
+          <Typography variant="h2" sx={{ fontSize: 18 }}>
+            Invite a collaborator
+          </Typography>
+          <Typography sx={{ mt: 0.5, fontSize: 14, lineHeight: 1.6, color: "text.muted" }}>
+            They sign in with this email — no password or account setup needed.
+          </Typography>
+          <InviteCollaboratorForm orgId={org.id} />
+        </Paper>
+      )}
+
       {!members?.length ? (
         <Typography sx={{ fontSize: 14, color: "text.muted" }}>No team members yet.</Typography>
       ) : (
@@ -113,7 +127,7 @@ export default async function TeamPage() {
                 </ListItemAvatar>
                 <ListItemText
                   primary={m.invited_email}
-                  secondary={m.role === "owner" ? "Owner" : "Collaborator"}
+                  secondary={`${m.role === "owner" ? "Owner" : "Collaborator"}${m.accepted_at ? "" : " · Invited"}`}
                   slotProps={{
                     primary: { sx: { fontSize: 14, fontWeight: 500 } },
                     secondary: { sx: { fontSize: 12, color: "text.muted" } },
